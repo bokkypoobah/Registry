@@ -28,8 +28,10 @@ describe("Registry", function () {
 
     for (let i = 0; i < hashesLength; i++) {
       const hash = await registry.hashes(i);
-      console.log("      printState - hashes[" + i + "]: " + hash);
+      const owner = await registry.ownerOf(hash);
+      console.log("      printState - hashes[" + i + "]: " + hash + " " + owner);
     }
+    console.log();
   }
 
   describe("Deployment", function () {
@@ -48,6 +50,10 @@ describe("Registry", function () {
       await printState(registry);
 
       const tx2 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
+
+      await printState(registry);
+
+      const tx3 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
 
       await printState(registry);
     });
