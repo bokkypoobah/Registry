@@ -18,7 +18,8 @@ describe("Registry", function () {
     return { registry, registryReceiver, owner, otherAccount };
   }
 
-  async function printState(registry) {
+  async function printState(registry, title) {
+    console.log("      printState: " + title);
     const registryReceiver = await registry.registryReceiver();
     console.log("      printState - registry.target: " + registry.target);
     console.log("      printState - registryReceiver: " + registryReceiver);
@@ -41,30 +42,28 @@ describe("Registry", function () {
       // console.log("      registryReceiver: " + registryReceiver);
       // expect(await lock.unlockTime()).to.equal(unlockTime);
 
-      await printState(registry);
-
+      await printState(registry, "Empty");
 
       const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
-      // const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
       await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
         registry,
         "AlreadyRegistered"
       );
-
-      await printState(registry);
+      await expect(registry.registerWithSender("0x1234", owner.address)).to.be.revertedWithCustomError(
+        registry,
+        "OnlyRegistryReceiverCanRegister"
+      );
+      await printState(registry, "Single Entry");
 
       const tx2 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
-
-      await printState(registry);
+      await printState(registry, "2 Entries");
 
       const tx3 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
-
-      await printState(registry);
+      await printState(registry, "3 Entries, 2 Accounts");
 
       const secondHash = registry.hashes(1);
       await registry.transfer(otherAccount.address, secondHash);
-
-      await printState(registry);
+      await printState(registry, "3 Entries, 2 Accounts, Transferred");
 
     });
 
