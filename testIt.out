@@ -26,8 +26,15 @@
       printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - hashes[2]: 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
-      ✔ Should deploy (918ms)
+      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
+      printState - hashesLength: 3
+      printState - hashes[0]: 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - hashes[2]: 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+
+      ✔ Should deploy (923ms)
 
 
-  1 passing (920ms)
+  1 passing (924ms)
 

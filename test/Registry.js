@@ -56,6 +56,12 @@ describe("Registry", function () {
       const tx3 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
 
       await printState(registry);
+
+      const secondHash = registry.hashes(1);
+      await registry.transfer(otherAccount.address, secondHash);
+
+      await printState(registry);
+      
     });
 
 
