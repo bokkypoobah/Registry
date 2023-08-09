@@ -12,35 +12,44 @@ describe("Registry", function () {
     const registry = await Registry.deploy();
     const registryReceiver = await registry.registryReceiver();
 
-    console.log("deployFixture - owner.address: " + owner.address);
-    console.log("deployFixture - otherAccount.address: " + otherAccount.address);
+    console.log("      deployFixture - owner.address: " + owner.address);
+    console.log("      deployFixture - otherAccount.address: " + otherAccount.address);
 
     return { registry, registryReceiver, owner, otherAccount };
   }
 
   async function printState(registry) {
     const registryReceiver = await registry.registryReceiver();
-    console.log("printState - registry.target: " + registry.target);
-    console.log("printState - registryReceiver: " + registryReceiver);
-    // console.log("printState - registry.target: " + registryReceiver);
+    console.log("      printState - registry.target: " + registry.target);
+    console.log("      printState - registryReceiver: " + registryReceiver);
+    // console.log("      printState - registry.target: " + registryReceiver);
     const hashesLength = await registry.hashesLength();
-    console.log("printState - hashesLength: " + hashesLength);
+    console.log("      printState - hashesLength: " + hashesLength);
+
+    for (let i = 0; i < hashesLength; i++) {
+      const hash = await registry.hashes(i);
+      console.log("      printState - hashes[" + i + "]: " + hash);
+    }
   }
 
   describe("Deployment", function () {
     it("Should deploy", async function () {
       const { registry, registryReceiver, owner, otherAccount } = await loadFixture(deployFixture);
-      // console.log("registry: " + JSON.stringify(registry));
-      // console.log("registryReceiver: " + registryReceiver);
+      // console.log("      registry: " + JSON.stringify(registry));
+      // console.log("      registryReceiver: " + registryReceiver);
       // expect(await lock.unlockTime()).to.equal(unlockTime);
 
       await printState(registry);
 
 
-      const tx = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+      const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+      const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
 
       await printState(registry);
 
+      const tx2 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
+
+      await printState(registry);
     });
 
 
