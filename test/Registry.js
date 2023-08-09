@@ -6,26 +6,35 @@ const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
 
 describe("Registry", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
-  async function deployOneYearLockFixture() {
-
-    // Contracts are deployed using the first signer/account by default
+  async function deployFixture() {
     const [owner, otherAccount] = await ethers.getSigners();
-
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
+    const registryReceiver = await registry.registryReceiver();
 
-    return { registry, owner, otherAccount };
+    console.log("deployFixture - owner.address: " + owner.address);
+    console.log("deployFixture - otherAccount.address: " + otherAccount.address);
+
+    return { registry, registryReceiver, owner, otherAccount };
+  }
+
+  async function printState(registry) {
+    const registryReceiver = await registry.registryReceiver();
+    console.log("printState - registry.target: " + registry.target);
+    console.log("printState - registryReceiver: " + registryReceiver);
   }
 
   describe("Deployment", function () {
-    it("Should set the right unlockTime", async function () {
-      const { lock, unlockTime } = await loadFixture(deployOneYearLockFixture);
-
+    it("Should deploy", async function () {
+      const { registry, registryReceiver, owner, otherAccount } = await loadFixture(deployFixture);
+      // console.log("registry: " + JSON.stringify(registry));
+      // console.log("registryReceiver: " + registryReceiver);
       // expect(await lock.unlockTime()).to.equal(unlockTime);
+
+      await printState(registry);
+
     });
+
 
     // it("Should set the right owner", async function () {
     //   const { lock, owner } = await loadFixture(deployOneYearLockFixture);
