@@ -22,6 +22,9 @@ describe("Registry", function () {
     const registryReceiver = await registry.registryReceiver();
     console.log("printState - registry.target: " + registry.target);
     console.log("printState - registryReceiver: " + registryReceiver);
+    // console.log("printState - registry.target: " + registryReceiver);
+    const hashesLength = await registry.hashesLength();
+    console.log("printState - hashesLength: " + hashesLength);
   }
 
   describe("Deployment", function () {
@@ -30,6 +33,11 @@ describe("Registry", function () {
       // console.log("registry: " + JSON.stringify(registry));
       // console.log("registryReceiver: " + registryReceiver);
       // expect(await lock.unlockTime()).to.equal(unlockTime);
+
+      await printState(registry);
+
+
+      const tx = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
 
       await printState(registry);
 

@@ -23,7 +23,7 @@ contract RegistryReceiver {
 contract Registry {
 
     RegistryReceiver public registryReceiver;
-    bytes32[] public dataIndex;
+    bytes32[] public hashes;
     mapping(bytes32 => address) public ownerOf;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
@@ -42,14 +42,17 @@ contract Registry {
             address owner = ownerOf[hash];
             if (owner == address(0)) {
                 ownerOf[hash] = msgSender;
-                emit Registered(hash, dataIndex.length, msg.sender, block.timestamp);
-                dataIndex.push(hash);
+                emit Registered(hash, hashes.length, msg.sender, block.timestamp);
+                hashes.push(hash);
                 _output = bytes.concat(hash);
             }
         }
     }
     function register(bytes calldata _input) public returns (bytes memory _output) {
         return registerWithSender(_input, msg.sender);
+    }
+    function hashesLength() public view returns (uint) {
+        return hashes.length;
     }
 
     function setApprovalForAll(address operator, bool approved) public {
