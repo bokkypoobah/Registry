@@ -33,8 +33,8 @@
       printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       printState - hashes[2]: 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
-      ✔ Should deploy (923ms)
+      ✔ Should deploy (1002ms)
 
 
-  1 passing (924ms)
+  1 passing (1s)
 

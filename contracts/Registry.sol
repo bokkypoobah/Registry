@@ -29,28 +29,32 @@ contract Registry {
 
     event Registered(bytes32 hash, uint index, address owner, uint timestamp);
     event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
+    error OnlyRegistryReceiverCanRegister();
+    error AlreadyRegistered();
 
     constructor() {
         registryReceiver = new RegistryReceiver(this);
     }
 
     function registerWithSender(bytes calldata _input, address msgSender) public returns (bytes memory _output) {
-        if (msgSender != address(0)) {
-            bytes32 hash = keccak256(abi.encodePacked(_input));
-            address owner = ownerOf[hash];
-            if (owner == address(0)) {
-                ownerOf[hash] = msgSender;
-                emit Registered(hash, hashes.length, msg.sender, block.timestamp);
-                hashes.push(hash);
-                _output = bytes.concat(hash);
-            }
+        if (msg.sender != address(registryReceiver)) {
+            revert OnlyRegistryReceiverCanRegister();
         }
+        bytes32 hash = keccak256(abi.encodePacked(_input));
+        address owner = ownerOf[hash];
+        if (owner != address(0)) {
+            revert AlreadyRegistered();
+        }
+        ownerOf[hash] = msgSender;
+        emit Registered(hash, hashes.length, msg.sender, block.timestamp);
+        hashes.push(hash);
+        _output = bytes.concat(hash);
     }
-    function register(bytes calldata _input) public returns (bytes memory _output) {
-        return registerWithSender(_input, msg.sender);
-    }
+    // function register(bytes calldata _input) public returns (bytes memory _output) {
+    //     return registerWithSender(_input, msg.sender);
+    // }
     function hashesLength() public view returns (uint) {
         return hashes.length;
     }
@@ -58,7 +62,7 @@ contract Registry {
     function setApprovalForAll(address operator, bool approved) public {
         require(operator != msg.sender, "Cannot approve self");
         _operatorApprovals[msg.sender][operator] = approved;
-        emit ApprovalForAll(msg.sender, operator, approved);
+        emit ApprovalForAll(msg.sender, operator, approved, block.timestamp);
     }
     function isApprovedForAll(address owner, address operator) public view returns (bool) {
         return _operatorApprovals[owner][operator];

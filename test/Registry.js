@@ -45,7 +45,11 @@ describe("Registry", function () {
 
 
       const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
-      const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+      // const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+      await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
+        registry,
+        "AlreadyRegistered"
+      );
 
       await printState(registry);
 
@@ -61,7 +65,7 @@ describe("Registry", function () {
       await registry.transfer(otherAccount.address, secondHash);
 
       await printState(registry);
-      
+
     });
 
 
