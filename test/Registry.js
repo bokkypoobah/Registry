@@ -33,7 +33,7 @@ describe("Registry", function () {
     const ethUsd = ethers.parseUnits("2000.0", 18);
     var fee = receipt.gasUsed * gasPrice;
     var feeUsd = fee * ethUsd / ethers.parseUnits("1", 18);
-    console.log("      > " + prefix + " - gasUsed: " + receipt.gasUsed + " ~ ETH " + ethers.formatEther(fee) + " ~ USD " + ethers.formatEther(feeUsd) + " @ gasPrice " + ethers.formatUnits(gasPrice, "gwei") + " gwei, USD/ETH " + ethers.formatUnits(ethUsd, 18));
+    console.log("      > " + prefix + " - gasUsed: " + receipt.gasUsed + " ~ ETH " + ethers.formatEther(fee) + " ~ USD " + ethers.formatEther(feeUsd) + " @ gasPrice " + ethers.formatUnits(gasPrice, "gwei") + " gwei, ETH/USD " + ethers.formatUnits(ethUsd, 18));
     // receipt.logs.forEach((log) => {
     //   console.log(log);
     // });
