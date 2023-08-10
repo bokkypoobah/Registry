@@ -3634,18 +3634,56 @@
           },
 
           async syncRegistryEvents(context) {
-            const CONFIRMATIONS = 20;
+            const CONFIRMATIONS = 500;
             console.log(moment().format("HH:mm:ss") + " syncRegistryEvents - latestBlockNumber: " + context.latestBlockNumber);
             const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
             const fromBlock = REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
             const toBlock = context.latestBlockNumber;
+            let events = {};
+            // TODO: Handle > 10k events by batching
             try {
               const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
               const eventLogs = await context.provider.getLogs(filter);
-              console.log(JSON.stringify(eventLogs, null, 2));
+              // console.log(JSON.stringify(eventLogs, null, 2));
+              for (const event of eventLogs) {
+                if (!event.removed) {
+                  const logData = registryContract.interface.parseLog(event);
+                  const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, event.blockNumber, event.transactionIndex, event.logIndex];
+                  let record = null;
+                  if (logData.eventFragment.name == "Registered") {
+                    // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
+                    const [hash, index, owner, timestamp] = logData.args;
+                    console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
+                    record = [0, hash, parseInt(index), owner, parseInt(timestamp)];
+                  } else if (logData.eventFragment.name == "Transfer") {
+                    // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
+                    console.log("Transfer: " + JSON.stringify(logData));
+                  } else if (logData.eventFragment.name == "ApprovalForAll") {
+                    // event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
+                    console.log("ApprovalForAll: " + JSON.stringify(logData));
+                  }
+                  if (record) {
+                    const confirmations = context.latestBlockNumber - blockNumber;
+                    if (!(blockNumber in events)) {
+                      events[blockNumber] = confirmations < CONFIRMATIONS ? { unconfirmed: true } : {};
+                    }
+                    if (!(transactionIndex in events[blockNumber])) {
+                      events[blockNumber][transactionIndex] = {};
+                    }
+                    if (!(txHash in events[blockNumber][transactionIndex])) {
+                      events[blockNumber][transactionIndex][txHash] = {};
+                    }
+                    if (!(logIndex in events[blockNumber][transactionIndex][txHash])) {
+                      events[blockNumber][transactionIndex][txHash][logIndex] = record;
+                      // newChadexEvents++;
+                    }
+                  }
+                }
+              }
             } catch (e) {
               console.log(e);
             }
+            console.log("events: " + JSON.stringify(events, null, 2));
           },
 
           async syncChadexEvents(context) {
