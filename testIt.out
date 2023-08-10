@@ -19,37 +19,38 @@
       printState - 2 Entries - 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - 2 Entries - 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
-      data2.length: 4
-      > tx2 - gasUsed: 83567 ~ ETH 0.00167134 ~ USD 3.34268 @ gasPrice 20.0 gwei, USD/ETH 2000.0
-      > tx2Regular - gasUsed: 21064 ~ ETH 0.00042128 ~ USD 0.84256 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      data2.length: 1000
+      > tx2 - gasUsed: 100064 ~ ETH 0.00200128 ~ USD 4.00256 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, USD/ETH 2000.0
       printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      printState - 3 Entries, 2 Accounts - 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc566d01243748565fd900074ab2d1a9a700b81bc65d164b5f 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
+      Transferring ownership of 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       > tx3 - gasUsed: 30685 ~ ETH 0.0006137 ~ USD 1.2274 @ gasPrice 20.0 gwei, USD/ETH 2000.0
       printState - 3 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - 3 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - 3 Entries, 2 Accounts, Transferred - 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 3 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc566d01243748565fd900074ab2d1a9a700b81bc65d164b5f 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
-      data4.length: 50000
-      > tx4 - gasUsed: 921274 ~ ETH 0.01842548 ~ USD 36.85096 @ gasPrice 20.0 gwei, USD/ETH 2000.0
-      > tx4Regular - gasUsed: 821000 ~ ETH 0.01642 ~ USD 32.84 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      data4.length: 10000
+      > tx4 - gasUsed: 249522 ~ ETH 0.00499044 ~ USD 9.98088 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      > tx4Regular - gasUsed: 181000 ~ ETH 0.00362 ~ USD 7.24 @ gasPrice 20.0 gwei, USD/ETH 2000.0
       printState - 4 Entries, 2 Accounts, large item - 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - 4 Entries, 2 Accounts, large item - 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - 4 Entries, 2 Accounts, large item - 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - 4 Entries, 2 Accounts, large item - 0x279e42d971ba7c53c3ac47ac539a36ee9f34b2cdde2676da4d9b8b6d57c8a8f4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 4 Entries, 2 Accounts, large item - 0x2f269b22adacbccc566d01243748565fd900074ab2d1a9a700b81bc65d164b5f 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 4 Entries, 2 Accounts, large item - 0x0dd531624da106bc946cb5123f29054cd26e3c0a861f04c89b89b35791cc35d1 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
       data5.length: 100000
       > tx5 - gasUsed: 1778126 ~ ETH 0.03556252 ~ USD 71.12504 @ gasPrice 20.0 gwei, USD/ETH 2000.0
       > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, USD/ETH 2000.0
       printState - 5 Entries, 2 Accounts, large items - 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       printState - 5 Entries, 2 Accounts, large items - 0x589583765fbc2f1b43ad04f291b63caa6b3e61d77725ac0c33b9e2575e25c0ce 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - 5 Entries, 2 Accounts, large items - 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - 5 Entries, 2 Accounts, large items - 0x279e42d971ba7c53c3ac47ac539a36ee9f34b2cdde2676da4d9b8b6d57c8a8f4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 5 Entries, 2 Accounts, large items - 0x2f269b22adacbccc566d01243748565fd900074ab2d1a9a700b81bc65d164b5f 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc946cb5123f29054cd26e3c0a861f04c89b89b35791cc35d1 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040b36fc45531ff3e9af48014196b89f19e8cc7076e0e7768 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
-      ✔ Should deploy (823ms)
+      ✔ Should deploy (880ms)
 
 
-  1 passing (826ms)
+  1 passing (882ms)
 

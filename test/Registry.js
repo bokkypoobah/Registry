@@ -88,7 +88,7 @@ describe("Registry", function () {
       await printTx("tx1Regular", await tx1Regular.wait());
       await printState("2 Entries", registry);
 
-      const data2 = "0x12345678";
+      const data2 = "0x" + "12".repeat(1000);
       console.log("      data2.length: " + ((data2.length - 2)/2));
       const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data2 });
       await printTx("tx2", await tx2.wait());
@@ -96,12 +96,13 @@ describe("Registry", function () {
       await printTx("tx2Regular", await tx2Regular.wait());
       await printState("3 Entries, 2 Accounts", registry);
 
-      const secondHash = registry.hashes(1);
+      const secondHash = await registry.hashes(1);
+      console.log("      Transferring ownership of " + secondHash + " to " + otherAccount.address);
       const tx3 = await registry.transfer(otherAccount.address, secondHash);
       await printTx("tx3", await tx3.wait());
       await printState("3 Entries, 2 Accounts, Transferred", registry);
 
-      const data4 = "0x" + "12".repeat(50000);
+      const data4 = "0x" + "12".repeat(10000);
       console.log("      data4.length: " + ((data4.length - 2)/2));
       const tx4 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data4 });
       await printTx("tx4", await tx4.wait());
