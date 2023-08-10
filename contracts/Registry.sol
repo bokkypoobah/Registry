@@ -1,7 +1,9 @@
 pragma solidity ^0.8.21;
 
 // ----------------------------------------------------------------------------
-// Registry
+// Registry v 0.8.8-testing
+//
+// Deployed to Sepolia
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -76,5 +78,20 @@ contract Registry {
         address from = ownerOf[hash];
         ownerOf[hash] = to;
         emit Transfer(from, to, hash, block.timestamp);
+    }
+
+    struct Data {
+        bytes32 hash;
+        address owner;
+    }
+    function onePlus(uint x) internal pure returns (uint) {
+        unchecked { return 1 + x; }
+    }
+    function getData(uint count, uint offset) public view returns (Data[] memory results) {
+        results = new Data[](count);
+        for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
+            bytes32 hash = hashes[i + offset];
+            results[i] = Data(hash, ownerOf[hash]);
+        }
     }
 }

@@ -6,6 +6,9 @@ const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
 const { BigNumber } = require("ethers");
 
+const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
+const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+
 // const { BigNumber } = require("ethers");
 // const util = require('util');
 // const { expect, assert } = require("chai");
@@ -38,12 +41,20 @@ describe("Registry", function () {
 
   async function printState(prefix, registry) {
     const registryReceiver = await registry.registryReceiver();
-    const hashesLength = await registry.hashesLength();
-    for (let i = 0; i < hashesLength; i++) {
-      const hash = await registry.hashes(i);
-      const owner = await registry.ownerOf(hash);
+    const data = await registry.getData(10, 0);
+    for (const row of data) {
+      const [hash, owner] = row;
+      if (hash == ZERO_HASH) {
+        break;
+      }
       console.log("      printState - " + prefix + " - " + hash + " " + owner);
     }
+    // const hashesLength = await registry.hashesLength();
+    // for (let i = 0; i < hashesLength; i++) {
+    //   const hash = await registry.hashes(i);
+    //   const owner = await registry.ownerOf(hash);
+    //   console.log("      printState - " + prefix + " - " + hash + " " + owner);
+    // }
     console.log();
   }
 
@@ -52,13 +63,16 @@ describe("Registry", function () {
       const { registry, registryReceiver, owner, otherAccount } = await loadFixture(deployFixture);
       await printState("Empty", registry);
 
-      const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+
+      const data0 = "0x1234";
+      console.log("      data0.length: " + data0.length);
+      const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: data0 });
       await printTx("tx0", await tx0.wait());
-      await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
+      await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: data0 })).to.be.revertedWithCustomError(
         registry,
         "AlreadyRegistered"
       );
-      await expect(registry.register("0x1234", owner.address)).to.be.revertedWithCustomError(
+      await expect(registry.register(data0, owner.address)).to.be.revertedWithCustomError(
         registry,
         "OnlyRegistryReceiverCanRegister"
       );
@@ -66,15 +80,19 @@ describe("Registry", function () {
       await printTx("tx0Regular", await tx0Regular.wait());
       await printState("Single Entry", registry);
 
-      const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
+      const data1 = "0x123456";
+      console.log("      data1.length: " + data1.length);
+      const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: data1 });
       await printTx("tx1", await tx1.wait());
-      const tx1Regular = await owner.sendTransaction({ to: owner.address, value: 0, data: "0x123456" });
+      const tx1Regular = await owner.sendTransaction({ to: owner.address, value: 0, data: data1 });
       await printTx("tx1Regular", await tx1Regular.wait());
       await printState("2 Entries", registry);
 
-      const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
+      const data2 = "0x12345678";
+      console.log("      data2.length: " + data2.length);
+      const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data2 });
       await printTx("tx2", await tx2.wait());
-      const tx2Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: "0x12345678" });
+      const tx2Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data2 });
       await printTx("tx2Regular", await tx2Regular.wait());
       await printState("3 Entries, 2 Accounts", registry);
 
@@ -84,13 +102,20 @@ describe("Registry", function () {
       await printState("3 Entries, 2 Accounts, Transferred", registry);
 
       const data4 = "0x" + "1".repeat(50000);
-      console.log(data4);
+      console.log("      data4.length: " + data4.length);
       const tx4 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data4 });
       await printTx("tx4", await tx4.wait());
       const tx4Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data4 });
       await printTx("tx4Regular", await tx4Regular.wait());
       await printState("4 Entries, 2 Accounts, large item", registry);
 
+      const data5 = "0x" + "1".repeat(100000);
+      console.log("      data5.length: " + data5.length);
+      const tx5 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data5 });
+      await printTx("tx5", await tx5.wait());
+      const tx5Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data5 });
+      await printTx("tx5Regular", await tx5Regular.wait());
+      await printState("5 Entries, 2 Accounts, large items", registry);
     });
 
 
