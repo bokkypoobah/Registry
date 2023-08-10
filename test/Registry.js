@@ -8,6 +8,7 @@ const { BigNumber } = require("ethers");
 
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
+const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
 // const { BigNumber } = require("ethers");
 // const util = require('util');
@@ -72,7 +73,7 @@ describe("Registry", function () {
         registry,
         "AlreadyRegistered"
       );
-      await expect(registry.register(data0, owner.address)).to.be.revertedWithCustomError(
+      await expect(registry.register(DUMMY_HASH, owner.address)).to.be.revertedWithCustomError(
         registry,
         "OnlyRegistryReceiverCanRegister"
       );
