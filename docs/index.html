@@ -316,12 +316,14 @@
               Write Text
             </template>
             <b-card-text class="m-0 p-0">
-              WIP
               <b-card no-body no-header bg-variant="light" class="m-1 p-1 w-75">
                 <b-card-body class="m-1 p-1">
                   <b-form-group label-cols-lg="2" label="Write Text" label-size="md" label-class="font-weight-bold pt-0" class="mb-0">
-                    <b-form-group label="Text:" label-for="writetext-text" label-size="sm" label-cols-sm="2" label-align-sm="right" description="Enter text" class="mx-0 my-1 p-0">
-                      <b-form-input type="text" size="sm" id="writetext-text" v-model.trim="writeText.text" placeholder="'0' to '4'" class="w-25"></b-form-input>
+                    <b-form-group label="Text:" label-for="writetext-text" label-size="sm" label-cols-sm="2" label-align-sm="right" class="mx-0 my-1 p-0">
+                      <b-form-textarea size="sm" id="writetext-text" v-model.trim="writeText.text" placeholder="Write something ..." rows="3" max-rows="50"></b-form-textarea>
+                    </b-form-group>
+                    <b-form-group label="" label-for="writetext-submit" label-size="sm" label-cols-sm="2" label-align-sm="right" class="mx-0 my-1 p-0">
+                      <b-button size="sm" :disabled="false" id="writetext-submit" @click="executeWriteText()" variant="warning">Write</b-button>
                     </b-form-group>
                   </b-form-group>
                 </b-card-body>
@@ -1395,7 +1397,7 @@
           },
 
           writeText: {
-            text: "TODO - set to null",
+            text: null,
           },
 
           newCoinAddress: null,
@@ -3268,6 +3270,24 @@
                 console.log("executeBuy error: " + JSON.stringify(e));
               }
             }
+          },
+          async executeWriteText() {
+            console.log("executeWriteText(): " + JSON.stringify(this.writeText.text, null, 2));
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const text = "data:," + this.writeText.text;
+            try {
+              const tx = await signer.sendTransaction({ to: REGISTRYRECEIVERADDRESS_SEPOLIA, value: 0, data: ethers.utils.hexlify(ethers.utils.toUtf8Bytes(text)) });
+              console.log("tx: " + JSON.stringify(tx));
+            } catch (e) {
+              console.log("executeWriteText error: " + JSON.stringify(e));
+            }
+            // try {
+            //   const tx = await chadexContractWithSigner.execute([action]);
+            //   console.log("tx: " + JSON.stringify(tx));
+            // } catch (e) {
+            //   console.log("executeRaw error: " + JSON.stringify(e));
+            // }
           },
           async executeRaw() {
             console.log("executeRaw(): " + JSON.stringify(this.raw, null, 2));
