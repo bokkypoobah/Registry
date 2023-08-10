@@ -55,18 +55,24 @@ describe("Registry", function () {
         registry,
         "AlreadyRegistered"
       );
-      await expect(registry.registerWithSender("0x1234", owner.address)).to.be.revertedWithCustomError(
+      await expect(registry.register("0x1234", owner.address)).to.be.revertedWithCustomError(
         registry,
         "OnlyRegistryReceiverCanRegister"
       );
+      const tx0Regular = await owner.sendTransaction({ to: owner.address, value: 0, data: "0x1234" });
+      await printTx("tx0Regular", await tx0Regular.wait());
       await printState("Single Entry", registry);
 
       const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
       await printTx("tx1", await tx1.wait());
+      const tx1Regular = await owner.sendTransaction({ to: owner.address, value: 0, data: "0x123456" });
+      await printTx("tx1Regular", await tx1Regular.wait());
       await printState("2 Entries", registry);
 
       const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
       await printTx("tx2", await tx2.wait());
+      const tx2Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: "0x12345678" });
+      await printTx("tx2Regular", await tx2Regular.wait());
       await printState("3 Entries, 2 Accounts", registry);
 
       const secondHash = registry.hashes(1);

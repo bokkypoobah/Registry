@@ -12,11 +12,13 @@ pragma solidity ^0.8.21;
 
 contract RegistryReceiver {
     Registry registry;
+
     constructor(Registry _registry) {
         registry = _registry;
     }
+
     fallback (bytes calldata _input) external returns (bytes memory _output) {
-        return registry.registerWithSender(_input, msg.sender);
+        return registry.register(_input, msg.sender);
     }
 }
 
@@ -38,7 +40,7 @@ contract Registry {
         registryReceiver = new RegistryReceiver(this);
     }
 
-    function registerWithSender(bytes calldata _input, address msgSender) public returns (bytes memory _output) {
+    function register(bytes calldata _input, address msgSender) public returns (bytes memory _output) {
         if (msg.sender != address(registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
@@ -52,9 +54,6 @@ contract Registry {
         hashes.push(hash);
         _output = bytes.concat(hash);
     }
-    // function register(bytes calldata _input) public returns (bytes memory _output) {
-    //     return registerWithSender(_input, msg.sender);
-    // }
     function hashesLength() public view returns (uint) {
         return hashes.length;
     }
