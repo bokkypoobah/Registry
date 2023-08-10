@@ -1,3 +1,4 @@
+Compiled 1 Solidity file successfully
 
 
   Registry
@@ -49,8 +50,8 @@
       printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc946cb5123f29054cd26e3c0a861f04c89b89b35791cc35d1 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040b36fc45531ff3e9af48014196b89f19e8cc7076e0e7768 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
 
-      ✔ Should deploy (893ms)
+      ✔ Should deploy (906ms)
 
 
-  1 passing (895ms)
+  1 passing (908ms)
 
