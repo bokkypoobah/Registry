@@ -3438,13 +3438,14 @@
             db.version(this.db.version).stores(this.db.schemaDefinition);
             const context = { provider, latestBlockNumber, db };
             if (this.chainId == CHAINID_SEPOLIA) {
-              await this.syncChadexEvents(context);
-              await this.syncChadexPairs(context);
-              await this.syncChadexPair(context);
+              await this.syncRegistryEvents(context);
+              // await this.syncChadexEvents(context);
+              // await this.syncChadexPairs(context);
+              // await this.syncChadexPair(context);
             }
             if (this.chainId == CHAINID_MAINNET) {
               console.log("CHAINID_MAINNET: TODO");
-              await this.syncAllENSNames(context);
+              // await this.syncAllENSNames(context);
             }
             // for (const [address, coinInfo] of Object.entries(this.settings.tokens)) {
             //   if (coinInfo.sync && !this.sync.halt) {
@@ -3630,6 +3631,21 @@
             }).catch(function(error) {
               console.log("error: " + error);
             });
+          },
+
+          async syncRegistryEvents(context) {
+            const CONFIRMATIONS = 20;
+            console.log(moment().format("HH:mm:ss") + " syncRegistryEvents - latestBlockNumber: " + context.latestBlockNumber);
+            const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
+            const fromBlock = REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
+            const toBlock = context.latestBlockNumber;
+            try {
+              const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
+              const eventLogs = await context.provider.getLogs(filter);
+              console.log(JSON.stringify(eventLogs, null, 2));
+            } catch (e) {
+              console.log(e);
+            }
           },
 
           async syncChadexEvents(context) {
