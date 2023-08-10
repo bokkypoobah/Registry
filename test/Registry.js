@@ -4,6 +4,12 @@ const {
 } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
 const { anyValue } = require("@nomicfoundation/hardhat-chai-matchers/withArgs");
 const { expect } = require("chai");
+const { BigNumber } = require("ethers");
+
+// const { BigNumber } = require("ethers");
+// const util = require('util');
+// const { expect, assert } = require("chai");
+
 
 describe("Registry", function () {
   async function deployFixture() {
@@ -11,26 +17,29 @@ describe("Registry", function () {
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const registryReceiver = await registry.registryReceiver();
-
     console.log("      deployFixture - owner.address: " + owner.address);
     console.log("      deployFixture - otherAccount.address: " + otherAccount.address);
-
+    console.log("      deployFixture - registry.target: " + registry.target);
+    console.log("      deployFixture - registryReceiver: " + registryReceiver);
+    console.log();
     return { registry, registryReceiver, owner, otherAccount };
   }
 
-  async function printState(registry, title) {
-    console.log("      printState: " + title);
-    const registryReceiver = await registry.registryReceiver();
-    console.log("      printState - registry.target: " + registry.target);
-    console.log("      printState - registryReceiver: " + registryReceiver);
-    // console.log("      printState - registry.target: " + registryReceiver);
-    const hashesLength = await registry.hashesLength();
-    console.log("      printState - hashesLength: " + hashesLength);
+  async function printTx(prefix, receipt) {
+    const gasPrice = ethers.parseUnits("20", "gwei");
+    const ethUsd = ethers.parseUnits("2000.00", 18);
+    var fee = receipt.gasUsed * receipt.gasPrice;
+    var feeUsd = fee * ethUsd / ethers.parseUnits("1", 18);
+    console.log("      > " + prefix + " - gasUsed: " + receipt.gasUsed + " ~ ETH " + ethers.formatEther(fee) + " ~ USD " + ethers.formatEther(feeUsd) + " @ gasPrice " + ethers.formatUnits(gasPrice, "gwei") + " gwei, USD/ETH " + ethers.formatUnits(ethUsd, 18));
+  }
 
+  async function printState(prefix, registry) {
+    const registryReceiver = await registry.registryReceiver();
+    const hashesLength = await registry.hashesLength();
     for (let i = 0; i < hashesLength; i++) {
       const hash = await registry.hashes(i);
       const owner = await registry.ownerOf(hash);
-      console.log("      printState - hashes[" + i + "]: " + hash + " " + owner);
+      console.log("      printState " + prefix + " " + hash + " " + owner);
     }
     console.log();
   }
@@ -38,13 +47,10 @@ describe("Registry", function () {
   describe("Deployment", function () {
     it("Should deploy", async function () {
       const { registry, registryReceiver, owner, otherAccount } = await loadFixture(deployFixture);
-      // console.log("      registry: " + JSON.stringify(registry));
-      // console.log("      registryReceiver: " + registryReceiver);
-      // expect(await lock.unlockTime()).to.equal(unlockTime);
-
-      await printState(registry, "Empty");
+      await printState("Empty", registry);
 
       const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" });
+      await printTx("tx0", await tx0.wait());
       await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
         registry,
         "AlreadyRegistered"
@@ -53,17 +59,20 @@ describe("Registry", function () {
         registry,
         "OnlyRegistryReceiverCanRegister"
       );
-      await printState(registry, "Single Entry");
+      await printState("Single Entry", registry);
 
-      const tx2 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
-      await printState(registry, "2 Entries");
+      const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: "0x123456" });
+      await printTx("tx1", await tx1.wait());
+      await printState("2 Entries", registry);
 
-      const tx3 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
-      await printState(registry, "3 Entries, 2 Accounts");
+      const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: "0x12345678" });
+      await printTx("tx2", await tx2.wait());
+      await printState("3 Entries, 2 Accounts", registry);
 
       const secondHash = registry.hashes(1);
-      await registry.transfer(otherAccount.address, secondHash);
-      await printState(registry, "3 Entries, 2 Accounts, Transferred");
+      const tx3 = await registry.transfer(otherAccount.address, secondHash);
+      await printTx("tx3", await tx3.wait());
+      await printState("3 Entries, 2 Accounts, Transferred", registry);
 
     });
 

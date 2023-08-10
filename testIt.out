@@ -4,42 +4,29 @@
     Deployment
       deployFixture - owner.address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       deployFixture - otherAccount.address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState: Empty
-      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      printState - hashesLength: 0
-
-      printState: Single Entry
-      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      printState - hashesLength: 1
-      printState - hashes[0]: 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      printState: 2 Entries
-      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      printState - hashesLength: 2
-      printState - hashes[0]: 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      printState: 3 Entries, 2 Accounts
-      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      printState - hashesLength: 3
-      printState - hashes[0]: 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      printState - hashes[2]: 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-
-      printState: 3 Entries, 2 Accounts, Transferred
-      printState - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      printState - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      printState - hashesLength: 3
-      printState - hashes[0]: 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      printState - hashes[1]: 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      printState - hashes[2]: 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-
-      ✔ Should deploy (955ms)
+      deployFixture - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+      deployFixture - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
 
 
-  1 passing (957ms)
+      > tx0 - gasUsed: 100592 ~ ETH 0.00017847428067152 ~ USD 0.35694856134304 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      printState Single Entry 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      > tx1 - gasUsed: 83508 ~ ETH 0.0001268868214191 ~ USD 0.2537736428382 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      printState 2 Entries 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      printState 2 Entries 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+
+      > tx2 - gasUsed: 83524 ~ ETH 0.000121517934262844 ~ USD 0.243035868525688 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      printState 3 Entries, 2 Accounts 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      printState 3 Entries, 2 Accounts 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      printState 3 Entries, 2 Accounts 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+
+      > tx3 - gasUsed: 30685 ~ ETH 0.00004290813175714 ~ USD 0.08581626351428 @ gasPrice 20.0 gwei, USD/ETH 2000.0
+      printState 3 Entries, 2 Accounts, Transferred 0x56570de287d73cd1cb6092bb8fdee6173974955fdef345ae579ee9f475ea7432 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      printState 3 Entries, 2 Accounts, Transferred 0x6adf031833174bbe4c85eafe59ddb54e6584648c2c962c6f94791ab49caa0ad4 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      printState 3 Entries, 2 Accounts, Transferred 0x30ca65d5da355227c97ff836c9c6719af9d3835fc6bc72bddc50eeecc1bb2b25 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+
+      ✔ Should deploy (827ms)
+
+
+  1 passing (831ms)
 
