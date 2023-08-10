@@ -52,11 +52,11 @@
           </b-navbar-brand>
           <b-navbar-nav class="ml-auto">
             <b-nav-item size="sm" @click="settings.tabIndex = 0; saveSettings()" :active="settings.tabIndex == 0" active-class="active" v-b-popover.hover="'Welcome screen with info'">Home</b-nav-item>
-            <b-nav-item size="sm" @click="settings.tabIndex = 1; saveSettings()" :active="settings.tabIndex == 1" active-class="active" v-b-popover.hover="'View/sync Pairs'">Pairs</b-nav-item>
-            <b-nav-item size="sm" @click="settings.tabIndex = 2; saveSettings()" :active="settings.tabIndex == 2" active-class="active" v-b-popover.hover="'View/sync Pair'">Pair</b-nav-item>
-            <b-nav-item size="sm" @click="settings.tabIndex = 3; saveSettings()" :active="settings.tabIndex == 3" active-class="active" v-b-popover.hover="'View/edit ERC-20 tokens'">Tokens</b-nav-item>
-            <b-nav-item size="sm" @click="settings.tabIndex = 4; saveSettings()" :active="settings.tabIndex == 4" active-class="active" v-b-popover.hover="'Execute raw Chadex transactions'">Raw</b-nav-item>
-            <b-nav-item size="sm" @click="settings.tabIndex = 5; saveSettings()" :active="settings.tabIndex == 5" active-class="active" v-b-popover.hover="'View info'">Info</b-nav-item>
+            <b-nav-item size="sm" @click="settings.tabIndex = 1; saveSettings()" :active="settings.tabIndex == 1" active-class="active" v-b-popover.hover="'Write Text'">Write Text</b-nav-item>
+            <b-nav-item size="sm" @click="settings.tabIndex = 2; saveSettings()" :active="settings.tabIndex == 2" active-class="active" v-b-popover.hover="'Write Image'">Write Image</b-nav-item>
+            <!-- <b-nav-item size="sm" @click="settings.tabIndex = 3; saveSettings()" :active="settings.tabIndex == 3" active-class="active" v-b-popover.hover="'View/edit ERC-20 tokens'">Tokens</b-nav-item> -->
+            <!-- <b-nav-item size="sm" @click="settings.tabIndex = 4; saveSettings()" :active="settings.tabIndex == 4" active-class="active" v-b-popover.hover="'Execute raw Chadex transactions'">Raw</b-nav-item> -->
+            <!-- <b-nav-item size="sm" @click="settings.tabIndex = 5; saveSettings()" :active="settings.tabIndex == 5" active-class="active" v-b-popover.hover="'View info'">Info</b-nav-item> -->
             <!-- <b-nav-item size="sm" @click="settings.tabIndex = 5; saveSettings()" :active="settings.tabIndex == 5" active-class="active" v-b-popover.hover="'View/edit my accounts'">Accounts</b-nav-item> -->
             <b-avatar v-if="coinbase && coinbase != ensOrAddress(coinbase)" rounded variant="light" size="3.0rem" :src="'https://metadata.ens.domains/mainnet/avatar/' + ensOrAddress(coinbase)" v-b-popover.hover="'Your ENS avatar if set'"></b-avatar>
             <b-button size="sm" variant="outline-primary" class="ml-1" @click="processIt('connect'); syncAll();" v-b-popover.hover.bottom="'Click to update wallet'">{{ coinbase ? ensOrAddress(coinbase, 16) : 'Connect' }}</b-button>
@@ -302,7 +302,7 @@
           </b-modal>
 
           <!-- 0:Home -->
-          <b-card v-if="coinbase && settings.tabIndex == 0" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="settings.tabIndex == 0" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Home
             </template>
@@ -310,8 +310,26 @@
             </b-card-text>
           </b-card>
 
+          <!-- 1:Write Text -->
+          <b-card v-if="settings.tabIndex == 1" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+            <template #header>
+              Write Text
+            </template>
+            <b-card-text class="m-0 p-0">
+            </b-card-text>
+          </b-card>
+
+          <!-- 1:Write Image -->
+          <b-card v-if="settings.tabIndex == 2" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+            <template #header>
+              Write Image
+            </template>
+            <b-card-text class="m-0 p-0">
+            </b-card-text>
+          </b-card>
+
           <!-- 1:PAIRS -->
-          <b-card v-if="coinbase && settings.tabIndex == 1" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 111" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Pairs
             </template>
@@ -388,7 +406,7 @@
           </b-card>
 
           <!-- 2:PAIR -->
-          <b-card v-if="coinbase && settings.tabIndex == 2" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 112" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Pair
               <!-- <div class="d-flex flex-wrap m-0 p-0">
@@ -539,7 +557,7 @@
           </b-card>
 
           <!-- 1&2:HISTORY -->
-          <b-card v-if="coinbase && (settings.tabIndex == 1 || settings.tabIndex == 2)" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && (settings.tabIndex == 111 || settings.tabIndex == 112)" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               History
               <!-- <div class="d-flex flex-wrap m-0 p-0">
@@ -603,7 +621,7 @@
           </b-card>
 
           <!-- 3:TOKENS -->
-          <b-card v-if="coinbase && settings.tabIndex == 3" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 113" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               ERC-20 Tokens
             </template>
@@ -739,7 +757,7 @@
           </b-card>
 
           <!-- 4:RAW -->
-          <b-card v-if="coinbase && settings.tabIndex == 4" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 114" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Raw Interface
             </template>
@@ -794,7 +812,7 @@
           </b-card>
 
           <!-- 5:INFO -->
-          <b-card v-if="coinbase && settings.tabIndex == 5" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 115" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Info
             </template>
@@ -820,7 +838,7 @@
             </b-card-text>
           </b-card>
 
-          <b-card v-if="coinbase && settings.tabIndex == 10" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 110" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <div class="d-flex flex-wrap m-0 p-0">
               <div v-if="false" class="mt-0 pr-1">
                 <b-form-input type="text" size="sm" v-model.trim="settings.tokensTable.tokenFilter" @change="saveSettings" debounce="600" v-b-popover.hover.top="'Token id and name filter'" placeholder="🔍 token id/name regex" style="min-width: 8.0rem;"></b-form-input>
@@ -1090,7 +1108,7 @@
             </b-table>
           </b-card>
 
-          <b-card v-if="coinbase && settings.tabIndex == 40" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="coinbase && settings.tabIndex == 140" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <div class="d-flex flex-wrap m-0 p-0">
               <!--
               <div class="mt-0 pr-1">
