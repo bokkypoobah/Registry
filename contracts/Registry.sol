@@ -36,7 +36,7 @@ contract Registry {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
     error OnlyRegistryReceiverCanRegister();
-    error AlreadyRegistered();
+    error AlreadyRegistered(bytes32 hash, address owner);
 
     constructor() {
         registryReceiver = new RegistryReceiver(this);
@@ -49,7 +49,7 @@ contract Registry {
         bytes32 hash = keccak256(abi.encodePacked(input));
         address owner = ownerOf[hash];
         if (owner != address(0)) {
-            revert AlreadyRegistered();
+            revert AlreadyRegistered(hash, owner);
         }
         ownerOf[hash] = msgSender;
         emit Registered(hash, hashes.length, msg.sender, block.timestamp);

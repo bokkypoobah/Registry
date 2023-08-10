@@ -29,9 +29,9 @@ describe("Registry", function () {
   }
 
   async function printTx(prefix, receipt) {
-    const gasPrice = ethers.parseUnits("20", "gwei");
-    const ethUsd = ethers.parseUnits("2000.00", 18);
-    var fee = receipt.gasUsed * receipt.gasPrice;
+    const gasPrice = ethers.parseUnits("20.0", "gwei");
+    const ethUsd = ethers.parseUnits("2000.0", 18);
+    var fee = receipt.gasUsed * gasPrice;
     var feeUsd = fee * ethUsd / ethers.parseUnits("1", 18);
     console.log("      > " + prefix + " - gasUsed: " + receipt.gasUsed + " ~ ETH " + ethers.formatEther(fee) + " ~ USD " + ethers.formatEther(feeUsd) + " @ gasPrice " + ethers.formatUnits(gasPrice, "gwei") + " gwei, USD/ETH " + ethers.formatUnits(ethUsd, 18));
     // receipt.logs.forEach((log) => {
@@ -65,7 +65,7 @@ describe("Registry", function () {
 
 
       const data0 = "0x1234";
-      console.log("      data0.length: " + data0.length);
+      console.log("      data0.length: " + ((data0.length - 2)/2));
       const tx0 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: data0 });
       await printTx("tx0", await tx0.wait());
       await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: data0 })).to.be.revertedWithCustomError(
@@ -80,8 +80,8 @@ describe("Registry", function () {
       await printTx("tx0Regular", await tx0Regular.wait());
       await printState("Single Entry", registry);
 
-      const data1 = "0x123456";
-      console.log("      data1.length: " + data1.length);
+      const data1 = "0x3456";
+      console.log("      data1.length: " + ((data1.length - 2)/2));
       const tx1 = await owner.sendTransaction({ to: registryReceiver, value: 0, data: data1 });
       await printTx("tx1", await tx1.wait());
       const tx1Regular = await owner.sendTransaction({ to: owner.address, value: 0, data: data1 });
@@ -89,7 +89,7 @@ describe("Registry", function () {
       await printState("2 Entries", registry);
 
       const data2 = "0x12345678";
-      console.log("      data2.length: " + data2.length);
+      console.log("      data2.length: " + ((data2.length - 2)/2));
       const tx2 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data2 });
       await printTx("tx2", await tx2.wait());
       const tx2Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data2 });
@@ -101,16 +101,16 @@ describe("Registry", function () {
       await printTx("tx3", await tx3.wait());
       await printState("3 Entries, 2 Accounts, Transferred", registry);
 
-      const data4 = "0x" + "1".repeat(50000);
-      console.log("      data4.length: " + data4.length);
+      const data4 = "0x" + "12".repeat(50000);
+      console.log("      data4.length: " + ((data4.length - 2)/2));
       const tx4 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data4 });
       await printTx("tx4", await tx4.wait());
       const tx4Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data4 });
       await printTx("tx4Regular", await tx4Regular.wait());
       await printState("4 Entries, 2 Accounts, large item", registry);
 
-      const data5 = "0x" + "1".repeat(100000);
-      console.log("      data5.length: " + data5.length);
+      const data5 = "0x" + "12".repeat(100000);
+      console.log("      data5.length: " + ((data5.length - 2)/2));
       const tx5 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data5 });
       await printTx("tx5", await tx5.wait());
       const tx5Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data5 });
