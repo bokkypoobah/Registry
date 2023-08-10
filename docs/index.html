@@ -1676,7 +1676,7 @@
             34: "U3Collect",
           },
           db: {
-            name: "chadexdata089j",
+            name: "registrydata088a",
             version: 1,
             schemaDefinition: {
               cache: '&objectName',
@@ -3634,12 +3634,27 @@
           },
 
           async syncRegistryEvents(context) {
-            const CONFIRMATIONS = 500;
+            const CONFIRMATIONS = 10;
             console.log(moment().format("HH:mm:ss") + " syncRegistryEvents - latestBlockNumber: " + context.latestBlockNumber);
             const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
-            const fromBlock = REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
-            const toBlock = context.latestBlockNumber;
             let events = {};
+            const eventsDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_events").toArray();
+            if (eventsDataItems.length == 1) {
+              events = eventsDataItems[0].object;
+              // console.log("syncRegistryEvents - events BEFORE: " + JSON.stringify(events, null, 2));
+              Object.keys(events).forEach(function (key) {
+                if ('unconfirmed' in events[key]) {
+                  // console.log("DELETING: " + key + " => " + JSON.stringify(events[key]));
+                  delete events[key];
+                }
+              });
+              console.log("syncRegistryEvents - events AFTER: " + JSON.stringify(events, null, 2));
+            }
+            const blockNumbers = Object.keys(events).sort((a, b) => { return b - a });
+            const startBlock = blockNumbers.length > 0 ? parseInt(blockNumbers[0]) + 1: REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
+            console.log("startBlock: " + startBlock);
+            const fromBlock = startBlock;
+            const toBlock = context.latestBlockNumber;
             // TODO: Handle > 10k events by batching
             try {
               const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
@@ -3653,7 +3668,7 @@
                   if (logData.eventFragment.name == "Registered") {
                     // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
                     const [hash, index, owner, timestamp] = logData.args;
-                    console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
+                    // console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
                     record = [0, hash, parseInt(index), owner, parseInt(timestamp)];
                   } else if (logData.eventFragment.name == "Transfer") {
                     // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
@@ -3684,6 +3699,11 @@
               console.log(e);
             }
             console.log("events: " + JSON.stringify(events, null, 2));
+            Vue.set(this, "events", events);
+            await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
+            }).catch(function(error) {
+              console.log("error: " + error);
+            });
           },
 
           async syncChadexEvents(context) {
