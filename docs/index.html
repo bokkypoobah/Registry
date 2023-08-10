@@ -1855,7 +1855,47 @@
 
           filteredEvent() {
             const results = [];
-            results.push({ abc: 123, def: 345 });
+            for (const [blockNumber, txIndexes] of Object.entries(this.events)) {
+              for (const [txIndex, txHashes] of Object.entries(txIndexes)) {
+                for (const [txHash, logIndexes] of Object.entries(txHashes)) {
+                  for (const [logIndex, txInfo] of Object.entries(logIndexes)) {
+                    console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(txInfo, null, 2));
+                    results.push({
+                        blockNumber,
+                        // timestamp,
+                        txIndex,
+                        txHash,
+                        logIndex,
+                    });
+                    // const pairIndex = txInfo[0];
+                    // const pair = this.indexToPair[pairIndex];
+                    // if (selectedPairIndex == null || selectedPairIndex == pairIndex) {
+                    //   const timestamp = txInfo[1];
+                    //   const eventType = txInfo[2];
+                    //   results.push({
+                    //     blockNumber,
+                    //     timestamp,
+                    //     txIndex,
+                    //     txHash,
+                    //     logIndex,
+                    //     pairIndex,
+                    //     baseIndex: pair.baseIndex,
+                    //     quoteIndex: pair.quoteIndex,
+                    //     baseDecimals: pair.baseDecimals,
+                    //     quoteDecimals: pair.quoteDecimals,
+                    //     baseSymbol: pair.baseSymbol, // TODO
+                    //     quoteSymbol: pair.quoteSymbol, // TODO
+                    //     eventType,
+                    //     txInfo
+                    //   });
+                    // }
+                  }
+                }
+              }
+            }
+
+
+
             // const filterRegex = this.settings.pairsTable.filter && this.settings.pairsTable.filter.length > 0 ? new RegExp(this.settings.pairsTable.filter, 'i') : null;
             // for (const pair of this.indexToPair) {
             //   const baseToken = this.tokens[pair.baseIndex] || {};
