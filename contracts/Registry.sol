@@ -17,8 +17,8 @@ contract RegistryReceiver {
         registry = _registry;
     }
 
-    fallback (bytes calldata _input) external returns (bytes memory _output) {
-        return registry.register(_input, msg.sender);
+    fallback (bytes calldata input) external returns (bytes memory output) {
+        return registry.register(input, msg.sender);
     }
 }
 
@@ -40,11 +40,11 @@ contract Registry {
         registryReceiver = new RegistryReceiver(this);
     }
 
-    function register(bytes calldata _input, address msgSender) public returns (bytes memory _output) {
+    function register(bytes calldata input, address msgSender) public returns (bytes memory output) {
         if (msg.sender != address(registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
-        bytes32 hash = keccak256(abi.encodePacked(_input));
+        bytes32 hash = keccak256(abi.encodePacked(input));
         address owner = ownerOf[hash];
         if (owner != address(0)) {
             revert AlreadyRegistered();
@@ -52,7 +52,7 @@ contract Registry {
         ownerOf[hash] = msgSender;
         emit Registered(hash, hashes.length, msg.sender, block.timestamp);
         hashes.push(hash);
-        _output = bytes.concat(hash);
+        output = bytes.concat(hash);
     }
     function hashesLength() public view returns (uint) {
         return hashes.length;

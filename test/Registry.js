@@ -31,6 +31,9 @@ describe("Registry", function () {
     var fee = receipt.gasUsed * receipt.gasPrice;
     var feeUsd = fee * ethUsd / ethers.parseUnits("1", 18);
     console.log("      > " + prefix + " - gasUsed: " + receipt.gasUsed + " ~ ETH " + ethers.formatEther(fee) + " ~ USD " + ethers.formatEther(feeUsd) + " @ gasPrice " + ethers.formatUnits(gasPrice, "gwei") + " gwei, USD/ETH " + ethers.formatUnits(ethUsd, 18));
+    // receipt.logs.forEach((log) => {
+    //   console.log(log);
+    // });
   }
 
   async function printState(prefix, registry) {
@@ -39,7 +42,7 @@ describe("Registry", function () {
     for (let i = 0; i < hashesLength; i++) {
       const hash = await registry.hashes(i);
       const owner = await registry.ownerOf(hash);
-      console.log("      printState " + prefix + " " + hash + " " + owner);
+      console.log("      printState - " + prefix + " - " + hash + " " + owner);
     }
     console.log();
   }
@@ -79,6 +82,14 @@ describe("Registry", function () {
       const tx3 = await registry.transfer(otherAccount.address, secondHash);
       await printTx("tx3", await tx3.wait());
       await printState("3 Entries, 2 Accounts, Transferred", registry);
+
+      const data4 = "0x" + "1".repeat(50000);
+      console.log(data4);
+      const tx4 = await otherAccount.sendTransaction({ to: registryReceiver, value: 0, data: data4 });
+      await printTx("tx4", await tx4.wait());
+      const tx4Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data4 });
+      await printTx("tx4Regular", await tx4Regular.wait());
+      await printState("4 Entries, 2 Accounts, large item", registry);
 
     });
 
