@@ -316,7 +316,16 @@
               Write Text
             </template>
             <b-card-text class="m-0 p-0">
-              TODO
+              WIP
+              <b-card no-body no-header bg-variant="light" class="m-1 p-1 w-75">
+                <b-card-body class="m-1 p-1">
+                  <b-form-group label-cols-lg="2" label="Write Text" label-size="md" label-class="font-weight-bold pt-0" class="mb-0">
+                    <b-form-group label="Text:" label-for="writetext-text" label-size="sm" label-cols-sm="2" label-align-sm="right" description="Enter text" class="mx-0 my-1 p-0">
+                      <b-form-input type="text" size="sm" id="writetext-text" v-model.trim="writeText.text" placeholder="'0' to '4'" class="w-25"></b-form-input>
+                    </b-form-group>
+                  </b-form-group>
+                </b-card-body>
+              </b-card>
             </b-card-text>
           </b-card>
 
@@ -1384,6 +1393,11 @@
             },
             version: 8,
           },
+
+          writeText: {
+            text: "TODO - set to null",
+          },
+
           newCoinAddress: null,
           newAddress: null,
           allowanceFormData: {
