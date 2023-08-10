@@ -1,11 +1,15 @@
+/**
+ *Submitted for verification at Etherscan.io on 2023-08-10
+*/
+
 pragma solidity ^0.8.21;
 
 // ----------------------------------------------------------------------------
 // Registry v 0.8.8a-testing
 //
 // Deployed to Sepolia
-// - Registry
-// - RegistryReceiver
+// - Registry 0x5e53f0D3F4E7815535782C938D634B04Ea3affEb
+// - RegistryReceiver 0x50FA7F40392D21e3FCD482B5933980B3cC9e569d
 //
 // https://github.com/bokkypoobah/Registry
 //
