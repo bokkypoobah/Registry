@@ -1858,14 +1858,15 @@
             for (const [blockNumber, txIndexes] of Object.entries(this.events)) {
               for (const [txIndex, txHashes] of Object.entries(txIndexes)) {
                 for (const [txHash, logIndexes] of Object.entries(txHashes)) {
-                  for (const [logIndex, txInfo] of Object.entries(logIndexes)) {
-                    console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(txInfo, null, 2));
+                  for (const [logIndex, log] of Object.entries(logIndexes)) {
+                    console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
                     results.push({
-                        blockNumber,
+                        blockNumber: parseInt(blockNumber),
                         // timestamp,
-                        txIndex,
+                        txIndex: parseInt(txIndex),
                         txHash,
-                        logIndex,
+                        logIndex: parseInt(logIndex),
+                        log,
                     });
                     // const pairIndex = txInfo[0];
                     // const pair = this.indexToPair[pairIndex];
@@ -3733,7 +3734,7 @@
             const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
             let events = {};
             const eventsDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_events").toArray();
-            if (eventsDataItems.length == 1) {
+            if (eventsDataItems.length == 1 && false) {
               events = eventsDataItems[0].object;
               // console.log("syncRegistryEvents - events BEFORE: " + JSON.stringify(events, null, 2));
               Object.keys(events).forEach(function (key) {
@@ -3757,7 +3758,7 @@
               for (const event of eventLogs) {
                 if (!event.removed) {
                   const logData = registryContract.interface.parseLog(event);
-                  const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, event.blockNumber, event.transactionIndex, event.logIndex];
+                  const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, parseInt(event.blockNumber), parseInt(event.transactionIndex), parseInt(event.logIndex)];
                   let record = null;
                   if (logData.eventFragment.name == "Registered") {
                     // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
