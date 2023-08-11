@@ -1,15 +1,11 @@
-/**
- *Submitted for verification at Etherscan.io on 2023-08-10
-*/
-
 pragma solidity ^0.8.21;
 
 // ----------------------------------------------------------------------------
-// Registry v 0.8.8c-testing
+// Registry v0.8.9b-testing
 //
 // Deployed to Sepolia
-// - Registry 0x9612c811927bc29d3b601D3c6A48d6d3052Cee78
-// - RegistryReceiver 0x9113aeaAb0363Ab882D8FA57A450b432048fcc9e
+// - Registry
+// - RegistryReceiver
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -19,7 +15,7 @@ pragma solidity ^0.8.21;
 // ----------------------------------------------------------------------------
 
 contract RegistryReceiver {
-    Registry registry;
+    Registry immutable registry;
 
     constructor() {
         registry = Registry(msg.sender);
@@ -32,17 +28,21 @@ contract RegistryReceiver {
 
 contract Registry {
 
-    RegistryReceiver public registryReceiver;
+    RegistryReceiver public immutable registryReceiver;
     bytes32[] public hashes;
-    mapping(bytes32 => address) public ownerOf;
+    mapping(bytes32 => address) public owners;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
-    event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
+    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
+    event Transfer(address indexed from, address indexed to, uint indexed tokenId, uint timestamp);
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
     error OnlyRegistryReceiverCanRegister();
     error AlreadyRegistered(bytes32 hash, address owner);
+    error CannotApproveSelf();
+    error InvalidTokenId();
+    error NotOwnerNorApproved();
+
 
     constructor() {
         registryReceiver = new RegistryReceiver();
@@ -52,36 +52,48 @@ contract Registry {
         if (msg.sender != address(registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
-        if (ownerOf[hash] != address(0)) {
-            revert AlreadyRegistered(hash, ownerOf[hash]);
+        if (owners[hash] != address(0)) {
+            revert AlreadyRegistered(hash, owners[hash]);
         }
-        ownerOf[hash] = msgSender;
-        emit Registered(hash, hashes.length, msgSender, block.timestamp);
+        owners[hash] = msgSender;
+        emit Registered(hashes.length, hash, msgSender, block.timestamp);
         hashes.push(hash);
         output = bytes.concat(hash);
+    }
+    function ownerOf(uint tokenId) public view returns (address) {
+        bytes32 hash = hashes[tokenId];
+        return owners[hash];
     }
     function hashesLength() public view returns (uint) {
         return hashes.length;
     }
 
     function setApprovalForAll(address operator, bool approved) public {
-        require(operator != msg.sender, "Cannot approve self");
+        if (operator == msg.sender) {
+            revert CannotApproveSelf();
+        }
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved, block.timestamp);
     }
     function isApprovedForAll(address owner, address operator) public view returns (bool) {
         return _operatorApprovals[owner][operator];
     }
-    function _isApprovedOrOwner(address spender, bytes32 hash) internal view returns (bool) {
-        address owner = ownerOf[hash];
-        require(owner != address(0), "Nonexistent hash");
+    function _isApprovedOrOwner(address spender, uint tokenId) internal view returns (bool) {
+        bytes32 hash = hashes[tokenId];
+        address owner = owners[hash];
+        if (owner == address(0)) {
+            revert InvalidTokenId();
+        }
         return (spender == owner || isApprovedForAll(owner, spender));
     }
-    function transfer(address to, bytes32 hash) public {
-        require(_isApprovedOrOwner(msg.sender, hash), "Not owner nor approved");
-        address from = ownerOf[hash];
-        ownerOf[hash] = to;
-        emit Transfer(from, to, hash, block.timestamp);
+    function transfer(address to, uint tokenId) public {
+        if (!_isApprovedOrOwner(msg.sender, tokenId)) {
+            revert NotOwnerNorApproved();
+        }
+        bytes32 hash = hashes[tokenId];
+        address from = owners[hash];
+        owners[hash] = to;
+        emit Transfer(from, to, tokenId, block.timestamp);
     }
 
     struct Data {
@@ -95,7 +107,7 @@ contract Registry {
         results = new Data[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
-            results[i] = Data(hash, ownerOf[hash]);
+            results[i] = Data(hash, owners[hash]);
         }
     }
 }

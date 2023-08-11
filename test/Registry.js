@@ -53,8 +53,8 @@ describe("Registry", function () {
     // const hashesLength = await registry.hashesLength();
     // for (let i = 0; i < hashesLength; i++) {
     //   const hash = await registry.hashes(i);
-    //   const owner = await registry.ownerOf(hash);
-    //   console.log("      printState - " + prefix + " - " + hash + " " + owner);
+    //   const owner = await registry.ownerOf(i);
+    //   console.log("      printState using ownerOf(i) - " + prefix + " - " + hash + " " + owner);
     // }
     console.log();
   }
@@ -97,9 +97,12 @@ describe("Registry", function () {
       await printTx("tx2Regular", await tx2Regular.wait());
       await printState("3 Entries, 2 Accounts", registry);
 
-      const secondHash = await registry.hashes(1);
-      console.log("      Transferring ownership of " + secondHash + " to " + otherAccount.address);
-      const tx3 = await registry.transfer(otherAccount.address, secondHash);
+      await expect(registry.transfer(otherAccount.address, 2)).to.be.revertedWithCustomError(
+        registry,
+        "NotOwnerNorApproved"
+      );
+      console.log("      Transferring ownership of #1 to " + otherAccount.address);
+      const tx3 = await registry.transfer(otherAccount.address, 1);
       await printTx("tx3", await tx3.wait());
       await printState("3 Entries, 2 Accounts, Transferred", registry);
 
@@ -118,6 +121,10 @@ describe("Registry", function () {
       const tx5Regular = await otherAccount.sendTransaction({ to: otherAccount.address, value: 0, data: data5 });
       await printTx("tx5Regular", await tx5Regular.wait());
       await printState("5 Entries, 2 Accounts, large items", registry);
+
+      // TODO:
+      // - Test transfer by invalid owner
+      // - Test setApprovalForAll and transfer by mock exchange
     });
 
 
