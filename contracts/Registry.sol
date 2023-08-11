@@ -1,15 +1,11 @@
-/**
- *Submitted for verification at Etherscan.io on 2023-08-11
-*/
-
 pragma solidity ^0.8.21;
 
 // ----------------------------------------------------------------------------
-// Registry v0.8.9c-testing
+// Registry v0.8.9d-testing
 //
 // Deployed to Sepolia
-// - Registry 0x28385842EA092378d3c98FF32357f5555eC20Ba3
-// - RegistryReceiver 0xdc45EF9462aDE63164FBaf81A65dd8a89E7f42d9
+// - Registry
+// - RegistryReceiver
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -25,17 +21,22 @@ contract RegistryReceiver {
         registry = Registry(msg.sender);
     }
 
-    fallback (bytes calldata input) external returns (bytes memory output) {
+    fallback(bytes calldata input) external returns (bytes memory output) {
         return registry.register(keccak256(abi.encodePacked(input)), msg.sender);
     }
 }
 
-contract Registry {
 
+contract Registry {
     struct Data {
         address owner;
         uint56 tokenId;
         uint40 created;
+    }
+    struct Result {
+        bytes32 hash;
+        address owner;
+        uint created;
     }
 
     RegistryReceiver public immutable registryReceiver;
@@ -52,7 +53,6 @@ contract Registry {
     error CannotApproveSelf();
     error InvalidTokenId();
     error NotOwnerNorApproved();
-
 
     constructor() {
         registryReceiver = new RegistryReceiver();
@@ -109,11 +109,6 @@ contract Registry {
 
     function onePlus(uint x) internal pure returns (uint) {
         unchecked { return 1 + x; }
-    }
-    struct Result {
-        bytes32 hash;
-        address owner;
-        uint created;
     }
     function getData(uint count, uint offset) public view returns (Result[] memory results) {
         results = new Result[](count);
