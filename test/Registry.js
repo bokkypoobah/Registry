@@ -72,7 +72,7 @@ describe("Registry", function () {
       await expect(owner.sendTransaction({ to: registryReceiver, value: 0, data: data0 })).to.be.revertedWithCustomError(
         registry,
         "AlreadyRegistered"
-      );
+      ).withArgs(anyValue, owner.address, 0, anyValue);
       await expect(registry.register(DUMMY_HASH, owner.address)).to.be.revertedWithCustomError(
         registry,
         "OnlyRegistryReceiverCanRegister"

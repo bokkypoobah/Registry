@@ -43,7 +43,7 @@ contract Registry {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
     error OnlyRegistryReceiverCanRegister();
-    error AlreadyRegistered(bytes32 hash, address owner);
+    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, uint created);
     error CannotApproveSelf();
     error InvalidTokenId();
     error NotOwnerNorApproved();
@@ -57,8 +57,9 @@ contract Registry {
         if (msg.sender != address(registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
-        if (data[hash].owner != address(0)) {
-            revert AlreadyRegistered(hash, data[hash].owner);
+        Data memory _data = data[hash];
+        if (_data.owner != address(0)) {
+            revert AlreadyRegistered(hash, _data.owner, _data.tokenId, _data.created);
         }
         data[hash] = Data(msgSender, uint56(hashes.length), uint40(block.timestamp));
         emit Registered(hashes.length, hash, msgSender, block.timestamp);

@@ -9,48 +9,48 @@
 
 
       data0.length: 2
-      > tx0 - gasUsed: 96997 ~ ETH 0.00193994 ~ USD 3.87988 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx0 - gasUsed: 97514 ~ ETH 0.00195028 ~ USD 3.90056 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx0Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - Single Entry - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
+      printState - Single Entry - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
 
       data1.length: 2
-      > tx1 - gasUsed: 79897 ~ ETH 0.00159794 ~ USD 3.19588 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx1 - gasUsed: 80414 ~ ETH 0.00160828 ~ USD 3.21656 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx1Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 2 Entries - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
-      printState - 2 Entries - 0x589583765fbc2f1b43 0xf39Fd6e51aad88F6F4 1691727028
+      printState - 2 Entries - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
+      printState - 2 Entries - 0x589583765fbc2f1b43 0xf39Fd6e51aad88F6F4 1691727543
 
       data2.length: 1000
-      > tx2 - gasUsed: 96240 ~ ETH 0.0019248 ~ USD 3.8496 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx2 - gasUsed: 96757 ~ ETH 0.00193514 ~ USD 3.87028 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
-      printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43 0xf39Fd6e51aad88F6F4 1691727028
-      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727030
+      printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
+      printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43 0xf39Fd6e51aad88F6F4 1691727543
+      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727545
 
       Transferring ownership of #1 to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       > tx3 - gasUsed: 34862 ~ ETH 0.00069724 ~ USD 1.39448 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 3 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
-      printState - 3 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727028
-      printState - 3 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727030
+      printState - 3 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
+      printState - 3 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727543
+      printState - 3 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727545
 
       data4.length: 10000
-      > tx4 - gasUsed: 243814 ~ ETH 0.00487628 ~ USD 9.75256 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx4 - gasUsed: 244331 ~ ETH 0.00488662 ~ USD 9.77324 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx4Regular - gasUsed: 181000 ~ ETH 0.00362 ~ USD 7.24 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 4 Entries, 2 Accounts, large item - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
-      printState - 4 Entries, 2 Accounts, large item - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727028
-      printState - 4 Entries, 2 Accounts, large item - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727030
-      printState - 4 Entries, 2 Accounts, large item - 0x0dd531624da106bc94 0x70997970C51812dc3A 1691727034
+      printState - 4 Entries, 2 Accounts, large item - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
+      printState - 4 Entries, 2 Accounts, large item - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727543
+      printState - 4 Entries, 2 Accounts, large item - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727545
+      printState - 4 Entries, 2 Accounts, large item - 0x0dd531624da106bc94 0x70997970C51812dc3A 1691727549
 
       data5.length: 100000
-      > tx5 - gasUsed: 1736561 ~ ETH 0.03473122 ~ USD 69.46244 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx5 - gasUsed: 1737078 ~ ETH 0.03474156 ~ USD 69.48312 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 5 Entries, 2 Accounts, large items - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727024
-      printState - 5 Entries, 2 Accounts, large items - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727028
-      printState - 5 Entries, 2 Accounts, large items - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727030
-      printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc94 0x70997970C51812dc3A 1691727034
-      printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040 0x70997970C51812dc3A 1691727036
+      printState - 5 Entries, 2 Accounts, large items - 0x56570de287d73cd1cb 0xf39Fd6e51aad88F6F4 1691727539
+      printState - 5 Entries, 2 Accounts, large items - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1691727543
+      printState - 5 Entries, 2 Accounts, large items - 0x2f269b22adacbccc56 0x70997970C51812dc3A 1691727545
+      printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc94 0x70997970C51812dc3A 1691727549
+      printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040 0x70997970C51812dc3A 1691727551
 
-      ✔ Should deploy (812ms)
+      ✔ Should deploy (898ms)
 
 
-  1 passing (813ms)
+  1 passing (900ms)
 
