@@ -343,8 +343,38 @@
                 </div>
               </div>
 
+              <!-- <b-table small fixed striped responsive hover selectable select-mode="single" @row-selected="pairsRowSelected" :fields="pairsFields" :items="pagedFilteredSortedPairs" show-empty empty-html="Click Sync above to retrieve existing pairs" head-variant="light" class="mx-0 my-1"> -->
+              <b-table small fixed striped responsive hover selectable select-mode="single" @row-selected="pairsRowSelected" :fields="eventsFields" :items="pagedFilteredSortedEvents" show-empty empty-html="Retrieving" head-variant="light" class="mx-0 my-1">
+                <template #cell(timestamp)="data">
+                  <!-- <b-link @click="showModalTxDetails(data.item);">{{ formatTimestamp(data.item.timestamp) }}</b-link> -->
+                  <b-link :href="'https://sepolia.etherscan.io/tx/' + data.item.txHash" v-b-popover.hover.bottom="'txIndex: ' + data.item.transactionIndex + ' logIndex: ' + data.item.logIndex" target="_blank">
+                    {{ formatTimestamp(data.item.log[0]) }}
+                  </b-link>
+                  <!-- <font size="-2">
+                    {{ '.' + data.item.transactionIndex + '/' + data.item.logIndex }}
+                  </font> -->
+                </template>
+                <template #cell(event)="data">
+                  {{ eventTypes[data.item.log[1]] }}
+                </template>
+                <template #cell(index)="data">
+                  {{ data.item.log[2] }}
+                </template>
+                <template #cell(hash)="data">
+                  {{ data.item.log[3] }}
+                </template>
+                <template #cell(owner)="data">
+                  {{ data.item.log[4] }}
+                </template>
+              </b-table>
 
-              {{ pagedFilteredSortedEvents }}
+              <!-- eventTypes: {
+                1: "Registered",
+                2: "Transferred",
+                3: "ApprovedForAll",
+              }, -->
+
+              <!-- {{ pagedFilteredSortedEvents }} -->
             </b-card-text>
           </b-card>
 
@@ -1622,6 +1652,13 @@
             { value: 2500, text: '2.5k' },
             { value: 10000, text: '10k' },
           ],
+          eventsFields: [
+            { key: 'timestamp', label: 'When', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-left' },
+            { key: 'event', label: 'Event', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-left' },
+            { key: 'index', label: 'Index', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
+            { key: 'hash', label: 'Hash', sortable: false, thStyle: 'width: 20%;', tdClass: 'text-truncate' },
+            { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 20%;', tdClass: 'text-truncate' },
+          ],
           pairsFields: [
             // { key: 'pairKey', label: 'Pair Key', sortable: false, thStyle: 'width: 40%;', tdClass: 'text-truncate' },
             { key: 'baseSymbol', label: 'Base', sortable: false, thStyle: 'width: 10%;', tdClass: 'text-truncate' },
@@ -1719,8 +1756,13 @@
             33: "U3Burn",
             34: "U3Collect",
           },
+          eventTypes: {
+            1: "Registered",
+            2: "Transferred",
+            3: "ApprovedForAll",
+          },
           db: {
-            name: "registrydata088a",
+            name: "registrydata088b",
             version: 1,
             schemaDefinition: {
               cache: '&objectName',
@@ -3771,7 +3813,7 @@
             const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
             let events = {};
             const eventsDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_events").toArray();
-            if (eventsDataItems.length == 1 && false) {
+            if (eventsDataItems.length == 1) {
               events = eventsDataItems[0].object;
               // console.log("syncRegistryEvents - events BEFORE: " + JSON.stringify(events, null, 2));
               Object.keys(events).forEach(function (key) {
@@ -3797,11 +3839,13 @@
                   const logData = registryContract.interface.parseLog(event);
                   const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, parseInt(event.blockNumber), parseInt(event.transactionIndex), parseInt(event.logIndex)];
                   let record = null;
+                  let timestamp = null;
+                  let hash = null;
                   if (logData.eventFragment.name == "Registered") {
                     // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
                     const [hash, index, owner, timestamp] = logData.args;
                     // console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
-                    record = [0, hash, parseInt(index), owner, parseInt(timestamp)];
+                    record = [parseInt(timestamp), 1, parseInt(index), hash, owner];
                   } else if (logData.eventFragment.name == "Transfer") {
                     // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
                     console.log("Transfer: " + JSON.stringify(logData));
@@ -3809,6 +3853,13 @@
                     // event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
                     console.log("ApprovalForAll: " + JSON.stringify(logData));
                   }
+
+                  // eventTypes: {
+                  //   1: "Registered",
+                  //   2: "Transferred",
+                  //   3: "ApprovedForAll",
+                  // },
+
                   if (record) {
                     const confirmations = context.latestBlockNumber - blockNumber;
                     if (!(blockNumber in events)) {
