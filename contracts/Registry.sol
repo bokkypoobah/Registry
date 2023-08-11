@@ -1,15 +1,11 @@
-/**
- *Submitted for verification at Etherscan.io on 2023-08-11
-*/
-
 pragma solidity ^0.8.21;
 
 // ----------------------------------------------------------------------------
-// Registry v0.8.9b-testing
+// Registry v0.8.9c-testing
 //
 // Deployed to Sepolia
-// - Registry 0x31b7648c92F233F3Fa93C0E4bB0BF0C28d2d1C34
-// - RegistryReceiver 0x69Fb6952Fcb57bFFd1eE1756e2C3f9DD8e0fe577
+// - Registry
+// - RegistryReceiver
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -19,7 +15,7 @@ pragma solidity ^0.8.21;
 // ----------------------------------------------------------------------------
 
 contract RegistryReceiver {
-    Registry immutable registry;
+    Registry public immutable registry;
 
     constructor() {
         registry = Registry(msg.sender);
