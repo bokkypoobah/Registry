@@ -364,7 +364,7 @@
                   {{ data.item.log[3] }}
                 </template>
                 <template #cell(owner)="data">
-                  {{ data.item.log[4] }}
+                  {{ indexToAddress[data.item.log[4]] }}
                 </template>
               </b-table>
 
@@ -1762,7 +1762,7 @@
             3: "ApprovedForAll",
           },
           db: {
-            name: "registrydata088b",
+            name: "registrydata088c",
             version: 1,
             schemaDefinition: {
               cache: '&objectName',
@@ -3814,15 +3814,27 @@
             let indexToAddress = [];
             let addressToIndex = {};
             const indexToAddressDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_indexToAddress").toArray();
-            if (indexToAddressDataItems.length == 1) {
+            if (indexToAddressDataItems.length == 1 && false) {
               indexToAddress = indexToAddressDataItems[0].object;
               console.log("indexToAddress: " + JSON.stringify(indexToAddress));
             }
             const addressToIndexDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_addressToIndex").toArray();
-            if (addressToIndexDataItems.length == 1) {
+            if (addressToIndexDataItems.length == 1 && false) {
               addressToIndex = addressToIndexDataItems[0].object;
               console.log("addressToIndex: " + JSON.stringify(addressToIndex));
             }
+            for (const address of [REGISTRYADDRESS_SEPOLIA, this.coinbase]) {
+              if (!(address in addressToIndex)) {
+                addressToIndex[address] = indexToAddress.length;
+                indexToAddress.push(address);
+              }
+            }
+            // console.log("indexToAddress: " + JSON.stringify(indexToAddress));
+            // console.log("addressToIndex: " + JSON.stringify(addressToIndex));
+            const registryAddressIndex = addressToIndex[REGISTRYADDRESS_SEPOLIA];
+            const coinbaseIndex = addressToIndex[this.coinbase];
+            console.log("registryAddressIndex: " + registryAddressIndex + " " + indexToAddress[registryAddressIndex]);
+            console.log("coinbaseIndex: " + coinbaseIndex + " " + indexToAddress[coinbaseIndex]);
 
             let events = {};
             let newEvents = 0;
@@ -3859,7 +3871,12 @@
                     // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
                     const [hash, index, owner, timestamp] = logData.args;
                     // console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
-                    record = [parseInt(timestamp), 1, parseInt(index), hash, owner];
+                    if (!(owner in addressToIndex)) {
+                      addressToIndex[owner] = indexToAddress.length;
+                      indexToAddress.push(owner);
+                    }
+                    const ownerIndex = addressToIndex[owner];
+                    record = [parseInt(timestamp), 1, parseInt(index), hash, ownerIndex];
                   } else if (logData.eventFragment.name == "Transfer") {
                     // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
                     console.log("Transfer: " + JSON.stringify(logData));
@@ -3895,6 +3912,16 @@
             } catch (e) {
               console.log(e);
             }
+            Vue.set(this, "addressToIndex", addressToIndex);
+            Vue.set(this, "indexToAddress", indexToAddress);
+            await context.db.cache.put({ objectName: this.chainId + "_indexToAddress", object: indexToAddress }).then (function() {
+            }).catch(function(error) {
+              console.log("error: " + error);
+            });
+            await context.db.cache.put({ objectName: this.chainId + "_addressToIndex", object: addressToIndex }).then (function() {
+            }).catch(function(error) {
+              console.log("error: " + error);
+            });
             // console.log("events: " + JSON.stringify(events, null, 2));
             Vue.set(this, "events", events);
             await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
