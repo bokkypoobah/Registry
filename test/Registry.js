@@ -44,11 +44,11 @@ describe("Registry", function () {
     const registryReceiver = await registry.registryReceiver();
     const data = await registry.getData(10, 0);
     for (const row of data) {
-      const [hash, owner] = row;
+      const [hash, owner, created] = row;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      printState - " + prefix + " - " + hash + " " + owner);
+      console.log("      printState - " + prefix + " - " + hash.substring(0, 20) + " " + owner.substring(0, 20) + " " + created);
     }
     // const hashesLength = await registry.hashesLength();
     // for (let i = 0; i < hashesLength; i++) {

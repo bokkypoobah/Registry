@@ -30,7 +30,12 @@ contract Registry {
 
     RegistryReceiver public immutable registryReceiver;
     bytes32[] public hashes;
-    mapping(bytes32 => address) public owners;
+    struct Data {
+        address owner;
+        uint56 tokenId;
+        uint40 created;
+    }
+    mapping(bytes32 => Data) public data;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
@@ -52,17 +57,17 @@ contract Registry {
         if (msg.sender != address(registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
-        if (owners[hash] != address(0)) {
-            revert AlreadyRegistered(hash, owners[hash]);
+        if (data[hash].owner != address(0)) {
+            revert AlreadyRegistered(hash, data[hash].owner);
         }
-        owners[hash] = msgSender;
+        data[hash] = Data(msgSender, uint56(hashes.length), uint40(block.timestamp));
         emit Registered(hashes.length, hash, msgSender, block.timestamp);
         hashes.push(hash);
         output = bytes.concat(hash);
     }
     function ownerOf(uint tokenId) public view returns (address) {
         bytes32 hash = hashes[tokenId];
-        return owners[hash];
+        return data[hash].owner;
     }
     function hashesLength() public view returns (uint) {
         return hashes.length;
@@ -80,7 +85,7 @@ contract Registry {
     }
     function _isApprovedOrOwner(address spender, uint tokenId) internal view returns (bool) {
         bytes32 hash = hashes[tokenId];
-        address owner = owners[hash];
+        address owner = data[hash].owner;
         if (owner == address(0)) {
             revert InvalidTokenId();
         }
@@ -91,23 +96,25 @@ contract Registry {
             revert NotOwnerNorApproved();
         }
         bytes32 hash = hashes[tokenId];
-        address from = owners[hash];
-        owners[hash] = to;
+        address from = data[hash].owner;
+        data[hash].owner = to;
         emit Transfer(from, to, tokenId, block.timestamp);
     }
 
-    struct Data {
-        bytes32 hash;
-        address owner;
-    }
     function onePlus(uint x) internal pure returns (uint) {
         unchecked { return 1 + x; }
     }
-    function getData(uint count, uint offset) public view returns (Data[] memory results) {
-        results = new Data[](count);
+    struct Result {
+        bytes32 hash;
+        address owner;
+        uint created;
+    }
+    function getData(uint count, uint offset) public view returns (Result[] memory results) {
+        results = new Result[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
-            results[i] = Data(hash, owners[hash]);
+            Data memory _data = data[hash];
+            results[i] = Result(hash, _data.owner, uint(_data.created));
         }
     }
 }
