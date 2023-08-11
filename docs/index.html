@@ -1938,7 +1938,7 @@
               for (const [txIndex, txHashes] of Object.entries(txIndexes)) {
                 for (const [txHash, logIndexes] of Object.entries(txHashes)) {
                   for (const [logIndex, log] of Object.entries(logIndexes)) {
-                    console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
+                    // console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
                     results.push({
                         blockNumber: parseInt(blockNumber),
                         // timestamp,
@@ -3811,7 +3811,21 @@
             const CONFIRMATIONS = 10;
             console.log(moment().format("HH:mm:ss") + " syncRegistryEvents - latestBlockNumber: " + context.latestBlockNumber);
             const registryContract = new ethers.Contract(REGISTRYADDRESS_SEPOLIA, REGISTRYABI_SEPOLIA, context.provider);
+            let indexToAddress = [];
+            let addressToIndex = {};
+            const indexToAddressDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_indexToAddress").toArray();
+            if (indexToAddressDataItems.length == 1) {
+              indexToAddress = indexToAddressDataItems[0].object;
+              console.log("indexToAddress: " + JSON.stringify(indexToAddress));
+            }
+            const addressToIndexDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_addressToIndex").toArray();
+            if (addressToIndexDataItems.length == 1) {
+              addressToIndex = addressToIndexDataItems[0].object;
+              console.log("addressToIndex: " + JSON.stringify(addressToIndex));
+            }
+
             let events = {};
+            let newEvents = 0;
             const eventsDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_events").toArray();
             if (eventsDataItems.length == 1) {
               events = eventsDataItems[0].object;
@@ -3822,7 +3836,7 @@
                   delete events[key];
                 }
               });
-              console.log("syncRegistryEvents - events AFTER: " + JSON.stringify(events, null, 2));
+              // console.log("syncRegistryEvents - events AFTER: " + JSON.stringify(events, null, 2));
             }
             const blockNumbers = Object.keys(events).sort((a, b) => { return b - a });
             const startBlock = blockNumbers.length > 0 ? parseInt(blockNumbers[0]) + 1: REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
@@ -3873,7 +3887,7 @@
                     }
                     if (!(logIndex in events[blockNumber][transactionIndex][txHash])) {
                       events[blockNumber][transactionIndex][txHash][logIndex] = record;
-                      // newChadexEvents++;
+                      newEvents++;
                     }
                   }
                 }
@@ -3881,7 +3895,7 @@
             } catch (e) {
               console.log(e);
             }
-            console.log("events: " + JSON.stringify(events, null, 2));
+            // console.log("events: " + JSON.stringify(events, null, 2));
             Vue.set(this, "events", events);
             await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
             }).catch(function(error) {
