@@ -1763,7 +1763,7 @@
             3: "ApprovedForAll",
           },
           db: {
-            name: "registrydata088c",
+            name: "registrydata088d",
             version: 1,
             schemaDefinition: {
               cache: '&objectName',
@@ -3869,15 +3869,15 @@
                   let timestamp = null;
                   let hash = null;
                   if (logData.eventFragment.name == "Registered") {
-                    // event Registered(bytes32 indexed hash, uint indexed index, address indexed owner, uint timestamp);
-                    const [hash, index, owner, timestamp] = logData.args;
-                    // console.log("Registered - hash: " + hash + ", index: " + index + ", owner: " + owner + ", timestamp: " + timestamp);
+                    // event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
+                    const [tokenId, hash, owner, timestamp] = logData.args;
+                    // console.log("Registered - hash: " + hash + ", tokenId: " + tokenId + ", owner: " + owner + ", timestamp: " + timestamp);
                     if (!(owner in addressToIndex)) {
                       addressToIndex[owner] = indexToAddress.length;
                       indexToAddress.push(owner);
                     }
                     const ownerIndex = addressToIndex[owner];
-                    record = [parseInt(timestamp), 1, parseInt(index), hash, ownerIndex];
+                    record = [parseInt(timestamp), 1, parseInt(tokenId), hash, ownerIndex];
                   } else if (logData.eventFragment.name == "Transfer") {
                     // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
                     console.log("Transfer: " + JSON.stringify(logData));
