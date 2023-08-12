@@ -329,9 +329,9 @@
                 </div> -->
                 <div class="mt-0 flex-grow-1">
                 </div>
-                <!-- <div class="mt-0 pl-1">
-                  <b-form-select size="sm" v-model="settings.pairsTable.sortOption" @change="saveSettings" :options="pairsSortOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
-                </div> -->
+                <div class="mt-0 pl-1">
+                  <b-form-select size="sm" v-model="settings.eventsTable.sortOption" @change="saveSettings" :options="eventsSortOptions" v-b-popover.hover.top="'Yeah. Sort'"></b-form-select>
+                </div>
                 <div class="mt-0 pl-1">
                   <font size="-2" v-b-popover.hover.top="'# events'">{{ filteredSortedEvents.length + '/' + Object.keys(pairs).length }}</font>
                 </div>
@@ -1624,6 +1624,10 @@
             // { value: 4, text: 'Update Expiry And Tokens' },
           ],
 
+          eventsSortOptions: [
+            { value: 'blocknumberasc', text: '▲ Block Number, ▲ Tx Index' },
+            { value: 'blocknumberdsc', text: '▼ Block Number, ▼ Tx Index' },
+          ],
           pairsSortOptions: [
             { value: 'symbolquotebaseasc', text: '▲ Quote, ▲ Base' },
             { value: 'symbolbasequoteasc', text: '▲ Base, ▲ Quote' },
@@ -1933,7 +1937,7 @@
           },
 
 
-          filteredEvent() {
+          filteredEvents() {
             const results = [];
             for (const [blockNumber, txIndexes] of Object.entries(this.events)) {
               for (const [txIndex, txHashes] of Object.entries(txIndexes)) {
@@ -2007,12 +2011,36 @@
             //     });
             //   }
             // }
-            // console.log("filteredEvent: " + JSON.stringify(results, null, 2))
+            // console.log("filteredEvents: " + JSON.stringify(results, null, 2))
             return results;
           },
           filteredSortedEvents() {
-            let results = this.filteredEvent;
-            // TODO
+            let results = this.filteredEvents;
+            if (this.settings.eventsTable.sortOption == 'blocknumberasc') {
+              results.sort((a, b) => {
+                if (a.blockNumber == b.blockNumber) {
+                  if (a.txIndex == b.txIndex) {
+                    return a.logIndex - b.logIndex;
+                  } else {
+                    return a.txIndex - b.txIndex;
+                  }
+                } else {
+                  return a.blockNumber - b.blockNumber;
+                }
+              });
+            } else if (this.settings.eventsTable.sortOption == 'blocknumberdsc') {
+              results.sort((a, b) => {
+                if (a.blockNumber == b.blockNumber) {
+                  if (a.txIndex == b.txIndex) {
+                    return b.logIndex - a.logIndex;
+                  } else {
+                    return b.txIndex - a.txIndex;
+                  }
+                } else {
+                  return b.blockNumber - a.blockNumber;
+                }
+              });
+            }
             return results;
           },
           pagedFilteredSortedEvents() {
