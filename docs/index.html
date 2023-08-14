@@ -360,6 +360,9 @@
                 <template #cell(index)="data">
                   {{ data.item.log[2] }}
                 </template>
+                <template #cell(data)="data">
+                  {{ data.item.data }}
+                </template>
                 <template #cell(hash)="data">
                   {{ data.item.log[3] }}
                 </template>
@@ -1554,6 +1557,8 @@
           addressToIndex: {},
           indexToAddress: [],
 
+          hashes: {},
+
           pairToIndex: {},
           indexToPair: [],
 
@@ -1661,6 +1666,7 @@
             { key: 'timestamp', label: 'When', sortable: false, thStyle: 'width: 15%;', thClass: 'text-left', tdClass: 'text-left' },
             { key: 'event', label: 'Event', sortable: false, thStyle: 'width: 10%;', thClass: 'text-left', tdClass: 'text-left' },
             { key: 'index', label: 'Index', sortable: false, thStyle: 'width: 10%;', thClass: 'text-right', tdClass: 'text-right' },
+            { key: 'data', label: 'Data', sortable: false, thStyle: 'width: 25%;', tdClass: 'text-truncate' },
             { key: 'hash', label: 'Hash', sortable: false, thStyle: 'width: 20%;', tdClass: 'text-truncate' },
             { key: 'owner', label: 'Owner', sortable: false, thStyle: 'width: 20%;', tdClass: 'text-truncate' },
           ],
@@ -1944,6 +1950,20 @@
                 for (const [txHash, logIndexes] of Object.entries(txHashes)) {
                   for (const [logIndex, log] of Object.entries(logIndexes)) {
                     // console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
+                    let data = null;
+                    if (log[1] == 1) { // Registration
+                      hash = log[3];
+                      console.log("filteredEvents - hash: " + hash);
+                      const _data = this.hashes[hash];
+                      console.log("filteredEvents - _data: " + _data);
+                      if (_data) {
+                        if (_data.data && _data.data.substring(0, 10) == "0x64617461") {
+                          data = ethers.utils.toUtf8String(_data.data);
+                        } else {
+                          data = "Unknown: " + _data.data;
+                        }
+                      }
+                    }
                     results.push({
                         blockNumber: parseInt(blockNumber),
                         // timestamp,
@@ -1951,6 +1971,7 @@
                         txHash,
                         logIndex: parseInt(logIndex),
                         log,
+                        data
                     });
                     // const pairIndex = txInfo[0];
                     // const pair = this.indexToPair[pairIndex];
@@ -2011,7 +2032,7 @@
             //     });
             //   }
             // }
-            // console.log("filteredEvents: " + JSON.stringify(results, null, 2))
+            console.log("filteredEvents: " + JSON.stringify(results, null, 2))
             return results;
           },
           filteredSortedEvents() {
@@ -3642,6 +3663,7 @@
             const context = { provider, latestBlockNumber, db };
             if (this.chainId == CHAINID_SEPOLIA) {
               await this.syncRegistryEvents(context);
+              await this.syncRegistryData(context);
               // await this.syncChadexEvents(context);
               // await this.syncChadexPairs(context);
               // await this.syncChadexPair(context);
@@ -3862,8 +3884,8 @@
             // console.log("addressToIndex: " + JSON.stringify(addressToIndex));
             const registryAddressIndex = addressToIndex[REGISTRYADDRESS_SEPOLIA];
             const coinbaseIndex = addressToIndex[this.coinbase];
-            console.log("registryAddressIndex: " + registryAddressIndex + " " + indexToAddress[registryAddressIndex]);
-            console.log("coinbaseIndex: " + coinbaseIndex + " " + indexToAddress[coinbaseIndex]);
+            // console.log("registryAddressIndex: " + registryAddressIndex + " " + indexToAddress[registryAddressIndex]);
+            // console.log("coinbaseIndex: " + coinbaseIndex + " " + indexToAddress[coinbaseIndex]);
 
             let events = {};
             let newEvents = 0;
@@ -3954,6 +3976,110 @@
             // console.log("events: " + JSON.stringify(events, null, 2));
             Vue.set(this, "events", events);
             await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
+            }).catch(function(error) {
+              console.log("error: " + error);
+            });
+          },
+
+
+          async syncRegistryData(context) {
+            console.log(moment().format("HH:mm:ss") + " syncRegistryData - latestBlockNumber: " + context.latestBlockNumber);
+
+            // const hashes = this.hashes;
+            // console.log("hashes BEFORE: " + JSON.stringify(hashes, null, 2));
+
+            let hashes = {};
+            // let hashes = this.hashes;
+            let newHashes = 0;
+            const hashesDataItems = await context.db.cache.where("objectName").equals(this.chainId + "_hashes").toArray();
+            if (hashesDataItems.length == 1) {
+              hashes = hashesDataItems[0].object;
+              // console.log("syncRegistryData - hashes BEFORE: " + JSON.stringify(hashes, null, 2));
+              // Object.keys(hashes).forEach(function (key) {
+              //   if ('unconfirmed' in hashes[key]) {
+              //     console.log("DELETING: " + key + " => " + JSON.stringify(hashes[key]));
+              //     delete hashes[key];
+              //   }
+              // });
+              console.log("syncRegistryData - hashes AFTER: " + JSON.stringify(hashes));
+            }
+
+            const MAX_PER_CYCLE = 50;
+            for (const [blockNumber, txIndexes] of Object.entries(this.events)) {
+              for (const [txIndex, txHashes] of Object.entries(txIndexes)) {
+                for (const [txHash, logIndexes] of Object.entries(txHashes)) {
+                  for (const [logIndex, log] of Object.entries(logIndexes)) {
+                    // console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
+                    if (log[1] == 1) { // Registration
+                      // console.log("Rego: " + JSON.stringify(log));
+                      const [timestamp, , tokenId, hash, ownerIndex] = log;
+                      // console.log("timestamp: " + timestamp + ", tokenId: " + tokenId + ", hash: " + hash + ", ownerIndex: " + ownerIndex);
+                      if (!(hash in hashes)) {
+                        const tx = await context.provider.getTransaction(txHash);
+                        console.log("tx.to: " + tx.to);
+                        console.log("tx.data: " + tx.data);
+                        // results.tx = {
+                        //   hash: tx.hash,
+                        //   type: tx.type,
+                        //   blockHash: tx.blockHash,
+                        //   blockNumber: tx.blockNumber,
+                        //   transactionIndex: tx.transactionIndex,
+                        //   from: tx.from,
+                        //   gasPrice: ethers.BigNumber.from(tx.gasPrice).toString(),
+                        //   gasLimit: ethers.BigNumber.from(tx.gasLimit).toString(),
+                        //   to: tx.to,
+                        //   value: ethers.BigNumber.from(tx.value).toString(),
+                        //   nonce: tx.nonce,
+                        //   data: tx.to && tx.data || null, // Remove contract creation data to reduce memory footprint
+                        //   // r: tx.r,
+                        //   // s: tx.s,
+                        //   // v: tx.v,
+                        //   chainId: tx.chainId,
+                        // };
+                        const txReceipt = await context.provider.getTransactionReceipt(txHash);
+                        // results.txReceipt = {
+                        //   to: txReceipt.to,
+                        //   from: txReceipt.from,
+                        //   contractAddress: txReceipt.contractAddress,
+                        //   transactionIndex: txReceipt.transactionIndex,
+                        //   gasUsed: ethers.BigNumber.from(txReceipt.gasUsed).toString(),
+                        //   blockHash: txReceipt.blockHash,
+                        //   // transactionHash: txReceipt.transactionHash,
+                        //   logs: txReceipt.logs,
+                        //   blockNumber: txReceipt.blockNumber,
+                        //   // confirmations: txReceipt.confirmations,
+                        //   cumulativeGasUsed: ethers.BigNumber.from(txReceipt.cumulativeGasUsed).toString(),
+                        //   effectiveGasPrice: ethers.BigNumber.from(txReceipt.effectiveGasPrice).toString(),
+                        //   status: txReceipt.status,
+                        //   type: txReceipt.type,
+                        //   // byzantium: txReceipt.byzantium,
+                        // };
+
+                        hashes[hash] = {
+                          blockNumber: parseInt(blockNumber),
+                          txIndex: parseInt(txIndex),
+                          txHash,
+                          hash,
+                          data: tx.data,
+                          // logIndex: parseInt(logIndex),
+                          // log,
+                        }
+                        newHashes++;
+                      }
+                    }
+                    if (newHashes >= MAX_PER_CYCLE) break;
+                  }
+                  if (newHashes >= MAX_PER_CYCLE) break;
+                }
+                if (newHashes >= MAX_PER_CYCLE) break;
+              }
+              if (newHashes >= MAX_PER_CYCLE) break;
+            }
+
+            Vue.set(this, "hashes", hashes);
+            console.log("newHashes: " + JSON.stringify(newHashes));
+            console.log("hashes: " + JSON.stringify(hashes));
+            await context.db.cache.put({ objectName: this.chainId + "_hashes", object: hashes }).then (function() {
             }).catch(function(error) {
               console.log("error: " + error);
             });
