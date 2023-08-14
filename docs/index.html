@@ -1953,9 +1953,9 @@
                     let data = null;
                     if (log[1] == 1) { // Registration
                       hash = log[3];
-                      console.log("filteredEvents - hash: " + hash);
+                      // console.log("filteredEvents - hash: " + hash);
                       const _data = this.hashes[hash];
-                      console.log("filteredEvents - _data: " + _data);
+                      // console.log("filteredEvents - _data: " + _data);
                       if (_data) {
                         if (_data.data && (_data.data.substring(0, 10) == "0x64617461" || _data.data.substring(0, 18) == "0x0064006100740061")) {
                           data = ethers.utils.toUtf8String(_data.data);
@@ -2032,7 +2032,7 @@
             //     });
             //   }
             // }
-            console.log("filteredEvents: " + JSON.stringify(results, null, 2))
+            // console.log("filteredEvents: " + JSON.stringify(results, null, 2))
             return results;
           },
           filteredSortedEvents() {
@@ -3903,7 +3903,6 @@
             }
             const blockNumbers = Object.keys(events).sort((a, b) => { return b - a });
             const startBlock = blockNumbers.length > 0 ? parseInt(blockNumbers[0]) + 1: REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
-            console.log("startBlock: " + startBlock);
             const fromBlock = startBlock;
             const toBlock = context.latestBlockNumber;
             // TODO: Handle > 10k events by batching
@@ -4001,7 +4000,7 @@
               //     delete hashes[key];
               //   }
               // });
-              console.log("syncRegistryData - hashes AFTER: " + JSON.stringify(hashes));
+              // console.log("syncRegistryData - hashes AFTER: " + JSON.stringify(hashes));
             }
 
             const MAX_PER_CYCLE = 50;
@@ -4077,8 +4076,8 @@
             }
 
             Vue.set(this, "hashes", hashes);
-            console.log("newHashes: " + JSON.stringify(newHashes));
-            console.log("hashes: " + JSON.stringify(hashes));
+            // console.log("newHashes: " + JSON.stringify(newHashes));
+            // console.log("hashes: " + JSON.stringify(hashes));
             await context.db.cache.put({ objectName: this.chainId + "_hashes", object: hashes }).then (function() {
             }).catch(function(error) {
               console.log("error: " + error);
