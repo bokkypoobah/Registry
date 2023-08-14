@@ -5962,8 +5962,8 @@
             const tempSettings = JSON.parse(localStorage.registrySettings);
             if ('version' in tempSettings && tempSettings.version == this.settings.version) {
               this.settings = tempSettings;
-              if (this.settings.tokensTable.currentPage > 1) {
-                this.settings.tokensTable.currentPage = 1;
+              if (this.settings.eventsTable.currentPage > 1) {
+                this.settings.eventsTable.currentPage = 1;
               }
             }
           }
