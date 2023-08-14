@@ -1957,7 +1957,7 @@
                       const _data = this.hashes[hash];
                       console.log("filteredEvents - _data: " + _data);
                       if (_data) {
-                        if (_data.data && _data.data.substring(0, 10) == "0x64617461") {
+                        if (_data.data && (_data.data.substring(0, 10) == "0x64617461" || _data.data.substring(0, 18) == "0x0064006100740061")) {
                           data = ethers.utils.toUtf8String(_data.data);
                         } else {
                           data = "Unknown: " + _data.data;
