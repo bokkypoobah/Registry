@@ -19,7 +19,7 @@ import "./Registry.sol";
 contract RegistryExchange {
     RegistryInterface public immutable registry;
 
-    event BulkTransferred(address to, uint[] tokenIds, uint timestamp);
+    event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
 
     error OnlyTokenOwnerCanTransfer();
 
@@ -55,10 +55,12 @@ contract RegistryExchange {
 
     mapping(address => mapping(uint => Offer)) offers;
 
-    event Offered(address msgSender, OfferData[] offers, uint timestamp);
+    event Offered(address indexed owner, OfferData[] offers, uint timestamp);
 
     error IncorrectOwner(uint tokenId, address currentOwner);
-    error OfferExpired(uint expiry);
+    error OfferExpired(uint tokenId, uint expiry);
+    error InvalidOffer(uint tokenId, address owner);
+    error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
 
     function offer(OfferData[] memory offerData) public {
         for (uint i = 0; i < offerData.length; i = onePlus(i)) {
@@ -75,6 +77,16 @@ contract RegistryExchange {
                 revert IncorrectOwner(p.tokenId, currentOwner);
             }
             Offer storage _offer = offers[p.owner][p.tokenId];
+            if (_offer.expiry != 0 && _offer.expiry < block.timestamp) {
+                revert OfferExpired(p.tokenId, _offer.expiry);
+            }
+            uint offerPrice = uint(_offer.price);
+            if (_offer.price == 0) {
+                revert InvalidOffer(p.tokenId, p.owner);
+            }
+            if (offerPrice != p.price) {
+                revert PriceMismatch(p.tokenId, _offer.price, p.price);
+            }
             // if ()
         }
     }
