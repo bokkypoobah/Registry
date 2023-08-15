@@ -17,27 +17,6 @@ import "./Registry.sol";
 
 
 contract RegistryExchange {
-    RegistryInterface public immutable registry;
-
-    event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
-
-    error OnlyTokenOwnerCanTransfer();
-
-
-    constructor(RegistryInterface _registry) {
-        registry = _registry;
-    }
-
-    function bulkTransfer(address to, uint[] memory tokenIds) public {
-        for (uint i = 0; i < tokenIds.length; i = onePlus(i)) {
-            if (msg.sender != registry.ownerOf(tokenIds[i])) {
-                revert OnlyTokenOwnerCanTransfer();
-            }
-            registry.transfer(to, tokenIds[i]);
-        }
-        emit BulkTransferred(to, tokenIds, block.timestamp);
-    }
-
     struct OfferData {
         uint tokenId;
         uint208 price;
@@ -53,14 +32,21 @@ contract RegistryExchange {
         uint price;
     }
 
+    RegistryInterface public immutable registry;
     mapping(address => mapping(uint => Offer)) offers;
 
     event Offered(address indexed owner, OfferData[] offers, uint timestamp);
+    event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
 
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
     error InvalidOffer(uint tokenId, address owner);
     error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
+    error OnlyTokenOwnerCanTransfer();
+
+    constructor(RegistryInterface _registry) {
+        registry = _registry;
+    }
 
     function offer(OfferData[] memory offerData) public {
         for (uint i = 0; i < offerData.length; i = onePlus(i)) {
@@ -69,7 +55,7 @@ contract RegistryExchange {
         }
         emit Offered(msg.sender, offerData, block.timestamp);
     }
-    function purchase(PurchaseData[] calldata purchaseData /*, bool fillOrKill */) public payable {
+    function purchase(PurchaseData[] calldata purchaseData) public payable {
         uint totalPaid = 0;
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
             PurchaseData memory p = purchaseData[i];
@@ -88,22 +74,23 @@ contract RegistryExchange {
             if (offerPrice != p.price) {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
             }
-
-            // TODO: fill, or fillOrKill (revert if whole batch not completed)
-
             totalPaid += offerPrice;
             payable(p.owner).transfer(offerPrice);
             registry.transfer(msg.sender, p.tokenId);
         }
-        // if (totalPaid < msg.value) {
-        //     // Should not get here
-        // }
-
         if (totalPaid > msg.value) {
             uint refund = msg.value - totalPaid;
             payable(msg.sender).transfer(refund);
         }
     }
 
-
+    function bulkTransfer(address to, uint[] memory tokenIds) public {
+        for (uint i = 0; i < tokenIds.length; i = onePlus(i)) {
+            if (msg.sender != registry.ownerOf(tokenIds[i])) {
+                revert OnlyTokenOwnerCanTransfer();
+            }
+            registry.transfer(to, tokenIds[i]);
+        }
+        emit BulkTransferred(to, tokenIds, block.timestamp);
+    }
 }
