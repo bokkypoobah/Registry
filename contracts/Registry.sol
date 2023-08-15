@@ -19,7 +19,7 @@ interface RegistryReceiverInterface {
 }
 
 interface RegistryInterface {
-    struct Result {
+    struct DataResult {
         bytes32 hash;
         address owner;
         uint created;
@@ -31,12 +31,13 @@ interface RegistryInterface {
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
-    function getData(uint count, uint offset) external view returns (Result[] memory results);
+    function getData(uint count, uint offset) external view returns (DataResult[] memory results);
 }
 
 function onePlus(uint x) pure returns (uint) {
     unchecked { return 1 + x; }
 }
+
 
 contract RegistryReceiver is RegistryReceiverInterface {
     RegistryInterface public immutable _registry;
@@ -132,12 +133,12 @@ contract Registry is RegistryInterface {
         emit Transfer(from, to, tokenId, block.timestamp);
     }
 
-    function getData(uint count, uint offset) public view returns (Result[] memory results) {
-        results = new Result[](count);
+    function getData(uint count, uint offset) public view returns (DataResult[] memory results) {
+        results = new DataResult[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
             Data memory d = data[hash];
-            results[i] = Result(hash, d.owner, uint(d.created));
+            results[i] = DataResult(hash, d.owner, uint(d.created));
         }
     }
 }
