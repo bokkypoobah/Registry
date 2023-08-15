@@ -69,7 +69,8 @@ contract RegistryExchange {
         }
         emit Offered(msg.sender, offerData, block.timestamp);
     }
-    function purchase(PurchaseData[] calldata purchaseData) public payable {
+    function purchase(PurchaseData[] calldata purchaseData /*, bool fillOrKill */) public payable {
+        uint totalPaid = 0;
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
             PurchaseData memory p = purchaseData[i];
             address currentOwner = registry.ownerOf(p.tokenId);
@@ -87,7 +88,20 @@ contract RegistryExchange {
             if (offerPrice != p.price) {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
             }
-            // if ()
+
+            // TODO: fill, or fillOrKill (revert if whole batch not completed)
+
+            totalPaid += offerPrice;
+            payable(p.owner).transfer(offerPrice);
+            registry.transfer(msg.sender, p.tokenId);
+        }
+        // if (totalPaid < msg.value) {
+        //     // Should not get here
+        // }
+
+        if (totalPaid > msg.value) {
+            uint refund = msg.value - totalPaid;
+            payable(msg.sender).transfer(refund);
         }
     }
 
