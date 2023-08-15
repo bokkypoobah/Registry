@@ -366,9 +366,7 @@
                     <b-img v-if="data.item.data" rounded="sm" variant="light" size="15.0rem" :src="data.item.data" style="width: 15rem; height: 15rem; object-fit: contain;" class="pixelated m-0 p-0"></b-img>
                   </div>
                   <div v-else-if="data.item.mediaType.substring(0, 9) == 'text/html'">
-                    <!-- <b-img rounded="sm" variant="light" size="10.0rem" :src="data.item.data" style="width: 15rem; height: 15rem; object-fit: contain; object-position: 50% top; background-color: #fafafa;" class="pixelated m-1 p-2"></b-img> -->
-                     <iframe :src="data.item.data" sandbox="allow-scripts" title="description"></iframe>
-                    <!-- <b-img v-if="data.item.data" rounded="sm" variant="light" size="15.0rem" :src="data.item.data" style="width: 15rem; height: 15rem; object-fit: contain;" class="pixelated m-0 p-0"></b-img> -->
+                     <iframe :src="data.item.data" sandbox="allow-scripts" style="width: 15rem; height: 15rem;" frameBorder="0" title="description"></iframe>
                   </div>
                   <div v-else>
                     [{{ data.item.mediaType }}]
