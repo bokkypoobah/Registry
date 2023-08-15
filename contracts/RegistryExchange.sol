@@ -43,10 +43,33 @@ contract RegistryExchange {
         uint208 price;
         uint48 expiry;
     }
-
-    // mapping(address => mapping(uint => ) )
-
-    function offerForSale(OfferData[] memory offerData) public {
-
+    struct Offer {
+        uint208 price;
+        uint48 expiry;
     }
+    struct PurchaseData {
+        address owner;
+        uint tokenId;
+        uint price;
+    }
+
+    mapping(address => mapping(uint => Offer)) offers;
+
+    event Offered(address msgSender, OfferData[] offers, uint timestamp);
+
+    function offer(OfferData[] memory offerData) public {
+        for (uint i = 0; i < offerData.length; i = onePlus(i)) {
+            OfferData memory o = offerData[i];
+            offers[msg.sender][o.tokenId] = Offer(o.price, o.expiry);
+        }
+        emit Offered(msg.sender, offerData, block.timestamp);
+    }
+    function purchase(PurchaseData[] calldata purchaseData) public {
+        for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
+            PurchaseData memory p = purchaseData[i];
+            Offer storage _offer = offers[p.owner][p.tokenId];
+        }
+    }
+
+
 }
