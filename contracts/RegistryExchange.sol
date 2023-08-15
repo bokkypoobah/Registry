@@ -57,6 +57,9 @@ contract RegistryExchange {
 
     event Offered(address msgSender, OfferData[] offers, uint timestamp);
 
+    error TokenIdNotOwnedByOfferOwner(address currentOwner);
+    error OfferExpired(uint expiry);
+
     function offer(OfferData[] memory offerData) public {
         for (uint i = 0; i < offerData.length; i = onePlus(i)) {
             OfferData memory o = offerData[i];
@@ -64,10 +67,15 @@ contract RegistryExchange {
         }
         emit Offered(msg.sender, offerData, block.timestamp);
     }
-    function purchase(PurchaseData[] calldata purchaseData) public {
+    function purchase(PurchaseData[] calldata purchaseData) public payable {
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
             PurchaseData memory p = purchaseData[i];
+            address currentOwner = registry.ownerOf(p.tokenId);
+            if (p.owner != currentOwner) {
+                revert TokenIdNotOwnedByOfferOwner(currentOwner);
+            }
             Offer storage _offer = offers[p.owner][p.tokenId];
+            // if ()
         }
     }
 
