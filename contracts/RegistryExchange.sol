@@ -37,4 +37,16 @@ contract RegistryExchange {
         }
         emit BulkTransferred(to, tokenIds, block.timestamp);
     }
+
+    struct OfferData {
+        uint tokenId;
+        uint208 price;
+        uint48 expiry;
+    }
+
+    // mapping(address => mapping(uint => ) )
+
+    function offerForSale(OfferData[] memory offerData) public {
+
+    }
 }
