@@ -20,11 +20,20 @@ describe("Registry", function () {
     const [owner, otherAccount] = await ethers.getSigners();
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
+
+    console.log("DEBUG 1");
+
+    const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
+    const registryExchange = await RegistryExchange.deploy(registry.target);
+
+    // console.log("DEBUG 2");
+
     const registryReceiver = await registry.registryReceiver();
     console.log("      deployFixture - owner.address: " + owner.address);
     console.log("      deployFixture - otherAccount.address: " + otherAccount.address);
     console.log("      deployFixture - registry.target: " + registry.target);
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
+    console.log("      deployFixture - registryExchange: " + registryExchange);
     console.log();
     return { registry, registryReceiver, owner, otherAccount };
   }
