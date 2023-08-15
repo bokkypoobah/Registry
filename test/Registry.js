@@ -35,7 +35,7 @@ describe("Registry", function () {
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
     console.log("      deployFixture - registryExchange: " + registryExchange);
     console.log();
-    return { registry, registryReceiver, owner, otherAccount };
+    return { registry, registryReceiver, registryExchange, owner, otherAccount };
   }
 
   async function printTx(prefix, receipt) {
@@ -70,7 +70,7 @@ describe("Registry", function () {
 
   describe("Deployment", function () {
     it("Should deploy", async function () {
-      const { registry, registryReceiver, owner, otherAccount } = await loadFixture(deployFixture);
+      const { registry, registryReceiver, registryExchange, owner, otherAccount } = await loadFixture(deployFixture);
       await printState("Empty", registry);
 
 
@@ -131,9 +131,23 @@ describe("Registry", function () {
       await printTx("tx5Regular", await tx5Regular.wait());
       await printState("5 Entries, 2 Accounts, large items", registry);
 
-      // TODO:
-      // - Test transfer by invalid owner
-      // - Test setApprovalForAll and transfer by mock exchange
+      await expect(registryExchange.connect(otherAccount).bulkTransfer(owner.address, [0])).to.be.revertedWithCustomError(
+        registryExchange,
+        "OnlyTokenOwnerCanTransfer"
+      );
+      await expect(registryExchange.connect(otherAccount).bulkTransfer(owner.address, [1, 2])).to.be.revertedWithCustomError(
+        registry,
+        "NotOwnerNorApproved"
+      );
+
+      console.log("      otherAccount.setApprovalForAll(registryExchange, true)");
+      const tx6 = await registry.connect(otherAccount).setApprovalForAll(registryExchange.target, true);
+      await printTx("tx6", await tx6.wait());
+
+      console.log("      Transferring ownership of #1 & #2 to " + owner.address);
+      const tx7 = await registryExchange.connect(otherAccount).bulkTransfer(owner.address, [1, 3]);
+      await printTx("tx7", await tx7.wait());
+      await printState("5 Entries, 2 Accounts, Transferred", registry);
     });
 
 
