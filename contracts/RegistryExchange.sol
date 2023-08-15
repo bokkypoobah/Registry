@@ -57,7 +57,7 @@ contract RegistryExchange {
 
     event Offered(address msgSender, OfferData[] offers, uint timestamp);
 
-    error TokenIdNotOwnedByOfferOwner(address currentOwner);
+    error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint expiry);
 
     function offer(OfferData[] memory offerData) public {
@@ -72,7 +72,7 @@ contract RegistryExchange {
             PurchaseData memory p = purchaseData[i];
             address currentOwner = registry.ownerOf(p.tokenId);
             if (p.owner != currentOwner) {
-                revert TokenIdNotOwnedByOfferOwner(currentOwner);
+                revert IncorrectOwner(p.tokenId, currentOwner);
             }
             Offer storage _offer = offers[p.owner][p.tokenId];
             // if ()
