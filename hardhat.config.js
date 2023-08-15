@@ -6,6 +6,7 @@ require("hardhat-gas-reporter");
 module.exports = {
   solidity: "0.8.19",
   gasReporter: {
-    enabled: true,
+    enabled: false,
+    // enabled: process.env.REPORT_GAS ? true : false,
   }
 };
