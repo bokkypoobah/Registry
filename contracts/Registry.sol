@@ -14,32 +14,51 @@ pragma solidity ^0.8.19;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2023
 // ----------------------------------------------------------------------------
 
-contract RegistryReceiver {
-    Registry public immutable registry;
-
-    constructor() {
-        registry = Registry(msg.sender);
-    }
-
-    fallback(bytes calldata input) external returns (bytes memory output) {
-        return registry.register(keccak256(abi.encodePacked(input)), msg.sender);
-    }
+interface RegistryReceiverInterface {
+    function registry() external view returns (RegistryInterface);
 }
 
-
-contract Registry {
-    struct Data {
-        address owner;
-        uint56 tokenId;
-        uint40 created;
-    }
+interface RegistryInterface {
     struct Result {
         bytes32 hash;
         address owner;
         uint created;
     }
+    function registryReceiver() external view returns (RegistryReceiverInterface);
+    function register(bytes32 hash, address msgSender) external returns (bytes memory output);
+    function ownerOf(uint tokenId) external view returns (address);
+    function hashesLength() external view returns (uint);
+    function setApprovalForAll(address operator, bool approved) external;
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+    function transfer(address to, uint tokenId) external;
+    function getData(uint count, uint offset) external view returns (Result[] memory results);
 
-    RegistryReceiver public immutable registryReceiver;
+}
+
+contract RegistryReceiver is RegistryReceiverInterface {
+    RegistryInterface public immutable _registry;
+
+    constructor() {
+        _registry = Registry(msg.sender);
+    }
+    function registry() external view returns (RegistryInterface) {
+        return _registry;
+    }
+
+    fallback(bytes calldata input) external returns (bytes memory output) {
+        return _registry.register(keccak256(abi.encodePacked(input)), msg.sender);
+    }
+}
+
+
+contract Registry is RegistryInterface {
+    struct Data {
+        address owner;
+        uint56 tokenId;
+        uint40 created;
+    }
+
+    RegistryReceiver public immutable _registryReceiver;
     bytes32[] public hashes;
     mapping(bytes32 => Data) public data;
     mapping(address => mapping(address => bool)) private _operatorApprovals;
@@ -55,11 +74,14 @@ contract Registry {
     error NotOwnerNorApproved();
 
     constructor() {
-        registryReceiver = new RegistryReceiver();
+        _registryReceiver = new RegistryReceiver();
+    }
+    function registryReceiver() external view returns (RegistryReceiverInterface) {
+        return _registryReceiver;
     }
 
-    function register(bytes32 hash, address msgSender) public returns (bytes memory output) {
-        if (msg.sender != address(registryReceiver)) {
+    function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
+        if (msg.sender != address(_registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
         }
         Data memory d = data[hash];
@@ -71,15 +93,15 @@ contract Registry {
         output = bytes.concat(bytes32(hashes.length));
         hashes.push(hash);
     }
-    function ownerOf(uint tokenId) public view returns (address) {
+    function ownerOf(uint tokenId) external view returns (address) {
         bytes32 hash = hashes[tokenId];
         return data[hash].owner;
     }
-    function hashesLength() public view returns (uint) {
+    function hashesLength() external view returns (uint) {
         return hashes.length;
     }
 
-    function setApprovalForAll(address operator, bool approved) public {
+    function setApprovalForAll(address operator, bool approved) external {
         if (operator == msg.sender) {
             revert CannotApproveSelf();
         }
