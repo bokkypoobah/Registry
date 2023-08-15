@@ -361,7 +361,14 @@
                   {{ data.item.log[2] }}
                 </template>
                 <template #cell(data)="data">
-                  {{ data.item.data || '(loading)' }}
+                  <div v-if="data.item.mediaType.substring(0, 6) == 'image/'">
+                    <!-- <b-img rounded="sm" variant="light" size="10.0rem" :src="data.item.data" style="width: 15rem; height: 15rem; object-fit: contain; object-position: 50% top; background-color: #fafafa;" class="pixelated m-1 p-2"></b-img> -->
+                    <b-img v-if="data.item.data" rounded="sm" variant="light" size="15.0rem" :src="data.item.data" style="width: 15rem; height: 15rem; object-fit: contain;" class="pixelated m-0 p-0"></b-img>
+                  </div>
+                  <div v-else>
+                    [{{ data.item.mediaType }}]
+                    {{ data.item.data || '(loading)' }}
+                  </div>
                 </template>
                 <template #cell(hash)="data">
                   {{ data.item.log[3] }}
@@ -1951,6 +1958,7 @@
                   for (const [logIndex, log] of Object.entries(logIndexes)) {
                     // console.log("blockNumber: " + blockNumber + "/" + txIndex + "/" + txHash + "/" + logIndex + " => " + JSON.stringify(log, null, 2));
                     let data = null;
+                    let mediaType = "null";
                     if (log[1] == 1) { // Registration
                       hash = log[3];
                       // console.log("filteredEvents - hash: " + hash);
@@ -1958,8 +1966,26 @@
                       // console.log("filteredEvents - _data: " + _data);
                       if (_data) {
                         if (_data.data && (_data.data.substring(0, 10) == "0x64617461" || _data.data.substring(0, 18) == "0x0064006100740061")) {
-                          data = ethers.utils.toUtf8String(_data.data);
+                          const __data = ethers.utils.toUtf8String(_data.data).trim();
+                          if (__data.substring(0, 5) == "data:") {
+                            console.log("data: " + __data);
+                            let [scheme, _mediaType, ___data] = __data.split(/[:,]/);
+                            console.log("scheme: " + scheme + ", _mediaType: " + _mediaType);
+                            if (scheme == "data") {
+                              mediaType = _mediaType;
+                              // data = ___data;
+                              data = __data;
+                            }
+                            // console.log("items: " + JSON.stringify(items));
+                            // if (items[0] == "data" && items.length > 2) {
+                            // // } else if (item.length == 3) {
+                            // } else {
+                            // }
+                          } else {
+                            data = __data;
+                          }
                         } else {
+                          mediaType = "unknown"
                           data = "Unknown: " + _data.data;
                         }
                       }
@@ -1971,6 +1997,7 @@
                         txHash,
                         logIndex: parseInt(logIndex),
                         log,
+                        mediaType,
                         data
                     });
                     // const pairIndex = txInfo[0];
