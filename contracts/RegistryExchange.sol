@@ -19,7 +19,22 @@ import "./Registry.sol";
 contract RegistryExchange {
     RegistryInterface public immutable registry;
 
+    event BulkTransferred(address to, uint[] tokenIds, uint timestamp);
+
+    error OnlyTokenOwnerCanTransfer();
+
+
     constructor(RegistryInterface _registry) {
         registry = _registry;
+    }
+
+    function bulkTransfer(address to, uint[] memory tokenIds) public {
+        for (uint i = 0; i < tokenIds.length; i = onePlus(i)) {
+            if (msg.sender != registry.ownerOf(tokenIds[i])) {
+                revert OnlyTokenOwnerCanTransfer();
+            }
+            registry.transfer(to, tokenIds[i]);
+        }
+        emit BulkTransferred(to, tokenIds, block.timestamp);
     }
 }

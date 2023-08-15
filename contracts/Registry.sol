@@ -32,7 +32,10 @@ interface RegistryInterface {
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
     function getData(uint count, uint offset) external view returns (Result[] memory results);
+}
 
+function onePlus(uint x) pure returns (uint) {
+    unchecked { return 1 + x; }
 }
 
 contract RegistryReceiver is RegistryReceiverInterface {
@@ -129,9 +132,6 @@ contract Registry is RegistryInterface {
         emit Transfer(from, to, tokenId, block.timestamp);
     }
 
-    function onePlus(uint x) internal pure returns (uint) {
-        unchecked { return 1 + x; }
-    }
     function getData(uint count, uint offset) public view returns (Result[] memory results) {
         results = new Result[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
