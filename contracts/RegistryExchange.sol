@@ -99,35 +99,27 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     mapping(address => mapping(uint => Record)) public offers;
     mapping(address => mapping(uint => Record)) public bids;
 
-    event FeeUpdated(uint indexed fee);
-    event Offered(address indexed account, Order[] offers, uint timestamp);
+    event Offer(address indexed account, Order[] offers, uint timestamp);
     event Bid(address indexed account, Order[] bids, uint timestamp);
     event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
+    event FeeUpdated(uint indexed fee);
 
-    error InvalidFee(uint fee, uint maxFee);
     error InvalidPrice(uint price, uint maxPrice);
-    error IncorrectOwner(uint tokenId, address currentOwner);
-    error OfferExpired(uint tokenId, uint expiry);
-    error BidExpired(uint tokenId, uint expiry);
+    error IncorrectOwner(uint tokenId, address tokenOwner, address orderOwner);
+    error OrderExpired(uint tokenId, uint expiry);
     error InvalidOrder(uint tokenId, address account);
     error CannotSelfTrade(uint tokenId);
     error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
+    error InvalidFee(uint fee, uint maxFee);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(ERC20 _weth, RegistryInterface _registry) {
         weth = _weth;
         registry = _registry;
-    }
-    function updateFee(uint _fee) public onlyOwner {
-        if (_fee > MAX_FEE) {
-            revert InvalidFee(_fee, MAX_FEE);
-        }
-        emit FeeUpdated(_fee);
-        fee = _fee;
     }
 
     function offer(Order[] memory orders) public {
@@ -138,7 +130,17 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             offers[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Offered(msg.sender, orders, block.timestamp);
+        emit Offer(msg.sender, orders, block.timestamp);
+    }
+    function bid(Order[] memory orders) public {
+        for (uint i = 0; i < orders.length; i = onePlus(i)) {
+            Order memory o = orders[i];
+            if (o.price > PRICE_MAX) {
+                revert InvalidPrice(o.price, PRICE_MAX);
+            }
+            bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
+        }
+        emit Bid(msg.sender, orders, block.timestamp);
     }
     function buy(Trade[] calldata trades) public payable reentrancyGuard {
         uint available = msg.value;
@@ -147,16 +149,15 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             if (t.account == msg.sender) {
                 revert CannotSelfTrade(t.tokenId);
             }
-            address currentOwner = registry.ownerOf(t.tokenId);
-            if (t.account != currentOwner) {
-                revert IncorrectOwner(t.tokenId, currentOwner);
+            address tokenOwner = registry.ownerOf(t.tokenId);
+            if (t.account != tokenOwner) {
+                revert IncorrectOwner(t.tokenId, tokenOwner, t.account);
             }
             Record memory order = offers[t.account][t.tokenId];
             if (order.expiry == 0) {
                 revert InvalidOrder(t.tokenId, t.account);
-            }
-            if (order.expiry < block.timestamp) {
-                revert OfferExpired(t.tokenId, order.expiry);
+            } else if (order.expiry < block.timestamp) {
+                revert OrderExpired(t.tokenId, order.expiry);
             }
             uint orderPrice = uint(order.price);
             if (orderPrice != t.price) {
@@ -175,22 +176,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             payable(msg.sender).transfer(available);
         }
     }
-
-    function availableWeth(address account) internal view returns (uint tokens) {
-        uint allowance = weth.allowance(account, address(this));
-        uint balance = weth.balanceOf(account);
-        tokens = allowance < balance ? allowance : balance;
-    }
-    function bid(Order[] memory orders) public {
-        for (uint i = 0; i < orders.length; i = onePlus(i)) {
-            Order memory o = orders[i];
-            if (o.price > PRICE_MAX) {
-                revert InvalidPrice(o.price, PRICE_MAX);
-            }
-            bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
-        }
-        emit Bid(msg.sender, orders, block.timestamp);
-    }
     function sell(Trade[] calldata trades) public {
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
             Trade memory t = trades[i];
@@ -200,9 +185,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             Record memory order = bids[t.account][t.tokenId];
             if (order.expiry == 0) {
                 revert InvalidOrder(t.tokenId, t.account);
-            }
-            if (order.expiry < block.timestamp) {
-                revert BidExpired(t.tokenId, order.expiry);
+            } else if (order.expiry < block.timestamp) {
+                revert OrderExpired(t.tokenId, order.expiry);
             }
             uint orderPrice = uint(order.price);
             if (orderPrice != t.price) {
@@ -228,5 +212,18 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             registry.transfer(to, tokenIds[i]);
         }
         emit BulkTransferred(to, tokenIds, block.timestamp);
+    }
+    function updateFee(uint _fee) public onlyOwner {
+        if (_fee > MAX_FEE) {
+            revert InvalidFee(_fee, MAX_FEE);
+        }
+        emit FeeUpdated(_fee);
+        fee = _fee;
+    }
+
+    function availableWeth(address account) internal view returns (uint tokens) {
+        uint allowance = weth.allowance(account, address(this));
+        uint balance = weth.balanceOf(account);
+        tokens = allowance < balance ? allowance : balance;
     }
 }
