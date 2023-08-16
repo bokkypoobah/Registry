@@ -37,6 +37,7 @@ contract RegistryExchange {
 
     event Offered(address indexed owner, OfferData[] offers, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
+    event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
@@ -81,6 +82,7 @@ contract RegistryExchange {
             available -= offerPrice;
             payable(p.owner).transfer(offerPrice);
             registry.transfer(msg.sender, p.tokenId);
+            emit Purchased(p.owner, msg.sender, p.tokenId, offerPrice, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);

@@ -162,7 +162,7 @@ describe("Registry", function () {
   }
 
   describe("Registry", function () {
-    it.skip("Registry #1", async function () {
+    it("Registry #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
