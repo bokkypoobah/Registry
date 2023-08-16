@@ -282,14 +282,21 @@ describe("Registry", function () {
       const tx6 = await data.registryExchange.connect(data.user0).offer(offerData);
       await printTx(data, "tx6", await tx6.wait());
 
+      await printState(data, "Setup Tokens");
+
       const purchaseData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.offer(purchaseData)");
       const tx7 = await data.registryExchange.connect(data.user1).purchase(purchaseData, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
+      await printState(data, "After Offer Purchases");
 
-      await printState(data, "Setup Tokens");
+      const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
+      console.log("      user2 -> registryExchange.offer(bidData)");
+      const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
+      await printTx(data, "tx8", await tx8.wait());
 
+      await printState(data, "After Bid Acceptances");
     });
   });
 

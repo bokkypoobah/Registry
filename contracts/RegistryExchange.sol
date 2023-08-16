@@ -17,7 +17,7 @@ import "./Registry.sol";
 
 
 contract RegistryExchange {
-    struct OfferData {
+    struct OfferInput {
         uint tokenId;
         uint208 price;
         uint48 expiry;
@@ -31,11 +31,27 @@ contract RegistryExchange {
         uint tokenId;
         uint price;
     }
+    struct BidInput {
+        uint tokenId;
+        uint208 price;
+        uint48 expiry;
+    }
+    struct Bid {
+        uint208 price;
+        uint48 expiry;
+    }
+    struct SaleData {
+        address owner;
+        uint tokenId;
+        uint price;
+    }
 
     RegistryInterface public immutable registry;
     mapping(address => mapping(uint => Offer)) offers;
+    mapping(address => mapping(uint => Bid)) bids;
 
-    event Offered(address indexed owner, OfferData[] offers, uint timestamp);
+    event Offered(address indexed account, OfferInput[] offers, uint timestamp);
+    event BidRegistered(address indexed account, BidInput[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
@@ -50,12 +66,12 @@ contract RegistryExchange {
         registry = _registry;
     }
 
-    function offer(OfferData[] memory offerData) public {
-        for (uint i = 0; i < offerData.length; i = onePlus(i)) {
-            OfferData memory o = offerData[i];
+    function offer(OfferInput[] memory offerInputs) public {
+        for (uint i = 0; i < offerInputs.length; i = onePlus(i)) {
+            OfferInput memory o = offerInputs[i];
             offers[msg.sender][o.tokenId] = Offer(o.price, o.expiry);
         }
-        emit Offered(msg.sender, offerData, block.timestamp);
+        emit Offered(msg.sender, offerInputs, block.timestamp);
     }
     function purchase(PurchaseData[] calldata purchaseData) public payable {
         uint available = msg.value;
@@ -65,7 +81,7 @@ contract RegistryExchange {
             if (p.owner != currentOwner) {
                 revert IncorrectOwner(p.tokenId, currentOwner);
             }
-            Offer storage _offer = offers[p.owner][p.tokenId];
+            Offer memory _offer = offers[p.owner][p.tokenId];
             if (_offer.expiry != 0 && _offer.expiry < block.timestamp) {
                 revert OfferExpired(p.tokenId, _offer.expiry);
             }
@@ -80,6 +96,7 @@ contract RegistryExchange {
                 revert InsufficientFunds(p.tokenId, _offer.price, available);
             }
             available -= offerPrice;
+            delete offers[p.owner][p.tokenId];
             payable(p.owner).transfer(offerPrice);
             registry.transfer(msg.sender, p.tokenId);
             emit Purchased(p.owner, msg.sender, p.tokenId, offerPrice, block.timestamp);
@@ -87,6 +104,17 @@ contract RegistryExchange {
         if (available > 0) {
             payable(msg.sender).transfer(available);
         }
+    }
+
+    function bid(BidInput[] memory bidInputs) public {
+        for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
+            BidInput memory b = bidInputs[i];
+            bids[msg.sender][b.tokenId] = Bid(b.price, b.expiry);
+        }
+        emit BidRegistered(msg.sender, bidInputs, block.timestamp);
+    }
+    function sell(SaleData[] calldata saleData) public payable {
+        // TODO:
     }
 
     function bulkTransfer(address to, uint[] memory tokenIds) public {
