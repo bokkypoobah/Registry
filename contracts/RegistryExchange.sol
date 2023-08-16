@@ -87,7 +87,7 @@ contract RegistryExchange is Owned {
     event Offered(address indexed account, MakerData[] offers, uint timestamp);
     event Bid(address indexed account, MakerData[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
-    event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
     error InvalidFee(uint fee, uint maxFee);
@@ -124,7 +124,7 @@ contract RegistryExchange is Owned {
         }
         emit Offered(msg.sender, offerInputs, block.timestamp);
     }
-    function purchase(TakerData[] calldata purchaseData) public payable {
+    function buy(TakerData[] calldata purchaseData) public payable {
         uint available = msg.value;
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
             TakerData memory p = purchaseData[i];
@@ -150,7 +150,7 @@ contract RegistryExchange is Owned {
             delete offers[p.account][p.tokenId];
             payable(p.account).transfer((offerPrice * (10_000 - fee)) / 10_000);
             registry.transfer(msg.sender, p.tokenId);
-            emit Purchased(p.account, msg.sender, p.tokenId, p.price, block.timestamp);
+            emit Bought(p.account, msg.sender, p.tokenId, p.price, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);
@@ -162,15 +162,15 @@ contract RegistryExchange is Owned {
         uint balance = weth.balanceOf(account);
         tokens = allowance < balance ? allowance : balance;
     }
-    function bid(MakerData[] memory bidInputs) public {
-        for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
-            MakerData memory b = bidInputs[i];
+    function bid(MakerData[] memory inputs) public {
+        for (uint i = 0; i < inputs.length; i = onePlus(i)) {
+            MakerData memory b = inputs[i];
             if (b.price > PRICE_MAX) {
                 revert InvalidPrice(b.price, PRICE_MAX);
             }
             bids[msg.sender][b.tokenId] = Order(uint208(b.price), uint48(b.expiry));
         }
-        emit Bid(msg.sender, bidInputs, block.timestamp);
+        emit Bid(msg.sender, inputs, block.timestamp);
     }
     function sell(TakerData[] calldata saleData) public {
         for (uint i = 0; i < saleData.length; i = onePlus(i)) {

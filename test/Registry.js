@@ -315,9 +315,9 @@ describe("Registry", function () {
 
       await printState(data, "Setup Tokens");
 
-      const purchaseData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
-      console.log("      user1 -> registryExchange.purchase(purchaseData)");
-      const tx7 = await data.registryExchange.connect(data.user1).purchase(purchaseData, { value: ethers.parseEther("110") });
+      const buyData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
+      console.log("      user1 -> registryExchange.buy(buyData)");
+      const tx7 = await data.registryExchange.connect(data.user1).buy(buyData, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
       await printState(data, "After Purchases");
@@ -327,9 +327,9 @@ describe("Registry", function () {
       const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx8", await tx8.wait());
 
-      const saleData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
-      console.log("      user1 -> registryExchange.sell(saleData)");
-      const tx9 = await data.registryExchange.connect(data.user1).sell(saleData);
+      const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
+      console.log("      user1 -> registryExchange.sell(sellData)");
+      const tx9 = await data.registryExchange.connect(data.user1).sell(sellData);
       await printTx(data, "tx9", await tx9.wait());
 
       await printState(data, "After Sales");
