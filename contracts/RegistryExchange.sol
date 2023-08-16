@@ -10,6 +10,10 @@ pragma solidity ^0.8.19;
 //
 // SPDX-License-Identifier: MIT
 //
+// If you earn fees using your deployment of this code, or derivatives of this
+// code, please send a proportionate amount to bokkypoobah.eth .
+// Don't be stingy! Donations welcome!
+//
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2023
 // ----------------------------------------------------------------------------
 
@@ -44,6 +48,13 @@ contract Owned {
         owner = newOwner;
         newOwner = address(0);
     }
+    function withdrawTokens(ERC20 token, uint tokens) public onlyOwner {
+        if (address(token) == address(0)) {
+            payable(owner).transfer((tokens == 0 ? address(this).balance : tokens));
+        } else {
+            token.transfer(owner, tokens == 0 ? token.balanceOf(address(this)) : tokens);
+        }
+    }
 }
 
 
@@ -64,18 +75,22 @@ contract RegistryExchange is Owned {
     }
 
     uint public constant PRICE_MAX = 1_000_000 ether;
+    uint public constant MAX_FEE = 10; // 10 basis points = 0.1%
 
     ERC20 public immutable weth;
     RegistryInterface public immutable registry;
+    uint public fee = MAX_FEE;
     mapping(address => mapping(uint => Order)) public offers;
     mapping(address => mapping(uint => Order)) public bids;
 
+    event FeeUpdated(uint indexed fee);
     event Offered(address indexed account, MakerData[] offers, uint timestamp);
     event Bid(address indexed account, MakerData[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
+    error InvalidFee(uint fee, uint maxFee);
     error InvalidPrice(uint price, uint maxPrice);
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
@@ -90,6 +105,13 @@ contract RegistryExchange is Owned {
     constructor(ERC20 _weth, RegistryInterface _registry) {
         weth = _weth;
         registry = _registry;
+    }
+    function updateFee(uint _fee) public onlyOwner {
+        if (_fee > MAX_FEE) {
+            revert InvalidFee(_fee, MAX_FEE);
+        }
+        emit FeeUpdated(_fee);
+        fee = _fee;
     }
 
     function offer(MakerData[] memory offerInputs) public {
@@ -126,7 +148,7 @@ contract RegistryExchange is Owned {
             }
             available -= offerPrice;
             delete offers[p.account][p.tokenId];
-            payable(p.account).transfer((offerPrice * 9_999) / 10_000);
+            payable(p.account).transfer((offerPrice * (10_000 - fee)) / 10_000);
             registry.transfer(msg.sender, p.tokenId);
             emit Purchased(p.account, msg.sender, p.tokenId, p.price, block.timestamp);
         }
@@ -167,8 +189,8 @@ contract RegistryExchange is Owned {
             if (available < s.price) {
                 revert MakerHasInsufficientWeth(s.account, s.tokenId, s.price, available);
             }
-            weth.transferFrom(s.account, msg.sender, (s.price * 9_999) / 10_000);
-            weth.transferFrom(s.account, address(this), (s.price * 1) / 10_000);
+            weth.transferFrom(s.account, msg.sender, (s.price * (10_000 - fee)) / 10_000);
+            weth.transferFrom(s.account, address(this), (s.price * fee) / 10_000);
             delete bids[s.account][s.tokenId];
             registry.transfer(s.account, s.tokenId);
             emit Sold(msg.sender, s.account, s.tokenId, s.price, block.timestamp);
