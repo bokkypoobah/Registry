@@ -166,7 +166,7 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
-      // TODO: Send tx with non-0 value
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
 
       const string0 = "abcdef";
       addHash(data, string0);
@@ -208,7 +208,7 @@ describe("Registry", function () {
         data.registry,
         "NotOwnerNorApproved"
       );
-      console.log("      Transferring ownership of #1 to " + getAccountName(data, data.user1.address));
+      console.log("      user0 -> registry.transfer(" + getAccountName(data, data.user1.address) + ", 1)");
       const tx3 = await data.registry.connect(data.user0).transfer(data.user1.address, 1);
       await printTx(data, "tx3", await tx3.wait());
       await printState(data, "3 Entries, 2 Accounts, Transferred");
@@ -242,11 +242,11 @@ describe("Registry", function () {
         "NotOwnerNorApproved"
       );
 
-      console.log("      user1.setApprovalForAll(registryExchange, true)");
+      console.log("      user1 -> registry.setApprovalForAll(" + getAccountName(data, data.registryExchange.target) + ", true)");
       const tx6 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
       await printTx(data, "tx6", await tx6.wait());
 
-      console.log("      Transferring ownership of #1 & #3 to " + getAccountName(data, data.user0.address));
+      console.log("      user1 -> registryExchange.bulkTransfer(" + getAccountName(data, data.user0.address) + ", [1, 3])");
       const tx7 = await data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [1, 3]);
       await printTx(data, "tx7", await tx7.wait());
       await printState(data, "5 Entries, 2 Accounts, Transferred");
@@ -271,11 +271,12 @@ describe("Registry", function () {
       const tx4 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
       await printTx(data, "tx0", await tx0.wait());
 
-      console.log("      user0.setApprovalForAll(registryExchange, true)");
+      console.log("      user0 -> registry.setApprovalForAll(registryExchange, true)");
       const tx5 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
       await printTx(data, "tx5", await tx5.wait());
 
       await printState(data, "Setup Tokens");
+
     });
   });
 
