@@ -125,7 +125,7 @@ describe("Registry", function () {
     const data = await context.registry.getData(10, 0);
     let i = 0;
     console.log();
-    console.log("       # Hash                 Owner                          Registered");
+    console.log("       # String:Hash          Owner                          Registered");
     console.log("      -- -------------------- ------------------------------ -----------------------------");
     for (const row of data) {
       const [hash, owner, created] = row;
