@@ -20,8 +20,8 @@ import "./ERC20.sol";
 contract RegistryExchange {
     struct MakerData {
         uint tokenId;
-        uint208 price;
-        uint48 expiry;
+        uint price;
+        uint expiry;
     }
     struct PriceExpiry {
         uint208 price;
@@ -62,7 +62,7 @@ contract RegistryExchange {
     function offer(MakerData[] memory offerInputs) public {
         for (uint i = 0; i < offerInputs.length; i = onePlus(i)) {
             MakerData memory o = offerInputs[i];
-            offers[msg.sender][o.tokenId] = PriceExpiry(o.price, o.expiry);
+            offers[msg.sender][o.tokenId] = PriceExpiry(uint208(o.price), uint48(o.expiry));
         }
         emit Offered(msg.sender, offerInputs, block.timestamp);
     }
@@ -107,7 +107,7 @@ contract RegistryExchange {
     function bid(MakerData[] memory bidInputs) public {
         for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
             MakerData memory b = bidInputs[i];
-            bids[msg.sender][b.tokenId] = PriceExpiry(b.price, b.expiry);
+            bids[msg.sender][b.tokenId] = PriceExpiry(uint208(b.price), uint48(b.expiry));
         }
         emit BidRegistered(msg.sender, bidInputs, block.timestamp);
     }
