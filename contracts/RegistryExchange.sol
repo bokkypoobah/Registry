@@ -42,7 +42,7 @@ contract RegistryExchange {
         uint48 expiry;
     }
     struct SaleData {
-        address owner;
+        address bidder;
         uint tokenId;
         uint price;
     }
@@ -56,10 +56,13 @@ contract RegistryExchange {
     event BidRegistered(address indexed account, BidInput[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
+    error BidExpired(uint tokenId, uint expiry);
     error InvalidOffer(uint tokenId, address owner);
+    error InvalidBid(uint tokenId, address bidder);
     error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
     error InsufficientFunds(uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
@@ -116,20 +119,33 @@ contract RegistryExchange {
         }
         emit BidRegistered(msg.sender, bidInputs, block.timestamp);
     }
-    event Debug(string topic, uint value);
     function sell(SaleData[] calldata saleData) public {
-        uint wethBalance = weth.balanceOf(msg.sender);
-        emit Debug("wethBalance", wethBalance);
-        uint wethApproved = weth.allowance(msg.sender, address(this));
-        emit Debug("wethApproved", wethApproved);
-        uint available = wethBalance > wethApproved ? wethApproved : wethBalance;
-        emit Debug("available", available);
-
-        // TODO:
-        // uint available = msg.value;
-        // for (uint i = 0; i < saleData.length; i = onePlus(i)) {
-        //     SaleData memory s = saleData[i];
-        // }
+        for (uint i = 0; i < saleData.length; i = onePlus(i)) {
+            SaleData memory s = saleData[i];
+            address bidder = s.bidder;
+            uint tokenId = s.tokenId;
+            uint price = s.price;
+            Bid memory _bid = bids[bidder][tokenId];
+            if (_bid.expiry != 0 && _bid.expiry < block.timestamp) {
+                revert BidExpired(s.tokenId, _bid.expiry);
+            }
+            if (_bid.price == 0) {
+                revert InvalidBid(s.tokenId, bidder);
+            }
+            if (s.price != _bid.price) {
+                revert PriceMismatch(s.tokenId, _bid.price, s.price);
+            }
+            uint wethBalance = weth.balanceOf(bidder);
+            uint wethApproved = weth.allowance(bidder, address(this));
+            uint available = wethBalance > wethApproved ? wethApproved : wethBalance;
+            if (available < price) {
+                revert InsufficientFunds(s.tokenId, price, available);
+            }
+            weth.transferFrom(bidder, msg.sender, price);
+            delete bids[bidder][s.tokenId];
+            registry.transfer(bidder, s.tokenId);
+            emit Sold(msg.sender, bidder, s.tokenId, price, block.timestamp);
+        }
     }
 
     function bulkTransfer(address to, uint[] memory tokenIds) public {

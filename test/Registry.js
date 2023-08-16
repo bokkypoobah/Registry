@@ -262,8 +262,8 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
 
       // const setup1 = [];
-      const amount0 = ethers.parseEther("100");
-      const approveAmount0 = ethers.parseEther("11.111111111");
+      const amount0 = ethers.parseEther("1000");
+      const approveAmount0 = ethers.parseEther("1111.111111111");
       // setup1.push(data.weth.connect(data.deployer).transfer(data.user0.address, amount0));
       // setup1.push(data.weth.connect(data.deployer).transfer(data.user1.address, amount0));
       // setup1.push(data.weth.connect(data.deployer).transfer(data.user2.address, amount0));
@@ -301,8 +301,11 @@ describe("Registry", function () {
       await printTx(data, "tx0", await tx0.wait());
 
       console.log("      user0 -> registry.setApprovalForAll(registryExchange, true)");
-      const tx5 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
-      await printTx(data, "tx5", await tx5.wait());
+      const tx5a = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
+      await printTx(data, "tx5a", await tx5a.wait());
+      console.log("      user1 -> registry.setApprovalForAll(registryExchange, true)");
+      const tx5b = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
+      await printTx(data, "tx5b", await tx5b.wait());
 
       const now = parseInt(new Date() / 1000);
       const expiry = parseInt(now) + 60 * 60;
@@ -318,20 +321,20 @@ describe("Registry", function () {
       const tx7 = await data.registryExchange.connect(data.user1).purchase(purchaseData, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
-      await printState(data, "After Offer Purchases");
+      await printState(data, "After Purchases");
 
       const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
       console.log("      user2 -> registryExchange.bid(bidData)");
       const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx8", await tx8.wait());
 
-      const saleData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
+      const saleData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.sell(saleData)");
       const tx9 = await data.registryExchange.connect(data.user1).sell(saleData);
       await printTx(data, "tx9", await tx9.wait());
 
 
-      await printState(data, "After Bid Acceptances");
+      await printState(data, "After Sales");
     });
   });
 
