@@ -50,8 +50,8 @@ contract RegistryExchange {
     error InvalidOffer(uint tokenId, address owner);
     error InvalidBid(uint tokenId, address bidder);
     error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
-    error InsufficientETH(uint tokenId, uint required, uint available);
-    error BidderHasInsufficientWETH(address bidder, uint tokenId, uint required, uint available);
+    error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
+    error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(RegistryInterface _registry, ERC20 _weth) {
@@ -86,7 +86,7 @@ contract RegistryExchange {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
             }
             if (available < offerPrice) {
-                revert InsufficientETH(p.tokenId, _offer.price, available);
+                revert TakerHasInsufficientEth(p.tokenId, _offer.price, available);
             }
             available -= offerPrice;
             delete offers[p.account][p.tokenId];
@@ -126,7 +126,7 @@ contract RegistryExchange {
             }
             uint available = availableWeth(s.account);
             if (available < s.price) {
-                revert BidderHasInsufficientWETH(s.account, s.tokenId, s.price, available);
+                revert MakerHasInsufficientWeth(s.account, s.tokenId, s.price, available);
             }
             weth.transferFrom(s.account, msg.sender, s.price);
             delete bids[s.account][s.tokenId];
