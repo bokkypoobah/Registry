@@ -10,24 +10,19 @@ const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000000001";
 
-// const { BigNumber } = require("ethers");
-// const util = require('util');
-// const { expect, assert } = require("chai");
-
-
 describe("Registry", function () {
   async function deployFixture() {
     const [deployer, user0, user1, user2] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
     // const wethReceipt = await weth.waitForDeployment();
-    // console.table(wethReceipt);
     // console.log("wethReceipt: " + JSON.stringify(wethReceipt, null, 2));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
-    const registryExchange = await RegistryExchange.deploy(registry.target, weth.target);
+    const registryExchange = await RegistryExchange.deploy(weth.target, registry.target);
     const registryReceiver = await registry.registryReceiver();
+    const registryExchangeOwner = await registryExchange.owner();
     console.log("      deployFixture - deployer: " + deployer.address);
     console.log("      deployFixture - user0: " + user0.address);
     console.log("      deployFixture - user1: " + user1.address);
@@ -36,6 +31,7 @@ describe("Registry", function () {
     console.log("      deployFixture - registry: " + registry.target);
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
     console.log("      deployFixture - registryExchange: " + registryExchange.target);
+    console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
     console.log();
     const accounts = [deployer.address, user0.address, user1.address, user2.address, weth.target, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
@@ -261,7 +257,7 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange", function () {
-    it.only("RegistryExchange #2", async function () {
+    it("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
 
       // const setup1 = [];

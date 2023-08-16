@@ -1,6 +1,6 @@
 
   Registry
-    RegistryExchange
+    Registry
       deployFixture - deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       deployFixture - user0: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       deployFixture - user1: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
@@ -9,7 +9,192 @@
       deployFixture - registry: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
       deployFixture - registryReceiver: 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
       deployFixture - registryExchange: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+      deployFixture - registryExchange.owner: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
+
+      --- Empty ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995294688116721782                1000000.0
+        1 user0:0x7099                               10000.0                      0.0
+        2 user1:0x3C44                               10000.0                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+
+      string0.length: 6
+      > tx0 - gasUsed: 95058 ~ ETH 0.00190116 ~ USD 3.80232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 5.0 Registered(tokenId: 0, hash: 0xacd0c377, owner: user0:0x7099, timestamp: 2023-08-16T13:32:24.000Z)
+      > tx0Regular - gasUsed: 21096 ~ ETH 0.00042192 ~ USD 0.84384 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+
+      --- Single Entry ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999752890647957467                      0.0
+        2 user1:0x3C44                               10000.0                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+
+      string1.length: 8
+      > tx1 - gasUsed: 77990 ~ ETH 0.0015598 ~ USD 3.1196 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 9.0 Registered(tokenId: 1, hash: 0x48624fa4, owner: user0:0x7099, timestamp: 2023-08-16T13:32:28.000Z)
+      > tx1Regular - gasUsed: 21128 ~ ETH 0.00042256 ~ USD 0.84512 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+
+      --- 2 Entries ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999623957732235953                      0.0
+        2 user1:0x3C44                               10000.0                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T13:32:28.000Z
+
+      string2.length: 1000
+      > tx2 - gasUsed: 94237 ~ ETH 0.00188474 ~ USD 3.76948 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 11.0 Registered(tokenId: 2, hash: 0xadb7e839, owner: user1:0x3C44, timestamp: 2023-08-16T13:32:30.000Z)
+      > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+
+      --- 3 Entries, 2 Accounts ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999623957732235953                      0.0
+        2 user1:0x3C44               9999.999838774934038458                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T13:32:28.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T13:32:30.000Z
+
+      user0 -> registry.transfer(user1:0x3C44, 1)
+      > tx3 - gasUsed: 34218 ~ ETH 0.00068436 ~ USD 1.36872 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 14.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T13:32:33.000Z)
+
+      --- 3 Entries, 2 Accounts, Transferred ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999547769298990404                      0.0
+        2 user1:0x3C44               9999.999838774934038458                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T13:32:28.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T13:32:30.000Z
+
+      string4.length: 20000
+      > tx4 - gasUsed: 406140 ~ ETH 0.0081228 ~ USD 16.2456 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 15.0 Registered(tokenId: 3, hash: 0x43973760, owner: user1:0x3C44, timestamp: 2023-08-16T13:32:34.000Z)
+      > tx4Regular - gasUsed: 341000 ~ ETH 0.00682 ~ USD 13.64 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+
+      --- 4 Entries, 2 Accounts, large item ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999547769298990404                      0.0
+        2 user1:0x3C44               9999.998993500989329738                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T13:32:28.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T13:32:30.000Z
+        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T13:32:34.000Z
+
+      string5.length: 100000
+      > tx5 - gasUsed: 1734558 ~ ETH 0.03469116 ~ USD 69.38232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x86e3c5cd, owner: user1:0x3C44, timestamp: 2023-08-16T13:32:36.000Z)
+      > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+
+      --- 5 Entries, 2 Accounts, large items ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999547769298990404                      0.0
+        2 user1:0x3C44                9999.99529733936265911                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T13:32:28.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T13:32:30.000Z
+        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T13:32:34.000Z
+        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T13:32:36.000Z
+
+      user1 -> registry.setApprovalForAll(registryExchange:0x9fE4, true)
+      > tx6 - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 21.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T13:32:40.000Z)
+      user1 -> registryExchange.bulkTransfer(user0:0x7099, [1, 3])
+      > tx7 - gasUsed: 58148 ~ ETH 0.00116296 ~ USD 2.32592 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 22.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 2023-08-16T13:32:41.000Z)
+        + registry:0xe7f1 -> 22.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 2023-08-16T13:32:41.000Z)
+        + registryExchange:0x9fE4 -> 22.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 2023-08-16T13:32:41.000Z)
+
+      --- 5 Entries, 2 Accounts, Transferred ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.995263742787328832                1000000.0
+        1 user0:0x7099               9999.999547769298990404                      0.0
+        2 user1:0x3C44               9999.995111590758823388                      0.0
+        3 user2:0x90F7                               10000.0                      0.0
+        4 weth:0x5FbD                                    0.0                      0.0
+        5 registry:0xe7f1                                0.0                      0.0
+        6 registryReceiver:0xCafa                        0.0                      0.0
+        7 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T13:32:24.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T13:32:28.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T13:32:30.000Z
+        3 "22222222222":0x4397 user0:0x7099                   2023-08-16T13:32:34.000Z
+        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T13:32:36.000Z
+
+      ✓ Registry #1
+    RegistryExchange
       > txWethTransfer0 - gasUsed: 51421 ~ ETH 0.00102842 ~ USD 2.05684 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 4.0 Transfer(from: deployer:0xf39F, to: user0:0x7099, tokens: 1000000000000000000000)
       > txWethTransfer1 - gasUsed: 51409 ~ ETH 0.00102818 ~ USD 2.05636 @ gasPrice 20.0 gwei, ETH/USD 2000.0
@@ -26,10 +211,10 @@
       --- Empty ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.995432677166811799                 997000.0
-        1 user0:0x7099                9999.99993522870425665                   1000.0
-        2 user1:0x3C44                9999.99993754558642348                   1000.0
-        3 user2:0x90F7               9999.999939573749908954                   1000.0
+        0 deployer:0xf39F            9999.995058751779157142                 997000.0
+        1 user0:0x7099               9999.999935189698333078                   1000.0
+        2 user1:0x3C44                9999.99993751144120909                   1000.0
+        3 user2:0x90F7               9999.999939543859719982                   1000.0
         4 weth:0x5FbD                                    0.0                      0.0
         5 registry:0xe7f1                                0.0                      0.0
         6 registryReceiver:0xCafa                        0.0                      0.0
@@ -39,24 +224,24 @@
       --- -------------------- ------------------------------ ------------------------
 
       > tx0 - gasUsed: 95042 ~ ETH 0.00190084 ~ USD 3.80168 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 10.0 Registered(tokenId: 0, hash: 0xaee086d8, owner: user0:0x7099, timestamp: 2023-08-16T12:57:32.000Z)
+        + registry:0xe7f1 -> 10.0 Registered(tokenId: 0, hash: 0xaee086d8, owner: user0:0x7099, timestamp: 2023-08-16T13:32:29.000Z)
       user0 -> registry.setApprovalForAll(registryExchange, true)
       > tx5a - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 15.0 ApprovalForAll(owner: user0:0x7099, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T12:57:37.000Z)
+        + registry:0xe7f1 -> 15.0 ApprovalForAll(owner: user0:0x7099, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T13:32:34.000Z)
       user1 -> registry.setApprovalForAll(registryExchange, true)
       > tx5b - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 16.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T12:57:38.000Z)
+        + registry:0xe7f1 -> 16.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T13:32:35.000Z)
       user0 -> registryExchange.offer(offerData)
-      > tx6 - gasUsed: 96916 ~ ETH 0.00193832 ~ USD 3.87664 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 17.0 Offered(account: user0:0x7099, offers: 1,11000000000000000000,1692194245,2,22000000000000000000,1692194245,3,33000000000000000000,1692194245, timestamp: 2023-08-16T12:57:39.000Z)
+      > tx6 - gasUsed: 96990 ~ ETH 0.0019398 ~ USD 3.8796 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registryExchange:0x9fE4 -> 17.0 Offered(account: user0:0x7099, offers: 1,11000000000000000000,1692196342,2,22000000000000000000,1692196342,3,33000000000000000000,1692196342, timestamp: 2023-08-16T13:32:36.000Z)
 
       --- Setup Tokens ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.995432677166811799                 997000.0
-        1 user0:0x7099               9999.999281560384360301                   1000.0
-        2 user1:0x3C44               9999.999885496061517853                   1000.0
-        3 user2:0x90F7               9999.999939573749908954                   1000.0
+        0 deployer:0xf39F            9999.995058751779157142                 997000.0
+        1 user0:0x7099                9999.99928122225005521                   1000.0
+        2 user1:0x3C44               9999.999885450065859271                   1000.0
+        3 user2:0x90F7               9999.999939543859719982                   1000.0
         4 weth:0x5FbD                                    0.0                      0.0
         5 registry:0xe7f1                                0.0                      0.0
         6 registryReceiver:0xCafa                        0.0                      0.0
@@ -64,70 +249,72 @@
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T12:57:32.000Z
-        1 "text1":0x00da       user0:0x7099                   2023-08-16T12:57:33.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T12:57:34.000Z
-        3 "text3":0x222d       user0:0x7099                   2023-08-16T12:57:35.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T12:57:36.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T13:32:29.000Z
+        1 "text1":0x00da       user0:0x7099                   2023-08-16T13:32:30.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T13:32:31.000Z
+        3 "text3":0x222d       user0:0x7099                   2023-08-16T13:32:32.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T13:32:33.000Z
 
       user1 -> registryExchange.purchase(purchaseData)
-      > tx7 - gasUsed: 86407 ~ ETH 0.00172814 ~ USD 3.45628 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 18.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T12:57:40.000Z)
-        + registryExchange:0x9fE4 -> 18.1 Purchased(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T12:57:40.000Z)
-        + registry:0xe7f1 -> 18.2 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-16T12:57:40.000Z)
-        + registryExchange:0x9fE4 -> 18.3 Purchased(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T12:57:40.000Z)
+      > tx7 - gasUsed: 86647 ~ ETH 0.00173294 ~ USD 3.46588 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 18.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T13:32:37.000Z)
+        + registryExchange:0x9fE4 -> 18.1 Purchased(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T13:32:37.000Z)
+        + registry:0xe7f1 -> 18.2 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-16T13:32:37.000Z)
+        + registryExchange:0x9fE4 -> 18.3 Purchased(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T13:32:37.000Z)
 
       --- After Purchases ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.995432677166811799                 997000.0
-        1 user0:0x7099              10043.999281560384360301                   1000.0
-        2 user1:0x3C44               9955.999791024787108017                   1000.0
-        3 user2:0x90F7               9999.999939573749908954                   1000.0
+        0 deployer:0xf39F            9999.995058751779157142                 997000.0
+        1 user0:0x7099               10043.99488122225005521                   1000.0
+        2 user1:0x3C44               9955.999790699421213966                   1000.0
+        3 user2:0x90F7               9999.999939543859719982                   1000.0
         4 weth:0x5FbD                                    0.0                      0.0
         5 registry:0xe7f1                                0.0                      0.0
         6 registryReceiver:0xCafa                        0.0                      0.0
-        7 registryExchange:0x9fE4                        0.0                      0.0
+        7 registryExchange:0x9fE4                     0.0044                      0.0
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T12:57:32.000Z
-        1 "text1":0x00da       user1:0x3C44                   2023-08-16T12:57:33.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T12:57:34.000Z
-        3 "text3":0x222d       user1:0x3C44                   2023-08-16T12:57:35.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T12:57:36.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T13:32:29.000Z
+        1 "text1":0x00da       user1:0x3C44                   2023-08-16T13:32:30.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T13:32:31.000Z
+        3 "text3":0x222d       user1:0x3C44                   2023-08-16T13:32:32.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T13:32:33.000Z
 
       user2 -> registryExchange.bid(bidData)
-      > tx8 - gasUsed: 96915 ~ ETH 0.0019383 ~ USD 3.8766 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 19.0 Bid(account: user2:0x90F7, bids: 1,11000000000000000000,1692194245,2,22000000000000000000,1692194245,3,33000000000000000000,1692194245, timestamp: 2023-08-16T12:57:41.000Z)
+      > tx8 - gasUsed: 96967 ~ ETH 0.00193934 ~ USD 3.87868 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registryExchange:0x9fE4 -> 19.0 Bid(account: user2:0x90F7, bids: 1,11000000000000000000,1692196342,2,22000000000000000000,1692196342,3,33000000000000000000,1692196342, timestamp: 2023-08-16T13:32:38.000Z)
       user1 -> registryExchange.sell(saleData)
-      > tx9 - gasUsed: 89959 ~ ETH 0.00179918 ~ USD 3.59836 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 20.0 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 11000000000000000000)
-        + registry:0xe7f1 -> 20.1 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, timestamp: 2023-08-16T12:57:42.000Z)
-        + registryExchange:0x9fE4 -> 20.2 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T12:57:42.000Z)
-        + weth:0x5FbD -> 20.3 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 33000000000000000000)
-        + registry:0xe7f1 -> 20.4 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, timestamp: 2023-08-16T12:57:42.000Z)
-        + registryExchange:0x9fE4 -> 20.5 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T12:57:42.000Z)
+      > tx9 - gasUsed: 120942 ~ ETH 0.00241884 ~ USD 4.83768 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + weth:0x5FbD -> 20.0 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 10998900000000000000)
+        + weth:0x5FbD -> 20.1 Transfer(from: user2:0x90F7, to: registryExchange:0x9fE4, tokens: 1100000000000000)
+        + registry:0xe7f1 -> 20.2 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, timestamp: 2023-08-16T13:32:39.000Z)
+        + registryExchange:0x9fE4 -> 20.3 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T13:32:39.000Z)
+        + weth:0x5FbD -> 20.4 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 32996700000000000000)
+        + weth:0x5FbD -> 20.5 Transfer(from: user2:0x90F7, to: registryExchange:0x9fE4, tokens: 3300000000000000)
+        + registry:0xe7f1 -> 20.6 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, timestamp: 2023-08-16T13:32:39.000Z)
+        + registryExchange:0x9fE4 -> 20.7 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T13:32:39.000Z)
 
       --- After Sales ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.995432677166811799                 997000.0
-        1 user0:0x7099              10043.999281560384360301                   1000.0
-        2 user1:0x3C44               9955.999694626541139243                   1044.0
-        3 user2:0x90F7               9999.999834737883857674                    956.0
+        0 deployer:0xf39F            9999.995058751779157142                 997000.0
+        1 user0:0x7099               10043.99488122225005521                   1000.0
+        2 user1:0x3C44                9955.99966108222639803                1043.9956
+        3 user2:0x90F7               9999.999834635093309534                    956.0
         4 weth:0x5FbD                                    0.0                      0.0
         5 registry:0xe7f1                                0.0                      0.0
         6 registryReceiver:0xCafa                        0.0                      0.0
-        7 registryExchange:0x9fE4                        0.0                      0.0
+        7 registryExchange:0x9fE4                     0.0044                   0.0044
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T12:57:32.000Z
-        1 "text1":0x00da       user2:0x90F7                   2023-08-16T12:57:33.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T12:57:34.000Z
-        3 "text3":0x222d       user2:0x90F7                   2023-08-16T12:57:35.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T12:57:36.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T13:32:29.000Z
+        1 "text1":0x00da       user2:0x90F7                   2023-08-16T13:32:30.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T13:32:31.000Z
+        3 "text3":0x222d       user2:0x90F7                   2023-08-16T13:32:32.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T13:32:33.000Z
 
       ✓ RegistryExchange #2
 
@@ -138,15 +325,19 @@
 ·····················|·····················|·············|·············|·············|···············|··············
 |  [1mContract[22m          ·  [1mMethod[22m             ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1musd (avg)[22m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistry[39m          ·  setApprovalForAll  ·          -  ·          -  ·      46401  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistry[39m          ·  setApprovalForAll  ·          -  ·          -  ·      46401  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  bid                ·          -  ·          -  ·      96915  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistry[39m          ·  transfer           ·          -  ·          -  ·      34218  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  offer              ·          -  ·          -  ·      96916  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  bid                ·          -  ·          -  ·      96967  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  purchase           ·          -  ·          -  ·      86407  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  bulkTransfer       ·          -  ·          -  ·      58148  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  sell               ·          -  ·          -  ·      89959  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  offer              ·          -  ·          -  ·      96990  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [90mRegistryExchange[39m  ·  purchase           ·          -  ·          -  ·      86647  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [90mRegistryExchange[39m  ·  sell               ·          -  ·          -  ·     120942  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
 |  [90mToken[39m             ·  approve            ·          -  ·          -  ·      46179  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
@@ -156,10 +347,10 @@
 ···········································|·············|·············|·············|···············|··············
 |  Registry                                ·          -  ·          -  ·     812218  ·        [90m2.7 %[39m  ·          [32m[90m-[32m[39m  │
 ···········································|·············|·············|·············|···············|··············
-|  RegistryExchange                        ·          -  ·          -  ·    1138762  ·        [90m3.8 %[39m  ·          [32m[90m-[32m[39m  │
+|  RegistryExchange                        ·          -  ·          -  ·    1361437  ·        [90m4.5 %[39m  ·          [32m[90m-[32m[39m  │
 ···········································|·············|·············|·············|···············|··············
 |  Token                                   ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·------------------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (872ms)
+  2 passing (1s)
 

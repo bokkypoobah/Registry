@@ -17,15 +17,45 @@ import "./Registry.sol";
 import "./ERC20.sol";
 
 
-contract RegistryExchange {
+/// @notice Ownership
+contract Owned {
+    address public owner;
+    address public newOwner;
+
+    event OwnershipTransferred(address indexed from, address indexed to);
+
+    error NotOwner();
+
+    modifier onlyOwner {
+        if (msg.sender != owner) {
+            revert NotOwner();
+        }
+        _;
+    }
+
+    constructor() {
+        owner = msg.sender;
+    }
+    function transferOwnership(address _newOwner) public onlyOwner {
+        newOwner = _newOwner;
+    }
+    function acceptOwnership() public {
+        emit OwnershipTransferred(owner, newOwner);
+        owner = newOwner;
+        newOwner = address(0);
+    }
+}
+
+
+contract RegistryExchange is Owned {
+    struct Order {
+        uint208 price;
+        uint48 expiry;
+    }
     struct MakerData {
         uint tokenId;
         uint price;
         uint expiry;
-    }
-    struct PriceExpiry {
-        uint208 price;
-        uint48 expiry;
     }
     struct TakerData {
         address account;
@@ -33,10 +63,12 @@ contract RegistryExchange {
         uint price;
     }
 
-    RegistryInterface public immutable registry;
+    uint public constant PRICE_MAX = 1_000_000 ether;
+
     ERC20 public immutable weth;
-    mapping(address => mapping(uint => PriceExpiry)) public offers;
-    mapping(address => mapping(uint => PriceExpiry)) public bids;
+    RegistryInterface public immutable registry;
+    mapping(address => mapping(uint => Order)) public offers;
+    mapping(address => mapping(uint => Order)) public bids;
 
     event Offered(address indexed account, MakerData[] offers, uint timestamp);
     event Bid(address indexed account, MakerData[] bids, uint timestamp);
@@ -44,6 +76,7 @@ contract RegistryExchange {
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
 
+    error InvalidPrice(uint price, uint maxPrice);
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
     error BidExpired(uint tokenId, uint expiry);
@@ -54,15 +87,18 @@ contract RegistryExchange {
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
 
-    constructor(RegistryInterface _registry, ERC20 _weth) {
-        registry = _registry;
+    constructor(ERC20 _weth, RegistryInterface _registry) {
         weth = _weth;
+        registry = _registry;
     }
 
     function offer(MakerData[] memory offerInputs) public {
         for (uint i = 0; i < offerInputs.length; i = onePlus(i)) {
             MakerData memory o = offerInputs[i];
-            offers[msg.sender][o.tokenId] = PriceExpiry(uint208(o.price), uint48(o.expiry));
+            if (o.price > PRICE_MAX) {
+                revert InvalidPrice(o.price, PRICE_MAX);
+            }
+            offers[msg.sender][o.tokenId] = Order(uint208(o.price), uint48(o.expiry));
         }
         emit Offered(msg.sender, offerInputs, block.timestamp);
     }
@@ -74,7 +110,7 @@ contract RegistryExchange {
             if (p.account != currentOwner) {
                 revert IncorrectOwner(p.tokenId, currentOwner);
             }
-            PriceExpiry memory _offer = offers[p.account][p.tokenId];
+            Order memory _offer = offers[p.account][p.tokenId];
             if (_offer.expiry != 0 && _offer.expiry < block.timestamp) {
                 revert OfferExpired(p.tokenId, _offer.expiry);
             }
@@ -90,7 +126,7 @@ contract RegistryExchange {
             }
             available -= offerPrice;
             delete offers[p.account][p.tokenId];
-            payable(p.account).transfer(offerPrice);
+            payable(p.account).transfer((offerPrice * 9_999) / 10_000);
             registry.transfer(msg.sender, p.tokenId);
             emit Purchased(p.account, msg.sender, p.tokenId, p.price, block.timestamp);
         }
@@ -107,14 +143,17 @@ contract RegistryExchange {
     function bid(MakerData[] memory bidInputs) public {
         for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
             MakerData memory b = bidInputs[i];
-            bids[msg.sender][b.tokenId] = PriceExpiry(uint208(b.price), uint48(b.expiry));
+            if (b.price > PRICE_MAX) {
+                revert InvalidPrice(b.price, PRICE_MAX);
+            }
+            bids[msg.sender][b.tokenId] = Order(uint208(b.price), uint48(b.expiry));
         }
         emit Bid(msg.sender, bidInputs, block.timestamp);
     }
     function sell(TakerData[] calldata saleData) public {
         for (uint i = 0; i < saleData.length; i = onePlus(i)) {
             TakerData memory s = saleData[i];
-            PriceExpiry memory _bid = bids[s.account][s.tokenId];
+            Order memory _bid = bids[s.account][s.tokenId];
             if (_bid.expiry != 0 && _bid.expiry < block.timestamp) {
                 revert BidExpired(s.tokenId, _bid.expiry);
             }
@@ -128,7 +167,8 @@ contract RegistryExchange {
             if (available < s.price) {
                 revert MakerHasInsufficientWeth(s.account, s.tokenId, s.price, available);
             }
-            weth.transferFrom(s.account, msg.sender, s.price);
+            weth.transferFrom(s.account, msg.sender, (s.price * 9_999) / 10_000);
+            weth.transferFrom(s.account, address(this), (s.price * 1) / 10_000);
             delete bids[s.account][s.tokenId];
             registry.transfer(s.account, s.tokenId);
             emit Sold(msg.sender, s.account, s.tokenId, s.price, block.timestamp);
