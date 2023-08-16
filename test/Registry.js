@@ -337,6 +337,7 @@ describe("Registry", function () {
       console.log("      deployer -> registryExchange.withdrawTokens(0, 0)");
       const tx10 = await data.registryExchange.connect(data.deployer).withdrawTokens(ZERO_ADDRESS, 0);
       await printTx(data, "tx10", await tx10.wait());
+      console.log("      deployer -> registryExchange.withdrawTokens(WETH, 0)");
       const tx11 = await data.registryExchange.connect(data.deployer).withdrawTokens(data.weth.target, 0);
       await printTx(data, "tx11", await tx11.wait());
 

@@ -1,4 +1,3 @@
-Compiled 1 Solidity file successfully
 
   Registry
     Registry
@@ -30,7 +29,7 @@ Compiled 1 Solidity file successfully
 
       string0.length: 6
       > tx0 - gasUsed: 95058 ~ ETH 0.00190116 ~ USD 3.80232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 5.0 Registered(tokenId: 0, hash: 0xacd0c377, owner: user0:0x7099, timestamp: 2023-08-16T15:28:48.000Z)
+        + registry:0xe7f1 -> 5.0 Registered(tokenId: 0, hash: 0xacd0c377, owner: user0:0x7099, timestamp: 2023-08-16T15:56:00.000Z)
       > tx0Regular - gasUsed: 21096 ~ ETH 0.00042192 ~ USD 0.84384 @ gasPrice 20.0 gwei, ETH/USD 2000.0
 
       --- Single Entry ---
@@ -47,11 +46,11 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
 
       string1.length: 8
       > tx1 - gasUsed: 77990 ~ ETH 0.0015598 ~ USD 3.1196 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 9.0 Registered(tokenId: 1, hash: 0x48624fa4, owner: user0:0x7099, timestamp: 2023-08-16T15:28:52.000Z)
+        + registry:0xe7f1 -> 9.0 Registered(tokenId: 1, hash: 0x48624fa4, owner: user0:0x7099, timestamp: 2023-08-16T15:56:04.000Z)
       > tx1Regular - gasUsed: 21128 ~ ETH 0.00042256 ~ USD 0.84512 @ gasPrice 20.0 gwei, ETH/USD 2000.0
 
       --- 2 Entries ---
@@ -68,12 +67,12 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:28:52.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:56:04.000Z
 
       string2.length: 1000
       > tx2 - gasUsed: 94237 ~ ETH 0.00188474 ~ USD 3.76948 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 11.0 Registered(tokenId: 2, hash: 0xadb7e839, owner: user1:0x3C44, timestamp: 2023-08-16T15:28:54.000Z)
+        + registry:0xe7f1 -> 11.0 Registered(tokenId: 2, hash: 0xadb7e839, owner: user1:0x3C44, timestamp: 2023-08-16T15:56:06.000Z)
       > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, ETH/USD 2000.0
 
       --- 3 Entries, 2 Accounts ---
@@ -90,13 +89,13 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:28:52.000Z
-        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:28:54.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:56:04.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:56:06.000Z
 
       user0 -> registry.transfer(user1:0x3C44, 1)
       > tx3 - gasUsed: 34218 ~ ETH 0.00068436 ~ USD 1.36872 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 14.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T15:28:57.000Z)
+        + registry:0xe7f1 -> 14.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T15:56:09.000Z)
 
       --- 3 Entries, 2 Accounts, Transferred ---
        Id Account                                        ETH                     WETH
@@ -112,13 +111,13 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:28:52.000Z
-        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:28:54.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:56:04.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:56:06.000Z
 
       string4.length: 20000
       > tx4 - gasUsed: 406140 ~ ETH 0.0081228 ~ USD 16.2456 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 15.0 Registered(tokenId: 3, hash: 0x43973760, owner: user1:0x3C44, timestamp: 2023-08-16T15:28:58.000Z)
+        + registry:0xe7f1 -> 15.0 Registered(tokenId: 3, hash: 0x43973760, owner: user1:0x3C44, timestamp: 2023-08-16T15:56:10.000Z)
       > tx4Regular - gasUsed: 341000 ~ ETH 0.00682 ~ USD 13.64 @ gasPrice 20.0 gwei, ETH/USD 2000.0
 
       --- 4 Entries, 2 Accounts, large item ---
@@ -135,14 +134,14 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:28:52.000Z
-        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:28:54.000Z
-        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T15:28:58.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:56:04.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:56:06.000Z
+        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T15:56:10.000Z
 
       string5.length: 100000
       > tx5 - gasUsed: 1734558 ~ ETH 0.03469116 ~ USD 69.38232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x86e3c5cd, owner: user1:0x3C44, timestamp: 2023-08-16T15:29:00.000Z)
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x86e3c5cd, owner: user1:0x3C44, timestamp: 2023-08-16T15:56:12.000Z)
       > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, ETH/USD 2000.0
 
       --- 5 Entries, 2 Accounts, large items ---
@@ -159,20 +158,20 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:28:52.000Z
-        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:28:54.000Z
-        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T15:28:58.000Z
-        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T15:29:00.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user1:0x3C44                   2023-08-16T15:56:04.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:56:06.000Z
+        3 "22222222222":0x4397 user1:0x3C44                   2023-08-16T15:56:10.000Z
+        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T15:56:12.000Z
 
       user1 -> registry.setApprovalForAll(registryExchange:0x9fE4, true)
       > tx6 - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 21.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:29:04.000Z)
+        + registry:0xe7f1 -> 21.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:56:16.000Z)
       user1 -> registryExchange.bulkTransfer(user0:0x7099, [1, 3])
       > tx7 - gasUsed: 58148 ~ ETH 0.00116296 ~ USD 2.32592 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 22.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 2023-08-16T15:29:05.000Z)
-        + registry:0xe7f1 -> 22.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 2023-08-16T15:29:05.000Z)
-        + registryExchange:0x9fE4 -> 22.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 2023-08-16T15:29:05.000Z)
+        + registry:0xe7f1 -> 22.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 2023-08-16T15:56:17.000Z)
+        + registry:0xe7f1 -> 22.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 2023-08-16T15:56:17.000Z)
+        + registryExchange:0x9fE4 -> 22.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 2023-08-16T15:56:17.000Z)
 
       --- 5 Entries, 2 Accounts, Transferred ---
        Id Account                                        ETH                     WETH
@@ -188,11 +187,11 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:28:48.000Z
-        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:28:52.000Z
-        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:28:54.000Z
-        3 "22222222222":0x4397 user0:0x7099                   2023-08-16T15:28:58.000Z
-        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T15:29:00.000Z
+        0 "abcdef":0xacd0      user0:0x7099                   2023-08-16T15:56:00.000Z
+        1 "abcdefgh":0x4862    user0:0x7099                   2023-08-16T15:56:04.000Z
+        2 "11111111111":0xadb7 user1:0x3C44                   2023-08-16T15:56:06.000Z
+        3 "22222222222":0x4397 user0:0x7099                   2023-08-16T15:56:10.000Z
+        4 "33333333333":0x86e3 user1:0x3C44                   2023-08-16T15:56:12.000Z
 
       ✓ Registry #1
     RegistryExchange
@@ -225,16 +224,16 @@ Compiled 1 Solidity file successfully
       --- -------------------- ------------------------------ ------------------------
 
       > tx0 - gasUsed: 95042 ~ ETH 0.00190084 ~ USD 3.80168 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 10.0 Registered(tokenId: 0, hash: 0xaee086d8, owner: user0:0x7099, timestamp: 2023-08-16T15:28:53.000Z)
+        + registry:0xe7f1 -> 10.0 Registered(tokenId: 0, hash: 0xaee086d8, owner: user0:0x7099, timestamp: 2023-08-16T15:56:05.000Z)
       user0 -> registry.setApprovalForAll(registryExchange, true)
       > tx5a - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 15.0 ApprovalForAll(owner: user0:0x7099, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:28:58.000Z)
+        + registry:0xe7f1 -> 15.0 ApprovalForAll(owner: user0:0x7099, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:56:10.000Z)
       user1 -> registry.setApprovalForAll(registryExchange, true)
       > tx5b - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 16.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:28:59.000Z)
+        + registry:0xe7f1 -> 16.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0x9fE4, approved: true, timestamp: 2023-08-16T15:56:11.000Z)
       user0 -> registryExchange.offer(offerData)
       > tx6 - gasUsed: 97012 ~ ETH 0.00194024 ~ USD 3.88048 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 17.0 Offered(account: user0:0x7099, offers: 1,11000000000000000000,1692203327,2,22000000000000000000,1692203327,3,33000000000000000000,1692203327, timestamp: 2023-08-16T15:29:00.000Z)
+        + registryExchange:0x9fE4 -> 17.0 Offered(account: user0:0x7099, offers: 1,11000000000000000000,1692204958,2,22000000000000000000,1692204958,3,33000000000000000000,1692204958, timestamp: 2023-08-16T15:56:12.000Z)
 
       --- Setup Tokens ---
        Id Account                                        ETH                     WETH
@@ -250,18 +249,18 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:28:53.000Z
-        1 "text1":0x00da       user0:0x7099                   2023-08-16T15:28:54.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:28:55.000Z
-        3 "text3":0x222d       user0:0x7099                   2023-08-16T15:28:56.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:28:57.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:56:05.000Z
+        1 "text1":0x00da       user0:0x7099                   2023-08-16T15:56:06.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:56:07.000Z
+        3 "text3":0x222d       user0:0x7099                   2023-08-16T15:56:08.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:56:09.000Z
 
       user1 -> registryExchange.buy(buyData)
       > tx7 - gasUsed: 89044 ~ ETH 0.00178088 ~ USD 3.56176 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 18.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T15:29:01.000Z)
-        + registryExchange:0x9fE4 -> 18.1 Bought(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T15:29:01.000Z)
-        + registry:0xe7f1 -> 18.2 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-16T15:29:01.000Z)
-        + registryExchange:0x9fE4 -> 18.3 Bought(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T15:29:01.000Z)
+        + registry:0xe7f1 -> 18.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-16T15:56:13.000Z)
+        + registryExchange:0x9fE4 -> 18.1 Bought(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T15:56:13.000Z)
+        + registry:0xe7f1 -> 18.2 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-16T15:56:13.000Z)
+        + registryExchange:0x9fE4 -> 18.3 Bought(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T15:56:13.000Z)
 
       --- After Purchases ---
        Id Account                                        ETH                     WETH
@@ -277,25 +276,25 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:28:53.000Z
-        1 "text1":0x00da       user1:0x3C44                   2023-08-16T15:28:54.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:28:55.000Z
-        3 "text3":0x222d       user1:0x3C44                   2023-08-16T15:28:56.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:28:57.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:56:05.000Z
+        1 "text1":0x00da       user1:0x3C44                   2023-08-16T15:56:06.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:56:07.000Z
+        3 "text3":0x222d       user1:0x3C44                   2023-08-16T15:56:08.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:56:09.000Z
 
       user2 -> registryExchange.bid(bidData)
       > tx8 - gasUsed: 96967 ~ ETH 0.00193934 ~ USD 3.87868 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 19.0 Bid(account: user2:0x90F7, bids: 1,11000000000000000000,1692203327,2,22000000000000000000,1692203327,3,33000000000000000000,1692203327, timestamp: 2023-08-16T15:29:02.000Z)
+        + registryExchange:0x9fE4 -> 19.0 Bid(account: user2:0x90F7, bids: 1,11000000000000000000,1692204958,2,22000000000000000000,1692204958,3,33000000000000000000,1692204958, timestamp: 2023-08-16T15:56:14.000Z)
       user1 -> registryExchange.sell(sellData)
       > tx9 - gasUsed: 123580 ~ ETH 0.0024716 ~ USD 4.9432 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 20.0 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 10989000000000000000)
         + weth:0x5FbD -> 20.1 Transfer(from: user2:0x90F7, to: registryExchange:0x9fE4, tokens: 11000000000000000)
-        + registry:0xe7f1 -> 20.2 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, timestamp: 2023-08-16T15:29:03.000Z)
-        + registryExchange:0x9fE4 -> 20.3 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T15:29:03.000Z)
+        + registry:0xe7f1 -> 20.2 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, timestamp: 2023-08-16T15:56:15.000Z)
+        + registryExchange:0x9fE4 -> 20.3 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 1, price: 11000000000000000000, timestamp: 2023-08-16T15:56:15.000Z)
         + weth:0x5FbD -> 20.4 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 32967000000000000000)
         + weth:0x5FbD -> 20.5 Transfer(from: user2:0x90F7, to: registryExchange:0x9fE4, tokens: 33000000000000000)
-        + registry:0xe7f1 -> 20.6 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, timestamp: 2023-08-16T15:29:03.000Z)
-        + registryExchange:0x9fE4 -> 20.7 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T15:29:03.000Z)
+        + registry:0xe7f1 -> 20.6 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, timestamp: 2023-08-16T15:56:15.000Z)
+        + registryExchange:0x9fE4 -> 20.7 Sold(from: user1:0x3C44, to: user2:0x90F7, tokenId: 3, price: 33000000000000000000, timestamp: 2023-08-16T15:56:15.000Z)
 
       --- After Sales ---
        Id Account                                        ETH                     WETH
@@ -311,14 +310,15 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:28:53.000Z
-        1 "text1":0x00da       user2:0x90F7                   2023-08-16T15:28:54.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:28:55.000Z
-        3 "text3":0x222d       user2:0x90F7                   2023-08-16T15:28:56.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:28:57.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:56:05.000Z
+        1 "text1":0x00da       user2:0x90F7                   2023-08-16T15:56:06.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:56:07.000Z
+        3 "text3":0x222d       user2:0x90F7                   2023-08-16T15:56:08.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:56:09.000Z
 
       deployer -> registryExchange.withdrawTokens(0, 0)
       > tx10 - gasUsed: 30894 ~ ETH 0.00061788 ~ USD 1.23576 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      deployer -> registryExchange.withdrawTokens(WETH, 0)
       > tx11 - gasUsed: 35995 ~ ETH 0.0007199 ~ USD 1.4398 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 22.0 Transfer(from: registryExchange:0x9fE4, to: deployer:0xf39F, tokens: 44000000000000000)
 
@@ -336,11 +336,11 @@ Compiled 1 Solidity file successfully
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:28:53.000Z
-        1 "text1":0x00da       user2:0x90F7                   2023-08-16T15:28:54.000Z
-        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:28:55.000Z
-        3 "text3":0x222d       user2:0x90F7                   2023-08-16T15:28:56.000Z
-        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:28:57.000Z
+        0 "text0":0xaee0       user0:0x7099                   2023-08-16T15:56:05.000Z
+        1 "text1":0x00da       user2:0x90F7                   2023-08-16T15:56:06.000Z
+        2 "text2":0xe5f0       user0:0x7099                   2023-08-16T15:56:07.000Z
+        3 "text3":0x222d       user2:0x90F7                   2023-08-16T15:56:08.000Z
+        4 "text4":0x6d6c       user0:0x7099                   2023-08-16T15:56:09.000Z
 
       ✓ RegistryExchange #2
 
