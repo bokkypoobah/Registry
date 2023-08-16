@@ -124,10 +124,8 @@ describe("Registry", function () {
   }
 
   async function printState(data, prefix) {
-    console.log("\n      --- " + prefix + " ---");
-    // console.log("          Account                                   ETH " + this.padLeft(await this.token0.symbol() + "[" + this.decimals0 + "]", 24) + " " + this.padLeft(await this.token1.symbol() + "[" + this.decimals1 + "]", 24) + " " + this.padLeft(await this.weth.symbol() + "[" + this.decimalsWeth + "]", 24) + " Blah");
-    // console.log("          -------------------- ------------------------ ------------------------ ------------------------ ------------------------ ---------------------------------------------");
-
+    console.log();
+    console.log("      --- " + prefix + " ---");
     console.log("       Id Account                                        ETH");
     console.log("      --- ------------------------- ------------------------");
 
@@ -137,15 +135,13 @@ describe("Registry", function () {
       // const token0Balance = this.token0 == null ? 0 : await this.token0.balanceOf(checkAccounts[i]);
       // const token1Balance = this.token1 == null ? 0 : await this.token1.balanceOf(checkAccounts[i]);
       // const wethBalance = this.weth == null ? 0 : await this.weth.balanceOf(checkAccounts[i]);
-      // console.log("          " + this.padRight(this.getShortAccountName(checkAccounts[i]), 20) + " " + this.padLeft(ethers.utils.formatEther(balance), 24) + " " + this.padLeft(ethers.utils.formatUnits(token0Balance, this.decimals0), 24) + " " + this.padLeft(ethers.utils.formatUnits(token1Balance, this.decimals1), 24) + " " + this.padLeft(ethers.utils.formatUnits(wethBalance, this.decimalsWeth), 24));
       console.log("      " + padLeft(i, 3) + " " + padRight(getAccountName(data, account), 25) + " " + padLeft(ethers.formatEther(balance), 24));
     }
-    // console.log();
+    console.log();
 
     const registryReceiver = await data.registry.registryReceiver();
     const items = await data.registry.getData(10, 0);
     let i = 0;
-    console.log();
     console.log("       Id String:Hash          Owner                          Registered");
     console.log("      --- -------------------- ------------------------------ ------------------------");
     for (const item of items) {
