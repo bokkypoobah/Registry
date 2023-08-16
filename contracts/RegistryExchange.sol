@@ -48,7 +48,7 @@ contract Owned {
         owner = newOwner;
         newOwner = address(0);
     }
-    function withdrawTokens(ERC20 token, uint tokens) public onlyOwner {
+    function withdraw(ERC20 token, uint tokens) public onlyOwner {
         if (address(token) == address(0)) {
             payable(owner).transfer((tokens == 0 ? address(this).balance : tokens));
         } else {

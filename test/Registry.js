@@ -334,11 +334,11 @@ describe("Registry", function () {
 
       await printState(data, "After Sales");
 
-      console.log("      deployer -> registryExchange.withdrawTokens(0, 0)");
-      const tx10 = await data.registryExchange.connect(data.deployer).withdrawTokens(ZERO_ADDRESS, 0);
+      console.log("      deployer -> registryExchange.withdraw(0, 0)");
+      const tx10 = await data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, 0);
       await printTx(data, "tx10", await tx10.wait());
-      console.log("      deployer -> registryExchange.withdrawTokens(WETH, 0)");
-      const tx11 = await data.registryExchange.connect(data.deployer).withdrawTokens(data.weth.target, 0);
+      console.log("      deployer -> registryExchange.withdraw(WETH, 0)");
+      const tx11 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, 0);
       await printTx(data, "tx11", await tx11.wait());
 
       await printState(data, "After Deployer Withdraw");
