@@ -35,8 +35,8 @@ contract RegistryExchange {
 
     RegistryInterface public immutable registry;
     ERC20 public immutable weth;
-    mapping(address => mapping(uint => PriceExpiry)) offers;
-    mapping(address => mapping(uint => PriceExpiry)) bids;
+    mapping(address => mapping(uint => PriceExpiry)) public offers;
+    mapping(address => mapping(uint => PriceExpiry)) public bids;
 
     event Offered(address indexed account, MakerData[] offers, uint timestamp);
     event BidRegistered(address indexed account, MakerData[] bids, uint timestamp);
@@ -50,7 +50,8 @@ contract RegistryExchange {
     error InvalidOffer(uint tokenId, address owner);
     error InvalidBid(uint tokenId, address bidder);
     error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
-    error InsufficientFunds(uint tokenId, uint required, uint available);
+    error InsufficientETH(uint tokenId, uint required, uint available);
+    error BidderHasInsufficientWETH(address bidder, uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(RegistryInterface _registry, ERC20 _weth) {
@@ -85,7 +86,7 @@ contract RegistryExchange {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
             }
             if (available < offerPrice) {
-                revert InsufficientFunds(p.tokenId, _offer.price, available);
+                revert InsufficientETH(p.tokenId, _offer.price, available);
             }
             available -= offerPrice;
             delete offers[p.account][p.tokenId];
@@ -98,6 +99,11 @@ contract RegistryExchange {
         }
     }
 
+    function availableWeth(address account) internal view returns (uint tokens) {
+        uint allowance = weth.allowance(account, address(this));
+        uint balance = weth.balanceOf(account);
+        tokens = allowance < balance ? allowance : balance;
+    }
     function bid(MakerData[] memory bidInputs) public {
         for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
             MakerData memory b = bidInputs[i];
@@ -118,11 +124,9 @@ contract RegistryExchange {
             if (s.price != _bid.price) {
                 revert PriceMismatch(s.tokenId, _bid.price, s.price);
             }
-            uint wethBalance = weth.balanceOf(s.account);
-            uint wethApproved = weth.allowance(s.account, address(this));
-            uint available = wethBalance > wethApproved ? wethApproved : wethBalance;
+            uint available = availableWeth(s.account);
             if (available < s.price) {
-                revert InsufficientFunds(s.tokenId, s.price, available);
+                revert BidderHasInsufficientWETH(s.account, s.tokenId, s.price, available);
             }
             weth.transferFrom(s.account, msg.sender, s.price);
             delete bids[s.account][s.tokenId];
