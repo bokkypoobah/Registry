@@ -42,6 +42,7 @@ contract RegistryExchange {
     error OfferExpired(uint tokenId, uint expiry);
     error InvalidOffer(uint tokenId, address owner);
     error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
+    error InsufficientFunds(uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(RegistryInterface _registry) {
@@ -56,7 +57,7 @@ contract RegistryExchange {
         emit Offered(msg.sender, offerData, block.timestamp);
     }
     function purchase(PurchaseData[] calldata purchaseData) public payable {
-        uint totalPaid = 0;
+        uint available = msg.value;
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
             PurchaseData memory p = purchaseData[i];
             address currentOwner = registry.ownerOf(p.tokenId);
@@ -74,13 +75,15 @@ contract RegistryExchange {
             if (offerPrice != p.price) {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
             }
-            totalPaid += offerPrice;
+            if (available < offerPrice) {
+                revert InsufficientFunds(p.tokenId, _offer.price, available);
+            }
+            available -= offerPrice;
             payable(p.owner).transfer(offerPrice);
             registry.transfer(msg.sender, p.tokenId);
         }
-        if (totalPaid > msg.value) {
-            uint refund = msg.value - totalPaid;
-            payable(msg.sender).transfer(refund);
+        if (available > 0) {
+            payable(msg.sender).transfer(available);
         }
     }
 

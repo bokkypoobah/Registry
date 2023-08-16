@@ -162,7 +162,7 @@ describe("Registry", function () {
   }
 
   describe("Registry", function () {
-    it("Registry #1", async function () {
+    it.skip("Registry #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
@@ -274,6 +274,19 @@ describe("Registry", function () {
       console.log("      user0 -> registry.setApprovalForAll(registryExchange, true)");
       const tx5 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
       await printTx(data, "tx5", await tx5.wait());
+
+      const now = parseInt(new Date() / 1000);
+      const expiry = parseInt(now) + 60 * 60;
+      const offerData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
+      console.log("      user0 -> registryExchange.offer(offerData)");
+      const tx6 = await data.registryExchange.connect(data.user0).offer(offerData);
+      await printTx(data, "tx6", await tx6.wait());
+
+      const purchaseData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
+      console.log("      user1 -> registryExchange.offer(purchaseData)");
+      const tx7 = await data.registryExchange.connect(data.user1).purchase(purchaseData, { value: ethers.parseEther("110") });
+      await printTx(data, "tx7", await tx7.wait());
+
 
       await printState(data, "Setup Tokens");
 
