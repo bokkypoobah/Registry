@@ -17,12 +17,13 @@ const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000
 
 describe("Registry", function () {
   async function deployFixture() {
-    const [user0, user1, user2] = await ethers.getSigners();
+    const [deployer, user0, user1, user2] = await ethers.getSigners();
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
     const registryExchange = await RegistryExchange.deploy(registry.target);
     const registryReceiver = await registry.registryReceiver();
+    console.log("      deployFixture - deployer.address: " + deployer.address);
     console.log("      deployFixture - user0.address: " + user0.address);
     console.log("      deployFixture - user1.address: " + user1.address);
     console.log("      deployFixture - user2.address: " + user2.address);
@@ -30,10 +31,24 @@ describe("Registry", function () {
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
     console.log("      deployFixture - registryExchange.target: " + registryExchange.target);
     console.log();
-    return { registry, registryReceiver, registryExchange, user0, user1, user2 };
+
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, registry.target, registryReceiver, registryExchange.target];
+    const accountNames = {};
+    accountNames[deployer.address.toLowerCase()] = "deployer";
+    accountNames[user0.address.toLowerCase()] = "user0";
+    accountNames[user1.address.toLowerCase()] = "user1";
+    accountNames[user2.address.toLowerCase()] = "user2";
+    accountNames[registry.target.toLowerCase()] = "registry";
+    accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
+    accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
+
+    console.log("      accounts: " + JSON.stringify(accounts));
+    console.log("      accountNames: " + JSON.stringify(accountNames));
+
+    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2 };
   }
 
-  async function printTx(prefix, receipt, context) {
+  async function printTx(context, prefix, receipt) {
     const gasPrice = ethers.parseUnits("20.0", "gwei");
     const ethUsd = ethers.parseUnits("2000.0", 18);
     var fee = receipt.gasUsed * gasPrice;
@@ -87,17 +102,18 @@ describe("Registry", function () {
     console.log();
   }
 
-  describe("Deployment", function () {
-    it("Should deploy", async function () {
+  describe("Testing", function () {
+    it("Testing #1", async function () {
       // const { registry, registryReceiver, registryExchange, user0, user1 } = await loadFixture(deployFixture);
       const context = await loadFixture(deployFixture);
       await printState("Empty", context.registry);
 
+      // TODO: Send tx with non-0 value
 
       const data0 = "0x1234";
       console.log("      data0.length: " + ((data0.length - 2)/2));
       const tx0 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data0 });
-      await printTx("tx0", await tx0.wait(), context);
+      await printTx(context, "tx0", await tx0.wait());
       await expect(context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data0 })).to.be.revertedWithCustomError(
         context.registry,
         "AlreadyRegistered"
@@ -107,48 +123,48 @@ describe("Registry", function () {
         "OnlyRegistryReceiverCanRegister"
       );
       const tx0Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: "0x1234" });
-      await printTx("tx0Regular", await tx0Regular.wait(), context);
+      await printTx(context, "tx0Regular", await tx0Regular.wait());
       await printState("Single Entry", context.registry);
 
       const data1 = "0x3456";
       console.log("      data1.length: " + ((data1.length - 2)/2));
       const tx1 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data1 });
-      await printTx("tx1", await tx1.wait(), context);
+      await printTx(context, "tx1", await tx1.wait());
       const tx1Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: data1 });
-      await printTx("tx1Regular", await tx1Regular.wait(), context);
+      await printTx(context, "tx1Regular", await tx1Regular.wait());
       await printState("2 Entries", context.registry);
 
       const data2 = "0x" + "12".repeat(1000);
       console.log("      data2.length: " + ((data2.length - 2)/2));
       const tx2 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data2 });
-      await printTx("tx2", await tx2.wait(), context);
+      await printTx(context, "tx2", await tx2.wait());
       const tx2Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data2 });
-      await printTx("tx2Regular", await tx2Regular.wait(), context);
+      await printTx(context, "tx2Regular", await tx2Regular.wait());
       await printState("3 Entries, 2 Accounts", context.registry);
 
-      await expect(context.registry.transfer(context.user1.address, 2)).to.be.revertedWithCustomError(
+      await expect(context.registry.connect(context.user0).transfer(context.user1.address, 2)).to.be.revertedWithCustomError(
         context.registry,
         "NotOwnerNorApproved"
       );
       console.log("      Transferring ownership of #1 to " + context.user1.address);
-      const tx3 = await context.registry.transfer(context.user1.address, 1);
-      await printTx("tx3", await tx3.wait(), context);
+      const tx3 = await context.registry.connect(context.user0).transfer(context.user1.address, 1);
+      await printTx(context, "tx3", await tx3.wait());
       await printState("3 Entries, 2 Accounts, Transferred", context.registry);
 
       const data4 = "0x" + "12".repeat(10000);
       console.log("      data4.length: " + ((data4.length - 2)/2));
       const tx4 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data4 });
-      await printTx("tx4", await tx4.wait(), context);
+      await printTx(context, "tx4", await tx4.wait());
       const tx4Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data4 });
-      await printTx("tx4Regular", await tx4Regular.wait(), context);
+      await printTx(context, "tx4Regular", await tx4Regular.wait());
       await printState("4 Entries, 2 Accounts, large item", context.registry);
 
       const data5 = "0x" + "12".repeat(100000);
       console.log("      data5.length: " + ((data5.length - 2)/2));
       const tx5 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data5 });
-      await printTx("tx5", await tx5.wait(), context);
+      await printTx(context, "tx5", await tx5.wait());
       const tx5Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data5 });
-      await printTx("tx5Regular", await tx5Regular.wait(), context);
+      await printTx(context, "tx5Regular", await tx5Regular.wait());
       await printState("5 Entries, 2 Accounts, large items", context.registry);
 
       await expect(context.registryExchange.connect(context.user1).bulkTransfer(context.user0.address, [0])).to.be.revertedWithCustomError(
@@ -162,11 +178,11 @@ describe("Registry", function () {
 
       console.log("      user1.setApprovalForAll(registryExchange, true)");
       const tx6 = await context.registry.connect(context.user1).setApprovalForAll(context.registryExchange.target, true);
-      await printTx("tx6", await tx6.wait(), context);
+      await printTx(context, "tx6", await tx6.wait());
 
       console.log("      Transferring ownership of #1 & #2 to " + context.user0.address);
       const tx7 = await context.registryExchange.connect(context.user1).bulkTransfer(context.user0.address, [1, 3]);
-      await printTx("tx7", await tx7.wait(), context);
+      await printTx(context, "tx7", await tx7.wait());
       await printState("5 Entries, 2 Accounts, Transferred", context.registry);
     });
 
