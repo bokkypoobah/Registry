@@ -75,16 +75,16 @@ contract ReentrancyGuard {
 
 
 contract RegistryExchange is Owned, ReentrancyGuard {
-    struct Order {
+    struct Record {
         uint208 price;
         uint48 expiry;
     }
-    struct MakerData {
+    struct Order {
         uint tokenId;
         uint price;
         uint expiry;
     }
-    struct TakerData {
+    struct Trade {
         address account;
         uint tokenId;
         uint price;
@@ -96,13 +96,13 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     ERC20 public immutable weth;
     RegistryInterface public immutable registry;
     uint public fee = MAX_FEE;
-    mapping(address => mapping(uint => Order)) public offers;
-    mapping(address => mapping(uint => Order)) public bids;
+    mapping(address => mapping(uint => Record)) public offers;
+    mapping(address => mapping(uint => Record)) public bids;
 
     event FeeUpdated(uint indexed fee);
-    event Offered(address indexed account, MakerData[] offers, uint timestamp);
+    event Offered(address indexed account, Order[] offers, uint timestamp);
+    event Bid(address indexed account, Order[] bids, uint timestamp);
     event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
-    event Bid(address indexed account, MakerData[] bids, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
 
@@ -111,8 +111,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     error IncorrectOwner(uint tokenId, address currentOwner);
     error OfferExpired(uint tokenId, uint expiry);
     error BidExpired(uint tokenId, uint expiry);
-    error InvalidOffer(uint tokenId, address owner);
-    error InvalidBid(uint tokenId, address bidder);
+    error InvalidOrder(uint tokenId, address account);
+    error CannotSelfTrade(uint tokenId);
     error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
@@ -130,44 +130,46 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         fee = _fee;
     }
 
-    function offer(MakerData[] memory inputs) public {
-        for (uint i = 0; i < inputs.length; i = onePlus(i)) {
-            MakerData memory input = inputs[i];
-            if (input.price > PRICE_MAX) {
-                revert InvalidPrice(input.price, PRICE_MAX);
+    function offer(Order[] memory orders) public {
+        for (uint i = 0; i < orders.length; i = onePlus(i)) {
+            Order memory o = orders[i];
+            if (o.price > PRICE_MAX) {
+                revert InvalidPrice(o.price, PRICE_MAX);
             }
-            offers[msg.sender][input.tokenId] = Order(uint208(input.price), uint48(input.expiry));
+            offers[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Offered(msg.sender, inputs, block.timestamp);
+        emit Offered(msg.sender, orders, block.timestamp);
     }
-    function buy(TakerData[] calldata data) public payable reentrancyGuard {
+    function buy(Trade[] calldata trades) public payable reentrancyGuard {
         uint available = msg.value;
-        for (uint i = 0; i < data.length; i = onePlus(i)) {
-            TakerData memory d = data[i];
-            address currentOwner = registry.ownerOf(d.tokenId);
-            if (d.account != currentOwner) {
-                revert IncorrectOwner(d.tokenId, currentOwner);
+        for (uint i = 0; i < trades.length; i = onePlus(i)) {
+            Trade memory t = trades[i];
+            if (t.account == msg.sender) {
+                revert CannotSelfTrade(t.tokenId);
             }
-            // TODO: Block exchanging with self
-            Order memory order = offers[d.account][d.tokenId];
+            address currentOwner = registry.ownerOf(t.tokenId);
+            if (t.account != currentOwner) {
+                revert IncorrectOwner(t.tokenId, currentOwner);
+            }
+            Record memory order = offers[t.account][t.tokenId];
             if (order.expiry == 0) {
-                revert InvalidOffer(d.tokenId, d.account);
+                revert InvalidOrder(t.tokenId, t.account);
             }
             if (order.expiry < block.timestamp) {
-                revert OfferExpired(d.tokenId, order.expiry);
+                revert OfferExpired(t.tokenId, order.expiry);
             }
             uint orderPrice = uint(order.price);
-            if (orderPrice != d.price) {
-                revert PriceMismatch(d.tokenId, orderPrice, d.price);
+            if (orderPrice != t.price) {
+                revert PriceMismatch(t.tokenId, orderPrice, t.price);
             }
             if (available < orderPrice) {
-                revert TakerHasInsufficientEth(d.tokenId, orderPrice, available);
+                revert TakerHasInsufficientEth(t.tokenId, orderPrice, available);
             }
             available -= orderPrice;
-            delete offers[d.account][d.tokenId];
-            payable(d.account).transfer((orderPrice * (10_000 - fee)) / 10_000);
-            registry.transfer(msg.sender, d.tokenId);
-            emit Bought(d.account, msg.sender, d.tokenId, orderPrice, block.timestamp);
+            delete offers[t.account][t.tokenId];
+            payable(t.account).transfer((orderPrice * (10_000 - fee)) / 10_000);
+            registry.transfer(msg.sender, t.tokenId);
+            emit Bought(t.account, msg.sender, t.tokenId, orderPrice, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);
@@ -179,40 +181,42 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         uint balance = weth.balanceOf(account);
         tokens = allowance < balance ? allowance : balance;
     }
-    function bid(MakerData[] memory inputs) public {
-        for (uint i = 0; i < inputs.length; i = onePlus(i)) {
-            MakerData memory input = inputs[i];
-            if (input.price > PRICE_MAX) {
-                revert InvalidPrice(input.price, PRICE_MAX);
+    function bid(Order[] memory orders) public {
+        for (uint i = 0; i < orders.length; i = onePlus(i)) {
+            Order memory o = orders[i];
+            if (o.price > PRICE_MAX) {
+                revert InvalidPrice(o.price, PRICE_MAX);
             }
-            bids[msg.sender][input.tokenId] = Order(uint208(input.price), uint48(input.expiry));
+            bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Bid(msg.sender, inputs, block.timestamp);
+        emit Bid(msg.sender, orders, block.timestamp);
     }
-    function sell(TakerData[] calldata data) public {
-        for (uint i = 0; i < data.length; i = onePlus(i)) {
-            TakerData memory d = data[i];
-            // TODO: Block exchanging with self
-            Order memory order = bids[d.account][d.tokenId];
+    function sell(Trade[] calldata trades) public {
+        for (uint i = 0; i < trades.length; i = onePlus(i)) {
+            Trade memory t = trades[i];
+            if (t.account == msg.sender) {
+                revert CannotSelfTrade(t.tokenId);
+            }
+            Record memory order = bids[t.account][t.tokenId];
             if (order.expiry == 0) {
-                revert InvalidBid(d.tokenId, d.account);
+                revert InvalidOrder(t.tokenId, t.account);
             }
             if (order.expiry < block.timestamp) {
-                revert BidExpired(d.tokenId, order.expiry);
+                revert BidExpired(t.tokenId, order.expiry);
             }
             uint orderPrice = uint(order.price);
-            if (orderPrice != d.price) {
-                revert PriceMismatch(d.tokenId, orderPrice, d.price);
+            if (orderPrice != t.price) {
+                revert PriceMismatch(t.tokenId, orderPrice, t.price);
             }
-            uint available = availableWeth(d.account);
-            if (available < d.price) {
-                revert MakerHasInsufficientWeth(d.account, d.tokenId, orderPrice, available);
+            uint available = availableWeth(t.account);
+            if (available < t.price) {
+                revert MakerHasInsufficientWeth(t.account, t.tokenId, orderPrice, available);
             }
-            weth.transferFrom(d.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
-            weth.transferFrom(d.account, address(this), (orderPrice * fee) / 10_000);
-            delete bids[d.account][d.tokenId];
-            registry.transfer(d.account, d.tokenId);
-            emit Sold(msg.sender, d.account, d.tokenId, orderPrice, block.timestamp);
+            weth.transferFrom(t.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
+            weth.transferFrom(t.account, address(this), (orderPrice * fee) / 10_000);
+            delete bids[t.account][t.tokenId];
+            registry.transfer(t.account, t.tokenId);
+            emit Sold(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
         }
     }
 
