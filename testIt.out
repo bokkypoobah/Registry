@@ -1,6 +1,6 @@
 
   Registry
-    Testing
+    Registry
       deployFixture - deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
       deployFixture - user0: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
       deployFixture - user1: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
@@ -10,68 +10,109 @@
       deployFixture - registryExchange: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
 
 
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+
       data0.length: 2
       > tx0 - gasUsed: 94938 ~ ETH 0.00189876 ~ USD 3.79752 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 3.0 Registered(tokenId: 0, hash: 0x56570de2, owner: user0:0x7099, timestamp: 1692151499)
+        + registry:0x5FbD -> 3.0 Registered(tokenId: 0, hash: 0x56570de2, owner: user0:0x7099, timestamp: 1692155916)
       > tx0Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - Single Entry - 0x56570de287d73cd1cb user0:0x7099 1692151499
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
 
       data1.length: 2
       > tx1 - gasUsed: 77838 ~ ETH 0.00155676 ~ USD 3.11352 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 7.0 Registered(tokenId: 1, hash: 0x58958376, owner: user0:0x7099, timestamp: 1692151503)
+        + registry:0x5FbD -> 7.0 Registered(tokenId: 1, hash: 0x58958376, owner: user0:0x7099, timestamp: 1692155920)
       > tx1Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 2 Entries - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 2 Entries - 0x589583765fbc2f1b43 user0:0x7099 1692151503
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user0:0x7099                   Wed, 16 Aug 2023 03:18:40 GMT
 
       data2.length: 1000
       > tx2 - gasUsed: 94237 ~ ETH 0.00188474 ~ USD 3.76948 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 9.0 Registered(tokenId: 2, hash: 0x2f269b22, owner: user1:0x3C44, timestamp: 1692151505)
+        + registry:0x5FbD -> 9.0 Registered(tokenId: 2, hash: 0x2f269b22, owner: user1:0x3C44, timestamp: 1692155922)
       > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43 user0:0x7099 1692151503
-      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
 
-      Transferring ownership of #1 to 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user0:0x7099                   Wed, 16 Aug 2023 03:18:40 GMT
+       2 0x2f269b22adacbccc56 user1:0x3C44                   Wed, 16 Aug 2023 03:18:42 GMT
+
+      Transferring ownership of #1 to user1:0x3C44
       > tx3 - gasUsed: 34218 ~ ETH 0.00068436 ~ USD 1.36872 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 12.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 1692151508)
-      printState - 3 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 3 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
-      printState - 3 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
+        + registry:0x5FbD -> 12.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 1692155925)
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user1:0x3C44                   Wed, 16 Aug 2023 03:18:40 GMT
+       2 0x2f269b22adacbccc56 user1:0x3C44                   Wed, 16 Aug 2023 03:18:42 GMT
 
       data4.length: 10000
       > tx4 - gasUsed: 241811 ~ ETH 0.00483622 ~ USD 9.67244 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 13.0 Registered(tokenId: 3, hash: 0x0dd53162, owner: user1:0x3C44, timestamp: 1692151509)
+        + registry:0x5FbD -> 13.0 Registered(tokenId: 3, hash: 0x0dd53162, owner: user1:0x3C44, timestamp: 1692155926)
       > tx4Regular - gasUsed: 181000 ~ ETH 0.00362 ~ USD 7.24 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 4 Entries, 2 Accounts, large item - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 4 Entries, 2 Accounts, large item - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
-      printState - 4 Entries, 2 Accounts, large item - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
-      printState - 4 Entries, 2 Accounts, large item - 0x0dd531624da106bc94 user1:0x3C44 1692151509
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user1:0x3C44                   Wed, 16 Aug 2023 03:18:40 GMT
+       2 0x2f269b22adacbccc56 user1:0x3C44                   Wed, 16 Aug 2023 03:18:42 GMT
+       3 0x0dd531624da106bc94 user1:0x3C44                   Wed, 16 Aug 2023 03:18:46 GMT
 
       data5.length: 100000
       > tx5 - gasUsed: 1734558 ~ ETH 0.03469116 ~ USD 69.38232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 15.0 Registered(tokenId: 4, hash: 0x2d1e3733, owner: user1:0x3C44, timestamp: 1692151511)
+        + registry:0x5FbD -> 15.0 Registered(tokenId: 4, hash: 0x2d1e3733, owner: user1:0x3C44, timestamp: 1692155928)
       > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 5 Entries, 2 Accounts, large items - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 5 Entries, 2 Accounts, large items - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
-      printState - 5 Entries, 2 Accounts, large items - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
-      printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc94 user1:0x3C44 1692151509
-      printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040 user1:0x3C44 1692151511
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user1:0x3C44                   Wed, 16 Aug 2023 03:18:40 GMT
+       2 0x2f269b22adacbccc56 user1:0x3C44                   Wed, 16 Aug 2023 03:18:42 GMT
+       3 0x0dd531624da106bc94 user1:0x3C44                   Wed, 16 Aug 2023 03:18:46 GMT
+       4 0x2d1e3733f1e9b42040 user1:0x3C44                   Wed, 16 Aug 2023 03:18:48 GMT
 
       user1.setApprovalForAll(registryExchange, true)
       > tx6 - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 19.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0xe7f1, approved: true, timestamp: 1692151515)
-      Transferring ownership of #1 & #2 to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+        + registry:0x5FbD -> 19.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0xe7f1, approved: true, timestamp: 1692155932)
+      Transferring ownership of #1 & #3 to user0:0x7099
       > tx7 - gasUsed: 58148 ~ ETH 0.00116296 ~ USD 2.32592 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0x5FbD -> 20.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 1692151516)
-        + registry:0x5FbD -> 20.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 1692151516)
-        + registryExchange:0xe7f1 -> 20.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 1692151516)
-      printState - 5 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb user0:0x7099 1692151499
-      printState - 5 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 user0:0x7099 1692151503
-      printState - 5 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
-      printState - 5 Entries, 2 Accounts, Transferred - 0x0dd531624da106bc94 user0:0x7099 1692151509
-      printState - 5 Entries, 2 Accounts, Transferred - 0x2d1e3733f1e9b42040 user1:0x3C44 1692151511
+        + registry:0x5FbD -> 20.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 1692155933)
+        + registry:0x5FbD -> 20.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 1692155933)
+        + registryExchange:0xe7f1 -> 20.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 1692155933)
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0x56570de287d73cd1cb user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x589583765fbc2f1b43 user0:0x7099                   Wed, 16 Aug 2023 03:18:40 GMT
+       2 0x2f269b22adacbccc56 user1:0x3C44                   Wed, 16 Aug 2023 03:18:42 GMT
+       3 0x0dd531624da106bc94 user0:0x7099                   Wed, 16 Aug 2023 03:18:46 GMT
+       4 0x2d1e3733f1e9b42040 user1:0x3C44                   Wed, 16 Aug 2023 03:18:48 GMT
 
       ✓ Testing #1
+    RegistryExchange
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+
+      > tx0 - gasUsed: 95042 ~ ETH 0.00190084 ~ USD 3.80168 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 3.0 Registered(tokenId: 0, hash: 0xaee086d8, owner: user0:0x7099, timestamp: 1692155916)
+
+       # Hash                 Owner                          Registered
+      -- -------------------- ------------------------------ -----------------------------
+       0 0xaee086d8643c974619 user0:0x7099                   Wed, 16 Aug 2023 03:18:36 GMT
+       1 0x00da31e33a7e899a09 user0:0x7099                   Wed, 16 Aug 2023 03:18:37 GMT
+       2 0xe5f096a36c5d6f68fa user0:0x7099                   Wed, 16 Aug 2023 03:18:38 GMT
+       3 0x222d279139848b3d14 user0:0x7099                   Wed, 16 Aug 2023 03:18:39 GMT
+       4 0x6d6cf323b1513508a0 user0:0x7099                   Wed, 16 Aug 2023 03:18:40 GMT
+
+      ✓ Testing #2
 
 ·------------------------------------------|---------------------------|-------------|-----------------------------·
 |           [90mSolc version: 0.8.19[39m           ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 30000000 gas[39m  │
@@ -93,5 +134,5 @@
 |  RegistryExchange                        ·          -  ·          -  ·     691797  ·        [90m2.3 %[39m  ·          [32m[90m-[32m[39m  │
 ·------------------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (860ms)
+  2 passing (901ms)
 

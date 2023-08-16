@@ -91,15 +91,35 @@ describe("Registry", function () {
     });
   }
 
+  function padLeft(s, n) {
+    var o = s.toString();
+    while (o.length < n) {
+      o = " " + o;
+    }
+    return o;
+  }
+  function padRight(s, n) {
+    var o = s;
+    while (o.length < n) {
+      o = o + " ";
+    }
+    return o;
+  }
+
   async function printState(context, prefix) {
     const registryReceiver = await context.registry.registryReceiver();
     const data = await context.registry.getData(10, 0);
+    let i = 0;
+    console.log();
+    console.log("       # Hash                 Owner                          Registered");
+    console.log("      -- -------------------- ------------------------------ -----------------------------");
     for (const row of data) {
       const [hash, owner, created] = row;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      printState - " + prefix + " - " + hash.substring(0, 20) + " " + getAccountName(context, owner) + " " + created);
+      console.log("      " + padLeft(i, 2) + " " + hash.substring(0, 20) + " " + padRight(getAccountName(context, owner), 30) + " " + new Date(parseInt(created) * 1000).toUTCString());
+      i++;
     }
     // const hashesLength = await registry.hashesLength();
     // for (let i = 0; i < hashesLength; i++) {
@@ -110,7 +130,7 @@ describe("Registry", function () {
     console.log();
   }
 
-  describe("Testing", function () {
+  describe("Registry", function () {
     it("Testing #1", async function () {
       const context = await loadFixture(deployFixture);
       await printState(context, "Empty");
@@ -153,7 +173,7 @@ describe("Registry", function () {
         context.registry,
         "NotOwnerNorApproved"
       );
-      console.log("      Transferring ownership of #1 to " + context.user1.address);
+      console.log("      Transferring ownership of #1 to " + getAccountName(context, context.user1.address));
       const tx3 = await context.registry.connect(context.user0).transfer(context.user1.address, 1);
       await printTx(context, "tx3", await tx3.wait());
       await printState(context, "3 Entries, 2 Accounts, Transferred");
@@ -187,38 +207,29 @@ describe("Registry", function () {
       const tx6 = await context.registry.connect(context.user1).setApprovalForAll(context.registryExchange.target, true);
       await printTx(context, "tx6", await tx6.wait());
 
-      console.log("      Transferring ownership of #1 & #2 to " + context.user0.address);
+      console.log("      Transferring ownership of #1 & #3 to " + getAccountName(context, context.user0.address));
       const tx7 = await context.registryExchange.connect(context.user1).bulkTransfer(context.user0.address, [1, 3]);
       await printTx(context, "tx7", await tx7.wait());
       await printState(context, "5 Entries, 2 Accounts, Transferred");
     });
-
-
-    // it("Should set the right owner", async function () {
-    //   const { lock, owner } = await loadFixture(deployOneYearLockFixture);
-    //
-    //   expect(await lock.owner()).to.equal(owner.address);
-    // });
-    //
-    // it("Should receive and store the funds to lock", async function () {
-    //   const { lock, lockedAmount } = await loadFixture(
-    //     deployOneYearLockFixture
-    //   );
-    //
-    //   expect(await ethers.provider.getBalance(lock.target)).to.equal(
-    //     lockedAmount
-    //   );
-    // });
-
-    // it("Should fail if the unlockTime is not in the future", async function () {
-    //   // We don't use the fixture here because we want a different deployment
-    //   const latestTime = await time.latest();
-    //   const Lock = await ethers.getContractFactory("Lock");
-    //   await expect(Lock.deploy(latestTime, { value: 1 })).to.be.revertedWith(
-    //     "Unlock time should be in the future"
-    //   );
-    // });
   });
+
+
+  describe("RegistryExchange", function () {
+    it("Testing #2", async function () {
+      const context = await loadFixture(deployFixture);
+      await printState(context, "Empty");
+
+      const tx0 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text0")) });
+      const tx1 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text1")) });
+      const tx2 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text2")) });
+      const tx3 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text3")) });
+      const tx4 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
+      await printTx(context, "tx0", await tx0.wait());
+      await printState(context, "Setup Tokens");
+    });
+  });
+
 
   // describe("Withdrawals", function () {
   //   describe("Validations", function () {
