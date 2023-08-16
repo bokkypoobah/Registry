@@ -193,12 +193,12 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                 revert PriceMismatch(t.tokenId, orderPrice, t.price);
             }
             uint available = availableWeth(t.account);
-            if (available < t.price) {
+            if (available < orderPrice) {
                 revert MakerHasInsufficientWeth(t.account, t.tokenId, orderPrice, available);
             }
+            delete bids[t.account][t.tokenId];
             weth.transferFrom(t.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
             weth.transferFrom(t.account, address(this), (orderPrice * fee) / 10_000);
-            delete bids[t.account][t.tokenId];
             registry.transfer(t.account, t.tokenId);
             emit Sold(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
         }
