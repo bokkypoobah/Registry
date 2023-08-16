@@ -18,42 +18,28 @@ import "./ERC20.sol";
 
 
 contract RegistryExchange {
-    struct OfferInput {
+    struct MakerData {
         uint tokenId;
         uint208 price;
         uint48 expiry;
     }
-    struct Offer {
+    struct PriceExpiry {
         uint208 price;
         uint48 expiry;
     }
-    struct PurchaseData {
-        address owner;
-        uint tokenId;
-        uint price;
-    }
-    struct BidInput {
-        uint tokenId;
-        uint208 price;
-        uint48 expiry;
-    }
-    struct Bid {
-        uint208 price;
-        uint48 expiry;
-    }
-    struct SaleData {
-        address bidder;
+    struct TakerData {
+        address account;
         uint tokenId;
         uint price;
     }
 
     RegistryInterface public immutable registry;
     ERC20 public immutable weth;
-    mapping(address => mapping(uint => Offer)) offers;
-    mapping(address => mapping(uint => Bid)) bids;
+    mapping(address => mapping(uint => PriceExpiry)) offers;
+    mapping(address => mapping(uint => PriceExpiry)) bids;
 
-    event Offered(address indexed account, OfferInput[] offers, uint timestamp);
-    event BidRegistered(address indexed account, BidInput[] bids, uint timestamp);
+    event Offered(address indexed account, MakerData[] offers, uint timestamp);
+    event BidRegistered(address indexed account, MakerData[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
@@ -72,28 +58,28 @@ contract RegistryExchange {
         weth = _weth;
     }
 
-    function offer(OfferInput[] memory offerInputs) public {
+    function offer(MakerData[] memory offerInputs) public {
         for (uint i = 0; i < offerInputs.length; i = onePlus(i)) {
-            OfferInput memory o = offerInputs[i];
-            offers[msg.sender][o.tokenId] = Offer(o.price, o.expiry);
+            MakerData memory o = offerInputs[i];
+            offers[msg.sender][o.tokenId] = PriceExpiry(o.price, o.expiry);
         }
         emit Offered(msg.sender, offerInputs, block.timestamp);
     }
-    function purchase(PurchaseData[] calldata purchaseData) public payable {
+    function purchase(TakerData[] calldata purchaseData) public payable {
         uint available = msg.value;
         for (uint i = 0; i < purchaseData.length; i = onePlus(i)) {
-            PurchaseData memory p = purchaseData[i];
+            TakerData memory p = purchaseData[i];
             address currentOwner = registry.ownerOf(p.tokenId);
-            if (p.owner != currentOwner) {
+            if (p.account != currentOwner) {
                 revert IncorrectOwner(p.tokenId, currentOwner);
             }
-            Offer memory _offer = offers[p.owner][p.tokenId];
+            PriceExpiry memory _offer = offers[p.account][p.tokenId];
             if (_offer.expiry != 0 && _offer.expiry < block.timestamp) {
                 revert OfferExpired(p.tokenId, _offer.expiry);
             }
             uint offerPrice = uint(_offer.price);
             if (_offer.price == 0) {
-                revert InvalidOffer(p.tokenId, p.owner);
+                revert InvalidOffer(p.tokenId, p.account);
             }
             if (offerPrice != p.price) {
                 revert PriceMismatch(p.tokenId, _offer.price, p.price);
@@ -102,49 +88,46 @@ contract RegistryExchange {
                 revert InsufficientFunds(p.tokenId, _offer.price, available);
             }
             available -= offerPrice;
-            delete offers[p.owner][p.tokenId];
-            payable(p.owner).transfer(offerPrice);
+            delete offers[p.account][p.tokenId];
+            payable(p.account).transfer(offerPrice);
             registry.transfer(msg.sender, p.tokenId);
-            emit Purchased(p.owner, msg.sender, p.tokenId, offerPrice, block.timestamp);
+            emit Purchased(p.account, msg.sender, p.tokenId, p.price, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);
         }
     }
 
-    function bid(BidInput[] memory bidInputs) public {
+    function bid(MakerData[] memory bidInputs) public {
         for (uint i = 0; i < bidInputs.length; i = onePlus(i)) {
-            BidInput memory b = bidInputs[i];
-            bids[msg.sender][b.tokenId] = Bid(b.price, b.expiry);
+            MakerData memory b = bidInputs[i];
+            bids[msg.sender][b.tokenId] = PriceExpiry(b.price, b.expiry);
         }
         emit BidRegistered(msg.sender, bidInputs, block.timestamp);
     }
-    function sell(SaleData[] calldata saleData) public {
+    function sell(TakerData[] calldata saleData) public {
         for (uint i = 0; i < saleData.length; i = onePlus(i)) {
-            SaleData memory s = saleData[i];
-            address bidder = s.bidder;
-            uint tokenId = s.tokenId;
-            uint price = s.price;
-            Bid memory _bid = bids[bidder][tokenId];
+            TakerData memory s = saleData[i];
+            PriceExpiry memory _bid = bids[s.account][s.tokenId];
             if (_bid.expiry != 0 && _bid.expiry < block.timestamp) {
                 revert BidExpired(s.tokenId, _bid.expiry);
             }
             if (_bid.price == 0) {
-                revert InvalidBid(s.tokenId, bidder);
+                revert InvalidBid(s.tokenId, s.account);
             }
             if (s.price != _bid.price) {
                 revert PriceMismatch(s.tokenId, _bid.price, s.price);
             }
-            uint wethBalance = weth.balanceOf(bidder);
-            uint wethApproved = weth.allowance(bidder, address(this));
+            uint wethBalance = weth.balanceOf(s.account);
+            uint wethApproved = weth.allowance(s.account, address(this));
             uint available = wethBalance > wethApproved ? wethApproved : wethBalance;
-            if (available < price) {
-                revert InsufficientFunds(s.tokenId, price, available);
+            if (available < s.price) {
+                revert InsufficientFunds(s.tokenId, s.price, available);
             }
-            weth.transferFrom(bidder, msg.sender, price);
-            delete bids[bidder][s.tokenId];
-            registry.transfer(bidder, s.tokenId);
-            emit Sold(msg.sender, bidder, s.tokenId, price, block.timestamp);
+            weth.transferFrom(s.account, msg.sender, s.price);
+            delete bids[s.account][s.tokenId];
+            registry.transfer(s.account, s.tokenId);
+            emit Sold(msg.sender, s.account, s.tokenId, s.price, block.timestamp);
         }
     }
 
