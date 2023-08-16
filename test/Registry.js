@@ -124,14 +124,14 @@ describe("Registry", function () {
     const items = await data.registry.getData(10, 0);
     let i = 0;
     console.log();
-    console.log("       # String:Hash          Owner                          Registered");
-    console.log("      -- -------------------- ------------------------------ -----------------------------");
+    console.log("       Id String:Hash          Owner                          Registered");
+    console.log("      --- -------------------- ------------------------------ -----------------------------");
     for (const item of items) {
       const [hash, owner, created] = item;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 2) + " " + getHashData(data, hash) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toUTCString());
+      console.log("      " + padLeft(i, 3) + " " + getHashData(data, hash) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toUTCString());
       i++;
     }
     // const hashesLength = await registry.hashesLength();
@@ -152,7 +152,7 @@ describe("Registry", function () {
 
       const string0 = "abcdef";
       addHash(data, string0);
-      console.log("      string0.length: " + ((string0.length - 2)/2));
+      console.log("      string0.length: " + string0.length);
       const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
       await printTx(data, "tx0", await tx0.wait());
       await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) })).to.be.revertedWithCustomError(
@@ -169,7 +169,7 @@ describe("Registry", function () {
 
       const string1 = "abcdefgh";
       addHash(data, string1);
-      console.log("      string1.length: " + ((string1.length - 2)/2));
+      console.log("      string1.length: " + string1.length);
       const tx1 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
       await printTx(data, "tx1", await tx1.wait());
       const tx1Regular = await data.user0.sendTransaction({ to: data.user0.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
@@ -178,7 +178,7 @@ describe("Registry", function () {
 
       const string2 = "1".repeat(1000);
       addHash(data, string2);
-      console.log("      string2.length: " + ((string2.length - 2)/2));
+      console.log("      string2.length: " + string2.length);
       const tx2 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
       await printTx(data, "tx2", await tx2.wait());
       const tx2Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
@@ -197,7 +197,7 @@ describe("Registry", function () {
 
       const string4 = "22".repeat(10000);
       addHash(data, string4);
-      console.log("      string4.length: " + ((string4.length - 2)/2));
+      console.log("      string4.length: " + string4.length);
       const tx4 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
       await printTx(data, "tx4", await tx4.wait());
       const tx4Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
@@ -206,7 +206,7 @@ describe("Registry", function () {
 
       const string5 = "3".repeat(100000);
       addHash(data, string5);
-      console.log("      string5.length: " + ((string5.length - 2)/2));
+      console.log("      string5.length: " + string5.length);
       const tx5 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
       await printTx(data, "tx5", await tx5.wait());
       const tx5Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
