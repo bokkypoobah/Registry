@@ -40,9 +40,7 @@ describe("Registry", function () {
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
-    // console.log("      accounts: " + JSON.stringify(accounts));
-    // console.log("      accountNames: " + JSON.stringify(accountNames));
-    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames };
+    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames, hashes: {} };
   }
 
   function getAccountName(context, address) {
@@ -54,6 +52,22 @@ describe("Registry", function () {
       }
     }
     return address.substring(0, 20);
+  }
+  function addHash(context, string) {
+    const hash = ethers.keccak256(ethers.toUtf8Bytes(string));
+    if (!(hash in context.hashes)) {
+      context.hashes[hash] = string;
+    }
+  }
+  function getHashData(context, hash, length = 20) {
+    if (hash != null) {
+      if (hash in context.hashes) {
+        return padRight('"' + context.hashes[hash].substring(0, length - 9) + '":' + hash.substring(0, 6), 20);
+      } else {
+        return hash.substring(0, length);
+      }
+    }
+    return null;
   }
 
   async function printTx(context, prefix, receipt) {
@@ -118,7 +132,7 @@ describe("Registry", function () {
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 2) + " " + hash.substring(0, 20) + " " + padRight(getAccountName(context, owner), 30) + " " + new Date(parseInt(created) * 1000).toUTCString());
+      console.log("      " + padLeft(i, 2) + " " + getHashData(context, hash) + " " + padRight(getAccountName(context, owner), 30) + " " + new Date(parseInt(created) * 1000).toUTCString());
       i++;
     }
     // const hashesLength = await registry.hashesLength();
@@ -137,11 +151,12 @@ describe("Registry", function () {
 
       // TODO: Send tx with non-0 value
 
-      const data0 = "0x1234";
-      console.log("      data0.length: " + ((data0.length - 2)/2));
-      const tx0 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data0 });
+      const string0 = "abcdef";
+      addHash(context, string0);
+      console.log("      string0.length: " + ((string0.length - 2)/2));
+      const tx0 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
       await printTx(context, "tx0", await tx0.wait());
-      await expect(context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data0 })).to.be.revertedWithCustomError(
+      await expect(context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) })).to.be.revertedWithCustomError(
         context.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, context.user0.address, 0, anyValue);
@@ -149,23 +164,25 @@ describe("Registry", function () {
         context.registry,
         "OnlyRegistryReceiverCanRegister"
       );
-      const tx0Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: "0x1234" });
+      const tx0Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
       await printTx(context, "tx0Regular", await tx0Regular.wait());
       await printState(context, "Single Entry");
 
-      const data1 = "0x3456";
-      console.log("      data1.length: " + ((data1.length - 2)/2));
-      const tx1 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: data1 });
+      const string1 = "abcdefgh";
+      addHash(context, string1);
+      console.log("      string1.length: " + ((string1.length - 2)/2));
+      const tx1 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
       await printTx(context, "tx1", await tx1.wait());
-      const tx1Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: data1 });
+      const tx1Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
       await printTx(context, "tx1Regular", await tx1Regular.wait());
       await printState(context, "2 Entries");
 
-      const data2 = "0x" + "12".repeat(1000);
-      console.log("      data2.length: " + ((data2.length - 2)/2));
-      const tx2 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data2 });
+      const string2 = "1".repeat(1000);
+      addHash(context, string2);
+      console.log("      string2.length: " + ((string2.length - 2)/2));
+      const tx2 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
       await printTx(context, "tx2", await tx2.wait());
-      const tx2Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data2 });
+      const tx2Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
       await printTx(context, "tx2Regular", await tx2Regular.wait());
       await printState(context, "3 Entries, 2 Accounts");
 
@@ -178,19 +195,21 @@ describe("Registry", function () {
       await printTx(context, "tx3", await tx3.wait());
       await printState(context, "3 Entries, 2 Accounts, Transferred");
 
-      const data4 = "0x" + "12".repeat(10000);
-      console.log("      data4.length: " + ((data4.length - 2)/2));
-      const tx4 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data4 });
+      const string4 = "22".repeat(10000);
+      addHash(context, string4);
+      console.log("      string4.length: " + ((string4.length - 2)/2));
+      const tx4 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
       await printTx(context, "tx4", await tx4.wait());
-      const tx4Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data4 });
+      const tx4Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
       await printTx(context, "tx4Regular", await tx4Regular.wait());
       await printState(context, "4 Entries, 2 Accounts, large item");
 
-      const data5 = "0x" + "12".repeat(100000);
-      console.log("      data5.length: " + ((data5.length - 2)/2));
-      const tx5 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: data5 });
+      const string5 = "3".repeat(100000);
+      addHash(context, string5);
+      console.log("      string5.length: " + ((string5.length - 2)/2));
+      const tx5 = await context.user1.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
       await printTx(context, "tx5", await tx5.wait());
-      const tx5Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data5 });
+      const tx5Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
       await printTx(context, "tx5Regular", await tx5Regular.wait());
       await printState(context, "5 Entries, 2 Accounts, large items");
 
@@ -220,12 +239,22 @@ describe("Registry", function () {
       const context = await loadFixture(deployFixture);
       await printState(context, "Empty");
 
+      addHash(context, "text0");
+      addHash(context, "text1");
+      addHash(context, "text2");
+      addHash(context, "text3");
+      addHash(context, "text4");
       const tx0 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text0")) });
       const tx1 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text1")) });
       const tx2 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text2")) });
       const tx3 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text3")) });
       const tx4 = await context.user0.sendTransaction({ to: context.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
       await printTx(context, "tx0", await tx0.wait());
+
+      console.log("      user0.setApprovalForAll(registryExchange, true)");
+      const tx5 = await context.registry.connect(context.user0).setApprovalForAll(context.registryExchange.target, true);
+      await printTx(context, "tx5", await tx5.wait());
+
       await printState(context, "Setup Tokens");
     });
   });
