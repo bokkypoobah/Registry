@@ -20,6 +20,9 @@ describe("Registry", function () {
     const [deployer, user0, user1, user2] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
+    // const wethReceipt = await weth.waitForDeployment();
+    // console.table(wethReceipt);
+    // console.log("wethReceipt: " + JSON.stringify(wethReceipt, null, 2));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");

@@ -39,7 +39,7 @@ contract RegistryExchange {
     mapping(address => mapping(uint => PriceExpiry)) public bids;
 
     event Offered(address indexed account, MakerData[] offers, uint timestamp);
-    event BidRegistered(address indexed account, MakerData[] bids, uint timestamp);
+    event Bid(address indexed account, MakerData[] bids, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
     event Purchased(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
@@ -109,7 +109,7 @@ contract RegistryExchange {
             MakerData memory b = bidInputs[i];
             bids[msg.sender][b.tokenId] = PriceExpiry(uint208(b.price), uint48(b.expiry));
         }
-        emit BidRegistered(msg.sender, bidInputs, block.timestamp);
+        emit Bid(msg.sender, bidInputs, block.timestamp);
     }
     function sell(TakerData[] calldata saleData) public {
         for (uint i = 0; i < saleData.length; i = onePlus(i)) {
