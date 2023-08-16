@@ -18,29 +18,33 @@ const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000
 describe("Registry", function () {
   async function deployFixture() {
     const [deployer, user0, user1, user2] = await ethers.getSigners();
+    const Token = await ethers.getContractFactory("Token");
+    const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
-    const registryExchange = await RegistryExchange.deploy(registry.target);
+    const registryExchange = await RegistryExchange.deploy(registry.target, weth.target);
     const registryReceiver = await registry.registryReceiver();
     console.log("      deployFixture - deployer: " + deployer.address);
     console.log("      deployFixture - user0: " + user0.address);
     console.log("      deployFixture - user1: " + user1.address);
     console.log("      deployFixture - user2: " + user2.address);
+    console.log("      deployFixture - weth: " + weth.target);
     console.log("      deployFixture - registry: " + registry.target);
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
     console.log("      deployFixture - registryExchange: " + registryExchange.target);
     console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, registry.target, registryReceiver, registryExchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, weth.target, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
     accountNames[user1.address.toLowerCase()] = "user1";
     accountNames[user2.address.toLowerCase()] = "user2";
+    accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
-    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames, hashes: {} };
+    return { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames, hashes: {} };
   }
 
   function padLeft(s, n) {
@@ -96,8 +100,9 @@ describe("Registry", function () {
         logData = data.registry.interface.parseLog(log);
       } else if (log.address == data.registryExchange.target) {
         logData = data.registryExchange.interface.parseLog(log);
+      } else if (log.address == data.weth.target) {
+        logData = data.weth.interface.parseLog(log);
       }
-      // console.log("log: " + JSON.stringify(log));
       // console.log("data: " + JSON.stringify(data, (_, v) => typeof v === 'bigint' ? v.toString() : v));
       var result = logData.name + "(";
       let separator = "";
@@ -126,16 +131,14 @@ describe("Registry", function () {
   async function printState(data, prefix) {
     console.log();
     console.log("      --- " + prefix + " ---");
-    console.log("       Id Account                                        ETH");
-    console.log("      --- ------------------------- ------------------------");
+    console.log("       Id Account                                        ETH                     WETH");
+    console.log("      --- ------------------------- ------------------------ ------------------------");
 
     for (let i = 0; i < data.accounts.length; i++) {
       const account = data.accounts[i];
       const balance = await ethers.provider.getBalance(account);
-      // const token0Balance = this.token0 == null ? 0 : await this.token0.balanceOf(checkAccounts[i]);
-      // const token1Balance = this.token1 == null ? 0 : await this.token1.balanceOf(checkAccounts[i]);
-      // const wethBalance = this.weth == null ? 0 : await this.weth.balanceOf(checkAccounts[i]);
-      console.log("      " + padLeft(i, 3) + " " + padRight(getAccountName(data, account), 25) + " " + padLeft(ethers.formatEther(balance), 24));
+      const wethBalance = data.weth == null ? 0 : await data.weth.balanceOf(account);
+      console.log("      " + padLeft(i, 3) + " " + padRight(getAccountName(data, account), 25) + " " + padLeft(ethers.formatEther(balance), 24) + " " + padLeft(ethers.formatEther(wethBalance), 24));
     }
     console.log();
 
@@ -255,8 +258,34 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange", function () {
-    it("RegistryExchange #2", async function () {
+    it.only("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
+
+      // const setup1 = [];
+      const amount0 = ethers.parseEther("100");
+      const approveAmount0 = ethers.parseEther("11.111111111");
+      // setup1.push(data.weth.connect(data.deployer).transfer(data.user0.address, amount0));
+      // setup1.push(data.weth.connect(data.deployer).transfer(data.user1.address, amount0));
+      // setup1.push(data.weth.connect(data.deployer).transfer(data.user2.address, amount0));
+      // const exec1 = await Promise.all(setup1);
+      // exec1.forEach( async function (a) {
+      //   await printTx(data, "Transfer WETH", await a.wait());
+      // });
+
+      const txWethTransfer0 = await data.weth.connect(data.deployer).transfer(data.user0.address, amount0);
+      const txWethTransfer1 = await data.weth.connect(data.deployer).transfer(data.user1.address, amount0);
+      const txWethTransfer2 = await data.weth.connect(data.deployer).transfer(data.user2.address, amount0);
+      await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
+      await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
+      await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
+
+      const txWethApprove0 = await data.weth.connect(data.user0).approve(data.registryExchange.target, approveAmount0);
+      const txWethApprove1 = await data.weth.connect(data.user1).approve(data.registryExchange.target, approveAmount0);
+      const txWethApprove2 = await data.weth.connect(data.user2).approve(data.registryExchange.target, approveAmount0);
+      await printTx(data, "txWethApprove0", await txWethApprove0.wait());
+      await printTx(data, "txWethApprove1", await txWethApprove1.wait());
+      await printTx(data, "txWethApprove2", await txWethApprove2.wait());
+
       await printState(data, "Empty");
 
       addHash(data, "text0");
@@ -285,16 +314,22 @@ describe("Registry", function () {
       await printState(data, "Setup Tokens");
 
       const purchaseData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
-      console.log("      user1 -> registryExchange.offer(purchaseData)");
+      console.log("      user1 -> registryExchange.purchase(purchaseData)");
       const tx7 = await data.registryExchange.connect(data.user1).purchase(purchaseData, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
       await printState(data, "After Offer Purchases");
 
       const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
-      console.log("      user2 -> registryExchange.offer(bidData)");
+      console.log("      user2 -> registryExchange.bid(bidData)");
       const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx8", await tx8.wait());
+
+      const saleData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
+      console.log("      user1 -> registryExchange.sell(saleData)");
+      const tx9 = await data.registryExchange.connect(data.user1).sell(saleData, { value: ethers.parseEther("110") });
+      await printTx(data, "tx9", await tx9.wait());
+
 
       await printState(data, "After Bid Acceptances");
     });

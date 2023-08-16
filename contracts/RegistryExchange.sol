@@ -14,6 +14,7 @@ pragma solidity ^0.8.19;
 // ----------------------------------------------------------------------------
 
 import "./Registry.sol";
+import "./ERC20.sol";
 
 
 contract RegistryExchange {
@@ -47,6 +48,7 @@ contract RegistryExchange {
     }
 
     RegistryInterface public immutable registry;
+    ERC20 public immutable weth;
     mapping(address => mapping(uint => Offer)) offers;
     mapping(address => mapping(uint => Bid)) bids;
 
@@ -62,8 +64,9 @@ contract RegistryExchange {
     error InsufficientFunds(uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
 
-    constructor(RegistryInterface _registry) {
+    constructor(RegistryInterface _registry, ERC20 _weth) {
         registry = _registry;
+        weth = _weth;
     }
 
     function offer(OfferInput[] memory offerInputs) public {
@@ -113,8 +116,20 @@ contract RegistryExchange {
         }
         emit BidRegistered(msg.sender, bidInputs, block.timestamp);
     }
+    event Debug(string topic, uint value);
     function sell(SaleData[] calldata saleData) public payable {
+        uint wethBalance = weth.balanceOf(msg.sender);
+        emit Debug("wethBalance", wethBalance);
+        uint wethApproved = weth.allowance(msg.sender, address(this));
+        emit Debug("wethApproved", wethApproved);
+        // uint available = msg.value;
+        // emit Debug("available", available);
+
         // TODO:
+        // uint available = msg.value;
+        // for (uint i = 0; i < saleData.length; i = onePlus(i)) {
+        //     SaleData memory s = saleData[i];
+        // }
     }
 
     function bulkTransfer(address to, uint[] memory tokenIds) public {
