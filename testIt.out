@@ -1,71 +1,97 @@
 
   Registry
     Testing
-      deployFixture - deployer.address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      deployFixture - user0.address: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      deployFixture - user1.address: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-      deployFixture - user2.address: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
-      deployFixture - registry.target: 0x5FbDB2315678afecb367f032d93F642f64180aa3
+      deployFixture - deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      deployFixture - user0: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      deployFixture - user1: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+      deployFixture - user2: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
+      deployFixture - registry: 0x5FbDB2315678afecb367f032d93F642f64180aa3
       deployFixture - registryReceiver: 0xa16E02E87b7454126E5E10d957A927A7F5B5d2be
-      deployFixture - registryExchange.target: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+      deployFixture - registryExchange: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
 
-accounts: ["0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","0x70997970C51812dc3A010C7d01b50e0d17dc79C8","0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC","0x90F79bf6EB2c4f870365E785982E1f101E93b906","0x5FbDB2315678afecb367f032d93F642f64180aa3","0xa16E02E87b7454126E5E10d957A927A7F5B5d2be","0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"]
-accountNames: {"0xf39fd6e51aad88f6f4ce6ab8827279cfffb92266":"deployer","0x70997970c51812dc3a010c7d01b50e0d17dc79c8":"user0","0x3c44cdddb6a900fa2b585dd299e03d12fa4293bc":"user1","0x90f79bf6eb2c4f870365e785982e1f101e93b906":"user2","0x5fbdb2315678afecb367f032d93f642f64180aa3":"registry","0xa16e02e87b7454126e5e10d957a927a7f5b5d2be":"registryReceiver","0xe7f1725e7734ce288f8367e1bb143e90bb3f0512":"registryExchange"}
 
       data0.length: 2
       > tx0 - gasUsed: 94938 ~ ETH 0.00189876 ~ USD 3.79752 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + 0x5FbDB2315678afecb3 3.0 Registered(tokenId: 0, hash: 0x56570de2, owner: 0x70997970C51812dc3A, timestamp: 1692147979)
+        + registry:0x5FbD -> 3.0 Registered(tokenId: 0, hash: 0x56570de2, owner: user0:0x7099, timestamp: 1692151499)
       > tx0Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - Single Entry - 0x56570de287d73cd1cb 0x70997970C51812dc3A 1692147979
+      printState - Single Entry - 0x56570de287d73cd1cb user0:0x7099 1692151499
 
       data1.length: 2
       > tx1 - gasUsed: 77838 ~ ETH 0.00155676 ~ USD 3.11352 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + 0x5FbDB2315678afecb3 7.0 Registered(tokenId: 1, hash: 0x58958376, owner: 0x70997970C51812dc3A, timestamp: 1692147983)
+        + registry:0x5FbD -> 7.0 Registered(tokenId: 1, hash: 0x58958376, owner: user0:0x7099, timestamp: 1692151503)
       > tx1Regular - gasUsed: 21032 ~ ETH 0.00042064 ~ USD 0.84128 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 2 Entries - 0x56570de287d73cd1cb 0x70997970C51812dc3A 1692147979
-      printState - 2 Entries - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1692147983
+      printState - 2 Entries - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 2 Entries - 0x589583765fbc2f1b43 user0:0x7099 1692151503
 
       data2.length: 1000
       > tx2 - gasUsed: 94237 ~ ETH 0.00188474 ~ USD 3.76948 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + 0x5FbDB2315678afecb3 9.0 Registered(tokenId: 2, hash: 0x2f269b22, owner: 0x3C44CdDdB6a900fa2b, timestamp: 1692147985)
+        + registry:0x5FbD -> 9.0 Registered(tokenId: 2, hash: 0x2f269b22, owner: user1:0x3C44, timestamp: 1692151505)
       > tx2Regular - gasUsed: 37000 ~ ETH 0.00074 ~ USD 1.48 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb 0x70997970C51812dc3A 1692147979
-      printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43 0x70997970C51812dc3A 1692147983
-      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc56 0x3C44CdDdB6a900fa2b 1692147985
+      printState - 3 Entries, 2 Accounts - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 3 Entries, 2 Accounts - 0x589583765fbc2f1b43 user0:0x7099 1692151503
+      printState - 3 Entries, 2 Accounts - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
 
       Transferring ownership of #1 to 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
+      > tx3 - gasUsed: 34218 ~ ETH 0.00068436 ~ USD 1.36872 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 12.0 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 1692151508)
+      printState - 3 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 3 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
+      printState - 3 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
 
-      1) Testing #1
+      data4.length: 10000
+      > tx4 - gasUsed: 241811 ~ ETH 0.00483622 ~ USD 9.67244 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 13.0 Registered(tokenId: 3, hash: 0x0dd53162, owner: user1:0x3C44, timestamp: 1692151509)
+      > tx4Regular - gasUsed: 181000 ~ ETH 0.00362 ~ USD 7.24 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      printState - 4 Entries, 2 Accounts, large item - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 4 Entries, 2 Accounts, large item - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
+      printState - 4 Entries, 2 Accounts, large item - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
+      printState - 4 Entries, 2 Accounts, large item - 0x0dd531624da106bc94 user1:0x3C44 1692151509
 
-·------------------------|---------------------------|-------------|-----------------------------·
-|  [90mSolc version: 0.8.19[39m  ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 30000000 gas[39m  │
-·························|···························|·············|······························
-|  [32m[1mMethods[22m[39m                                                                                       │
-··············|··········|·············|·············|·············|···············|··············
-|  [1mContract[22m   ·  [1mMethod[22m  ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1musd (avg)[22m  │
-··············|··········|·············|·············|·············|···············|··············
-|  [32m[1mDeployments[22m[39m           ·                                         ·  [1m% of limit[22m   ·             │
-·························|·············|·············|·············|···············|··············
-|  Registry              ·          -  ·          -  ·     812218  ·        [90m2.7 %[39m  ·          [32m[90m-[32m[39m  │
-·························|·············|·············|·············|···············|··············
-|  RegistryExchange      ·          -  ·          -  ·     691797  ·        [90m2.3 %[39m  ·          [32m[90m-[32m[39m  │
-·------------------------|-------------|-------------|-------------|---------------|-------------·
+      data5.length: 100000
+      > tx5 - gasUsed: 1734558 ~ ETH 0.03469116 ~ USD 69.38232 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 15.0 Registered(tokenId: 4, hash: 0x2d1e3733, owner: user1:0x3C44, timestamp: 1692151511)
+      > tx5Regular - gasUsed: 1621000 ~ ETH 0.03242 ~ USD 64.84 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      printState - 5 Entries, 2 Accounts, large items - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 5 Entries, 2 Accounts, large items - 0x589583765fbc2f1b43 user1:0x3C44 1692151503
+      printState - 5 Entries, 2 Accounts, large items - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
+      printState - 5 Entries, 2 Accounts, large items - 0x0dd531624da106bc94 user1:0x3C44 1692151509
+      printState - 5 Entries, 2 Accounts, large items - 0x2d1e3733f1e9b42040 user1:0x3C44 1692151511
 
-  0 passing (703ms)
-  1 failing
+      user1.setApprovalForAll(registryExchange, true)
+      > tx6 - gasUsed: 46401 ~ ETH 0.00092802 ~ USD 1.85604 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 19.0 ApprovalForAll(owner: user1:0x3C44, operator: registryExchange:0xe7f1, approved: true, timestamp: 1692151515)
+      Transferring ownership of #1 & #2 to 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
+      > tx7 - gasUsed: 58148 ~ ETH 0.00116296 ~ USD 2.32592 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0x5FbD -> 20.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 1, timestamp: 1692151516)
+        + registry:0x5FbD -> 20.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokenId: 3, timestamp: 1692151516)
+        + registryExchange:0xe7f1 -> 20.2 BulkTransferred(to: user0:0x7099, tokenIds: 1,3, timestamp: 1692151516)
+      printState - 5 Entries, 2 Accounts, Transferred - 0x56570de287d73cd1cb user0:0x7099 1692151499
+      printState - 5 Entries, 2 Accounts, Transferred - 0x589583765fbc2f1b43 user0:0x7099 1692151503
+      printState - 5 Entries, 2 Accounts, Transferred - 0x2f269b22adacbccc56 user1:0x3C44 1692151505
+      printState - 5 Entries, 2 Accounts, Transferred - 0x0dd531624da106bc94 user0:0x7099 1692151509
+      printState - 5 Entries, 2 Accounts, Transferred - 0x2d1e3733f1e9b42040 user1:0x3C44 1692151511
 
-  1) Registry
-       Testing
-         Testing #1:
-     Error: VM Exception while processing transaction: reverted with custom error 'NotOwnerNorApproved()'
-      at Registry.transfer (contracts/Registry.sol:128)
-      at processTicksAndRejections (node:internal/process/task_queues:95:5)
-      at HardhatNode._mineBlockWithPendingTxs (node_modules/hardhat/src/internal/hardhat-network/provider/node.ts:1840:23)
-      at HardhatNode.mineBlock (node_modules/hardhat/src/internal/hardhat-network/provider/node.ts:517:16)
-      at EthModule._sendTransactionAndReturnHash (node_modules/hardhat/src/internal/hardhat-network/provider/modules/eth.ts:1532:18)
-      at HardhatNetworkProvider.request (node_modules/hardhat/src/internal/hardhat-network/provider/provider.ts:123:18)
-      at HardhatEthersSigner.sendTransaction (node_modules/@nomicfoundation/hardhat-ethers/src/signers.ts:125:18)
-      at send (node_modules/ethers/src.ts/contract/contract.ts:299:20)
+      ✓ Testing #1
 
+·------------------------------------------|---------------------------|-------------|-----------------------------·
+|           [90mSolc version: 0.8.19[39m           ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 30000000 gas[39m  │
+···········································|···························|·············|······························
+|  [32m[1mMethods[22m[39m                                                                                                         │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [1mContract[22m          ·  [1mMethod[22m             ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1musd (avg)[22m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [90mRegistry[39m          ·  setApprovalForAll  ·          -  ·          -  ·      46401  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [90mRegistry[39m          ·  transfer           ·          -  ·          -  ·      34218  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [90mRegistryExchange[39m  ·  bulkTransfer       ·          -  ·          -  ·      58148  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+·····················|·····················|·············|·············|·············|···············|··············
+|  [32m[1mDeployments[22m[39m                             ·                                         ·  [1m% of limit[22m   ·             │
+···········································|·············|·············|·············|···············|··············
+|  Registry                                ·          -  ·          -  ·     812218  ·        [90m2.7 %[39m  ·          [32m[90m-[32m[39m  │
+···········································|·············|·············|·············|···············|··············
+|  RegistryExchange                        ·          -  ·          -  ·     691797  ·        [90m2.3 %[39m  ·          [32m[90m-[32m[39m  │
+·------------------------------------------|-------------|-------------|-------------|---------------|-------------·
 
+  1 passing (860ms)
 

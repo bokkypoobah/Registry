@@ -23,15 +23,14 @@ describe("Registry", function () {
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
     const registryExchange = await RegistryExchange.deploy(registry.target);
     const registryReceiver = await registry.registryReceiver();
-    console.log("      deployFixture - deployer.address: " + deployer.address);
-    console.log("      deployFixture - user0.address: " + user0.address);
-    console.log("      deployFixture - user1.address: " + user1.address);
-    console.log("      deployFixture - user2.address: " + user2.address);
-    console.log("      deployFixture - registry.target: " + registry.target);
+    console.log("      deployFixture - deployer: " + deployer.address);
+    console.log("      deployFixture - user0: " + user0.address);
+    console.log("      deployFixture - user1: " + user1.address);
+    console.log("      deployFixture - user2: " + user2.address);
+    console.log("      deployFixture - registry: " + registry.target);
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
-    console.log("      deployFixture - registryExchange.target: " + registryExchange.target);
+    console.log("      deployFixture - registryExchange: " + registryExchange.target);
     console.log();
-
     const accounts = [deployer.address, user0.address, user1.address, user2.address, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
@@ -41,11 +40,20 @@ describe("Registry", function () {
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
+    // console.log("      accounts: " + JSON.stringify(accounts));
+    // console.log("      accountNames: " + JSON.stringify(accountNames));
+    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames };
+  }
 
-    console.log("      accounts: " + JSON.stringify(accounts));
-    console.log("      accountNames: " + JSON.stringify(accountNames));
-
-    return { registry, registryReceiver, registryExchange, deployer, user0, user1, user2 };
+  function getAccountName(context, address) {
+    if (address != null) {
+      var a = address.toLowerCase();
+      var n = context.accountNames[a];
+      if (n !== undefined) {
+        return n + ":" + address.substring(0, 6);
+      }
+    }
+    return address.substring(0, 20);
   }
 
   async function printTx(context, prefix, receipt) {
@@ -68,7 +76,7 @@ describe("Registry", function () {
       data.fragment.inputs.forEach((a) => {
         result = result + separator + a.name + ": ";
         if (a.type == 'address') {
-          result = result + data.args[a.name].toString().substring(0, 20);
+          result = result + getAccountName(context, data.args[a.name].toString());
         } else if (a.type == 'uint256' || a.type == 'uint128' || a.type == 'uint64') {
           result = result + data.args[a.name].toString();
         } else if (a.type == 'bytes32') {
@@ -79,19 +87,19 @@ describe("Registry", function () {
         separator = ", ";
       });
       result = result + ")";
-      console.log("        + " + log.address.substring(0, 20) + " " + log.blockNumber + "." + log.index + " " + result);
+      console.log("        + " + getAccountName(context, log.address) + " -> " + log.blockNumber + "." + log.index + " " + result);
     });
   }
 
-  async function printState(prefix, registry) {
-    const registryReceiver = await registry.registryReceiver();
-    const data = await registry.getData(10, 0);
+  async function printState(context, prefix) {
+    const registryReceiver = await context.registry.registryReceiver();
+    const data = await context.registry.getData(10, 0);
     for (const row of data) {
       const [hash, owner, created] = row;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      printState - " + prefix + " - " + hash.substring(0, 20) + " " + owner.substring(0, 20) + " " + created);
+      console.log("      printState - " + prefix + " - " + hash.substring(0, 20) + " " + getAccountName(context, owner) + " " + created);
     }
     // const hashesLength = await registry.hashesLength();
     // for (let i = 0; i < hashesLength; i++) {
@@ -104,9 +112,8 @@ describe("Registry", function () {
 
   describe("Testing", function () {
     it("Testing #1", async function () {
-      // const { registry, registryReceiver, registryExchange, user0, user1 } = await loadFixture(deployFixture);
       const context = await loadFixture(deployFixture);
-      await printState("Empty", context.registry);
+      await printState(context, "Empty");
 
       // TODO: Send tx with non-0 value
 
@@ -124,7 +131,7 @@ describe("Registry", function () {
       );
       const tx0Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: "0x1234" });
       await printTx(context, "tx0Regular", await tx0Regular.wait());
-      await printState("Single Entry", context.registry);
+      await printState(context, "Single Entry");
 
       const data1 = "0x3456";
       console.log("      data1.length: " + ((data1.length - 2)/2));
@@ -132,7 +139,7 @@ describe("Registry", function () {
       await printTx(context, "tx1", await tx1.wait());
       const tx1Regular = await context.user0.sendTransaction({ to: context.user0.address, value: 0, data: data1 });
       await printTx(context, "tx1Regular", await tx1Regular.wait());
-      await printState("2 Entries", context.registry);
+      await printState(context, "2 Entries");
 
       const data2 = "0x" + "12".repeat(1000);
       console.log("      data2.length: " + ((data2.length - 2)/2));
@@ -140,7 +147,7 @@ describe("Registry", function () {
       await printTx(context, "tx2", await tx2.wait());
       const tx2Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data2 });
       await printTx(context, "tx2Regular", await tx2Regular.wait());
-      await printState("3 Entries, 2 Accounts", context.registry);
+      await printState(context, "3 Entries, 2 Accounts");
 
       await expect(context.registry.connect(context.user0).transfer(context.user1.address, 2)).to.be.revertedWithCustomError(
         context.registry,
@@ -149,7 +156,7 @@ describe("Registry", function () {
       console.log("      Transferring ownership of #1 to " + context.user1.address);
       const tx3 = await context.registry.connect(context.user0).transfer(context.user1.address, 1);
       await printTx(context, "tx3", await tx3.wait());
-      await printState("3 Entries, 2 Accounts, Transferred", context.registry);
+      await printState(context, "3 Entries, 2 Accounts, Transferred");
 
       const data4 = "0x" + "12".repeat(10000);
       console.log("      data4.length: " + ((data4.length - 2)/2));
@@ -157,7 +164,7 @@ describe("Registry", function () {
       await printTx(context, "tx4", await tx4.wait());
       const tx4Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data4 });
       await printTx(context, "tx4Regular", await tx4Regular.wait());
-      await printState("4 Entries, 2 Accounts, large item", context.registry);
+      await printState(context, "4 Entries, 2 Accounts, large item");
 
       const data5 = "0x" + "12".repeat(100000);
       console.log("      data5.length: " + ((data5.length - 2)/2));
@@ -165,7 +172,7 @@ describe("Registry", function () {
       await printTx(context, "tx5", await tx5.wait());
       const tx5Regular = await context.user1.sendTransaction({ to: context.user1.address, value: 0, data: data5 });
       await printTx(context, "tx5Regular", await tx5Regular.wait());
-      await printState("5 Entries, 2 Accounts, large items", context.registry);
+      await printState(context, "5 Entries, 2 Accounts, large items");
 
       await expect(context.registryExchange.connect(context.user1).bulkTransfer(context.user0.address, [0])).to.be.revertedWithCustomError(
         context.registryExchange,
@@ -183,7 +190,7 @@ describe("Registry", function () {
       console.log("      Transferring ownership of #1 & #2 to " + context.user0.address);
       const tx7 = await context.registryExchange.connect(context.user1).bulkTransfer(context.user0.address, [1, 3]);
       await printTx(context, "tx7", await tx7.wait());
-      await printState("5 Entries, 2 Accounts, Transferred", context.registry);
+      await printState(context, "5 Entries, 2 Accounts, Transferred");
     });
 
 
