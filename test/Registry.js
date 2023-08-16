@@ -327,7 +327,7 @@ describe("Registry", function () {
 
       const saleData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.sell(saleData)");
-      const tx9 = await data.registryExchange.connect(data.user1).sell(saleData, { value: ethers.parseEther("110") });
+      const tx9 = await data.registryExchange.connect(data.user1).sell(saleData);
       await printTx(data, "tx9", await tx9.wait());
 
 

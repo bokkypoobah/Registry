@@ -117,13 +117,13 @@ contract RegistryExchange {
         emit BidRegistered(msg.sender, bidInputs, block.timestamp);
     }
     event Debug(string topic, uint value);
-    function sell(SaleData[] calldata saleData) public payable {
+    function sell(SaleData[] calldata saleData) public {
         uint wethBalance = weth.balanceOf(msg.sender);
         emit Debug("wethBalance", wethBalance);
         uint wethApproved = weth.allowance(msg.sender, address(this));
         emit Debug("wethApproved", wethApproved);
-        // uint available = msg.value;
-        // emit Debug("available", available);
+        uint available = wethBalance > wethApproved ? wethApproved : wethBalance;
+        emit Debug("available", available);
 
         // TODO:
         // uint available = msg.value;
