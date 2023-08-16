@@ -332,8 +332,15 @@ describe("Registry", function () {
       const tx9 = await data.registryExchange.connect(data.user1).sell(saleData);
       await printTx(data, "tx9", await tx9.wait());
 
-
       await printState(data, "After Sales");
+
+      console.log("      deployer -> registryExchange.withdrawTokens(0, 0)");
+      const tx10 = await data.registryExchange.connect(data.deployer).withdrawTokens(ZERO_ADDRESS, 0);
+      await printTx(data, "tx10", await tx10.wait());
+      const tx11 = await data.registryExchange.connect(data.deployer).withdrawTokens(data.weth.target, 0);
+      await printTx(data, "tx11", await tx11.wait());
+
+      await printState(data, "After Deployer Withdraw");
     });
   });
 
