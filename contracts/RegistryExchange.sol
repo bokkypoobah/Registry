@@ -113,7 +113,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     error BidExpired(uint tokenId, uint expiry);
     error InvalidOffer(uint tokenId, address owner);
     error InvalidBid(uint tokenId, address bidder);
-    error PriceMismatch(uint tokenId, uint offerPrice, uint purchasePrice);
+    error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
     error OnlyTokenOwnerCanTransfer();
@@ -148,25 +148,26 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             if (d.account != currentOwner) {
                 revert IncorrectOwner(d.tokenId, currentOwner);
             }
-            Order memory _offer = offers[d.account][d.tokenId];
-            if (_offer.expiry != 0 && _offer.expiry < block.timestamp) {
-                revert OfferExpired(d.tokenId, _offer.expiry);
-            }
-            uint offerPrice = uint(_offer.price);
-            if (_offer.price == 0) {
+            // TODO: Block exchanging with self
+            Order memory order = offers[d.account][d.tokenId];
+            if (order.expiry == 0) {
                 revert InvalidOffer(d.tokenId, d.account);
             }
-            if (offerPrice != d.price) {
-                revert PriceMismatch(d.tokenId, _offer.price, d.price);
+            if (order.expiry < block.timestamp) {
+                revert OfferExpired(d.tokenId, order.expiry);
             }
-            if (available < offerPrice) {
-                revert TakerHasInsufficientEth(d.tokenId, _offer.price, available);
+            uint orderPrice = uint(order.price);
+            if (orderPrice != d.price) {
+                revert PriceMismatch(d.tokenId, orderPrice, d.price);
             }
-            available -= offerPrice;
+            if (available < orderPrice) {
+                revert TakerHasInsufficientEth(d.tokenId, orderPrice, available);
+            }
+            available -= orderPrice;
             delete offers[d.account][d.tokenId];
-            payable(d.account).transfer((offerPrice * (10_000 - fee)) / 10_000);
+            payable(d.account).transfer((orderPrice * (10_000 - fee)) / 10_000);
             registry.transfer(msg.sender, d.tokenId);
-            emit Bought(d.account, msg.sender, d.tokenId, d.price, block.timestamp);
+            emit Bought(d.account, msg.sender, d.tokenId, orderPrice, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);
@@ -191,25 +192,27 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     function sell(TakerData[] calldata data) public {
         for (uint i = 0; i < data.length; i = onePlus(i)) {
             TakerData memory d = data[i];
-            Order memory _bid = bids[d.account][d.tokenId];
-            if (_bid.expiry != 0 && _bid.expiry < block.timestamp) {
-                revert BidExpired(d.tokenId, _bid.expiry);
-            }
-            if (_bid.price == 0) {
+            // TODO: Block exchanging with self
+            Order memory order = bids[d.account][d.tokenId];
+            if (order.expiry == 0) {
                 revert InvalidBid(d.tokenId, d.account);
             }
-            if (d.price != _bid.price) {
-                revert PriceMismatch(d.tokenId, _bid.price, d.price);
+            if (order.expiry < block.timestamp) {
+                revert BidExpired(d.tokenId, order.expiry);
+            }
+            uint orderPrice = uint(order.price);
+            if (orderPrice != d.price) {
+                revert PriceMismatch(d.tokenId, orderPrice, d.price);
             }
             uint available = availableWeth(d.account);
             if (available < d.price) {
-                revert MakerHasInsufficientWeth(d.account, d.tokenId, d.price, available);
+                revert MakerHasInsufficientWeth(d.account, d.tokenId, orderPrice, available);
             }
-            weth.transferFrom(d.account, msg.sender, (d.price * (10_000 - fee)) / 10_000);
-            weth.transferFrom(d.account, address(this), (d.price * fee) / 10_000);
+            weth.transferFrom(d.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
+            weth.transferFrom(d.account, address(this), (orderPrice * fee) / 10_000);
             delete bids[d.account][d.tokenId];
             registry.transfer(d.account, d.tokenId);
-            emit Sold(msg.sender, d.account, d.tokenId, d.price, block.timestamp);
+            emit Sold(msg.sender, d.account, d.tokenId, orderPrice, block.timestamp);
         }
     }
 

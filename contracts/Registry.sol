@@ -11,6 +11,10 @@ pragma solidity ^0.8.19;
 //
 // SPDX-License-Identifier: MIT
 //
+// If you earn fees using your deployment of this code, or derivatives of this
+// code, please send a proportionate amount to bokkypoobah.eth .
+// Don't be stingy! Donations welcome!
+//
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2023
 // ----------------------------------------------------------------------------
 
