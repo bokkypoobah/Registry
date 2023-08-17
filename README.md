@@ -14,7 +14,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
-* [ ] [contracts/Registry](contracts/Registry.sol)
+* [x] [contracts/Registry](contracts/Registry.sol)
   * [x] Confirm only RegistryReceiver can register
   * [x] Confirm `ownerOf(tokenId)` works
   * [x] Confirm `length()` works
@@ -22,13 +22,15 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Confirm non-owner cannot transfer tokens
   * [x] Confirm `setApprovalForAll(...)` works
   * [x] Confirm `isApprovedForAll(...)` works
-  * [ ] Check remaining readonly functions. Lower priority as these are used otherwise
 * [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
   * [x] Owned
     * [x] Confirm `transferOwnership(...)` can only be executed by `owner`
     * [x] Confirm `acceptOwnership()` can only be executed by `newOwner`
   * [x] `bulkTransfer(...)`
     * [x] Confirm can only `bulkTransfer(...)` own items
+  * [x] `updateFee(...)`
+    * [x] Confirm `updateFee(...)` can only be called by owner
+    * [x] Cannot set above `MAX_FEE`
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
@@ -37,11 +39,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
-  * [ ] Confirm `updateFee(...)` can only be called by owner
-  * [ ] Confirm `updateFee(...)` works as expected
-    * [ ] Cannot set above `MAX_FEE`
-    * [ ] Non-owner cannot set
-    * [ ] Change amount takes effect
+  * [ ] Confirm `updateFee(...)` changed amount takes effect
   * [ ] Confirm `withdraw(...)` can only be called by owner
   * [ ] Confirm `withdraw(...)` for partial and full ERC-20 and ETH withdrawals
   * [ ] ReentrancyGuard
@@ -53,6 +51,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [ ] Confirm fees are correct
 * [ ] Low Priority
   * [ ] Confirm RegistryReceiver tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract anyway
+  * [ ] Check remaining Registry readonly functions. Lower priority as these are used otherwise
 
 <br />
 

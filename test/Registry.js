@@ -350,6 +350,72 @@ describe("Registry", function () {
   });
 
 
+  describe("RegistryExchange - Update Fee", function () {
+    it.only("RegistryExchange - Update Fee #1", async function () {
+      const data = await loadFixture(deployFixture);
+      await printState(data, "Empty");
+
+      expect(await data.registryExchange.fee()).to.equal(10);
+
+      // Non-owner cannot update the fee
+      await expect(
+        data.registryExchange.connect(data.user2).updateFee(11)).to.be.revertedWithCustomError(
+        data.registryExchange,
+        "NotOwner"
+      );
+
+      // Cannot set fee > MAX_FEE
+      await expect(
+        data.registryExchange.connect(data.deployer).updateFee(11)).to.be.revertedWithCustomError(
+        data.registryExchange,
+        "InvalidFee"
+      ).withArgs(11, 10);
+
+      await expect(data.registryExchange.connect(data.deployer).updateFee(5))
+        .to.emit(data.registryExchange, "FeeUpdated")
+        .withArgs(10, 5, anyValue);
+
+      expect(await data.registryExchange.fee()).to.equal(5);
+
+      // addHash(data, "user0string0");
+      // addHash(data, "user1string1");
+      // addHash(data, "user2string0");
+      // addHash(data, "user2string1");
+      // addHash(data, "user2string2");
+      //
+      // const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      // const tx1 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string1")) });
+      // const tx2 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string0")) });
+      // const tx3 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string1")) });
+      // const tx4 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string2")) });
+      //
+      // // Token owner cannot bulk transfer before approving
+      // await expect(
+      //   data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
+      //   data.registry,
+      //   "NotOwnerNorApproved"
+      // );
+      //
+      // const tx6 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
+      //
+      // // Only token owner can bulk transfer
+      // await expect(
+      //   data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
+      //   data.registryExchange,
+      //   "OnlyTokenOwnerCanTransfer"
+      // );
+      //
+      // const tx7 = await data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4]);
+      //
+      // expect(await data.registry.ownerOf(2)).to.equal(data.user0.address);
+      // expect(await data.registry.ownerOf(4)).to.equal(data.user0.address);
+      //
+      // await printState(data, "End");
+
+    });
+  });
+
+
   describe("Registry OLD", function () {
     it.skip("Registry OLD #1", async function () {
       const data = await loadFixture(deployFixture);
