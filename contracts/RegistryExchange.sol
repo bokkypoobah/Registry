@@ -106,7 +106,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
-    event FeeUpdated(uint indexed fee);
+    event FeeUpdated(uint indexed oldFee, uint indexed newFee);
 
     error InvalidPrice(uint price, uint maxPrice);
     error IncorrectOwner(uint tokenId, address tokenOwner, address orderOwner);
@@ -124,26 +124,35 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         registry = _registry;
     }
 
-    function offer(Order[] memory orders) public {
-        for (uint i = 0; i < orders.length; i = onePlus(i)) {
-            Order memory o = orders[i];
+    /// @dev Maker update `_offers` to sell tokens for ETH
+    /// @param _offers [[tokenId, price, expiry]]
+    function offer(Order[] memory _offers) public {
+        for (uint i = 0; i < _offers.length; i = onePlus(i)) {
+            Order memory o = _offers[i];
             if (o.price > PRICE_MAX) {
                 revert InvalidPrice(o.price, PRICE_MAX);
             }
             offers[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Offer(msg.sender, orders, block.timestamp);
+        emit Offer(msg.sender, _offers, block.timestamp);
     }
-    function bid(Order[] memory orders) public {
-        for (uint i = 0; i < orders.length; i = onePlus(i)) {
-            Order memory o = orders[i];
+
+    /// @dev Maker update `_bids` to buy tokens for WETH
+    /// @param _bids [[tokenId, price, expiry]]
+    function bid(Order[] memory _bids) public {
+        for (uint i = 0; i < _bids.length; i = onePlus(i)) {
+            Order memory o = _bids[i];
             if (o.price > PRICE_MAX) {
                 revert InvalidPrice(o.price, PRICE_MAX);
             }
             bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Bid(msg.sender, orders, block.timestamp);
+        emit Bid(msg.sender, _bids, block.timestamp);
     }
+
+    /// @dev Taker execute `trades` against {offers} to buy tokens for ETH
+    /// @param trades [[maker, tokenId, price]]
+    /// @param uiFeeAccount Fee account that will receive half of the fees if set to a non-zero address
     function buy(Trade[] calldata trades, address uiFeeAccount) public payable reentrancyGuard {
         uint available = msg.value;
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
@@ -181,6 +190,10 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             payable(msg.sender).transfer(available);
         }
     }
+
+    /// @dev Taker execute `trades` against {bids} to sell tokens for WETH
+    /// @param trades [[maker, tokenId, price]]
+    /// @param uiFeeAccount Fee account that will receive half of the fees if set to a non-zero address
     function sell(Trade[] calldata trades, address uiFeeAccount) public {
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
             Trade memory t = trades[i];
@@ -214,6 +227,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         }
     }
 
+    /// @dev Transfer `tokenIds` to `to`. Requires owner to have executed setApprovalForAll(registryExchange, true)
+    /// @param to New owner
+    /// @param tokenIds Token Ids
     function bulkTransfer(address to, uint[] memory tokenIds) public {
         for (uint i = 0; i < tokenIds.length; i = onePlus(i)) {
             if (msg.sender != registry.ownerOf(tokenIds[i])) {
@@ -223,14 +239,18 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         }
         emit BulkTransferred(to, tokenIds, block.timestamp);
     }
-    function updateFee(uint _fee) public onlyOwner {
-        if (_fee > MAX_FEE) {
-            revert InvalidFee(_fee, MAX_FEE);
+
+    /// @dev Update fee to `newFee`, with a limit of {MAX_FEE}. Only callable by {owner}
+    /// @param newFee New fee
+    function updateFee(uint newFee) public onlyOwner {
+        if (newFee > MAX_FEE) {
+            revert InvalidFee(newFee, MAX_FEE);
         }
-        emit FeeUpdated(_fee);
-        fee = _fee;
+        emit FeeUpdated(fee, newFee);
+        fee = newFee;
     }
 
+    /// @dev Minimum of WETH balance and spending allowance to this {RegistryExchange} for `account`
     function availableWeth(address account) internal view returns (uint tokens) {
         uint allowance = weth.allowance(account, address(this));
         uint balance = weth.balanceOf(account);
