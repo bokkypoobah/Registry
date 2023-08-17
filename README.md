@@ -6,7 +6,7 @@ See https://bokkypoobah.github.io/Registry/
 
 ---
 
-## Testing
+### Testing
 
 Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh), with output in [testIt.out](testIt.out):
 
@@ -54,9 +54,17 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
 * [ ] Low Priority
   * [ ] Confirm RegistryReceiver tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract anyway
 
-Notes:
+<br />
+
+### Notes
 
 * Reentrancy is mainly an issue in the `buy(...)` function when sending back any ETH refunds that could trigger a callback
+
+<br />
+
+### TODO
+
+* Check event logs are sufficient for accounting
 
 <br />
 
