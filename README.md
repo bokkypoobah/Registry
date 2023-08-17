@@ -15,8 +15,8 @@ See https://bokkypoobah.github.io/Registry/
   * [ ] TODO LOW Confirm tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract
 * [ ] Registry
   * [x] Confirm only RegistryReceiver can register
-  * [ ] Confirm `ownerOf(tokenId)` works
-  * [ ] Confirm `length()` works
+  * [x] Confirm `ownerOf(tokenId)` works
+  * [x] Confirm `length()` works
   * [ ] Confirm `setApprovalForAll(...)` works
   * [ ] Confirm `isApprovedForAll(...)` works
   * [ ] Confirm that non-owner and non-approved cannot transfer tokens

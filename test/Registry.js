@@ -227,6 +227,25 @@ describe("Registry", function () {
         data.registry,
         "OnlyRegistryReceiverCanRegister"
       );
+
+      addHash(data, "user0string");
+      addHash(data, "user1string");
+      addHash(data, "user2string");
+
+      // Check owner
+      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string")) });
+      const tx1 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string")) });
+      const tx2 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string")) });
+
+      // Check ownerOf
+      expect(await data.registry.ownerOf(0)).to.equal(data.user0.address);
+      expect(await data.registry.ownerOf(1)).to.equal(data.user1.address);
+      expect(await data.registry.ownerOf(2)).to.equal(data.user2.address);
+
+      // Check length
+      expect(await data.registry.length()).to.equal(3);
+
+      await printState(data, "End");
     });
   });
 

@@ -3,6 +3,26 @@
     RegistryReceiver
       ✓ RegistryReceiver #1
     Registry
+
+      --- End ---
+       Id Account                                        ETH                     WETH
+      --- ------------------------- ------------------------ ------------------------
+        0 deployer:0xf39F            9999.994529866780146869                 997000.0
+        1 user0:0x7099               9999.999817455709220563                   1000.0
+        2 user1:0x3C44               9999.999843246770389498                   1000.0
+        3 user2:0x90F7               9999.999847302459752818                   1000.0
+        4 uiFeeAccount:0x15d3                        10000.0                      0.0
+        5 weth:0x5FbD                                    0.0                      0.0
+        6 registry:0xe7f1                                0.0                      0.0
+        7 registryReceiver:0xCafa                        0.0                      0.0
+        8 registryExchange:0x9fE4                        0.0                      0.0
+
+       Id String:Hash          Owner                          Registered
+      --- -------------------- ------------------------------ ------------------------
+        0 "user0string":0x5c03 user0:0x7099                   2023-08-17T11:18:40.000Z
+        1 "user1string":0xe84e user1:0x3C44                   2023-08-17T11:18:41.000Z
+        2 "user2string":0xed3f user2:0x90F7                   2023-08-17T11:18:42.000Z
+
       ✓ Registry #1
     Registry
       - Registry #1 OLD
@@ -29,6 +49,6 @@
 |  Token                  ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·-------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  2 passing (770ms)
+  2 passing (795ms)
   2 pending
 
