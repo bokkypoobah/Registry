@@ -30,6 +30,7 @@ contract Owned {
     event OwnershipTransferred(address indexed from, address indexed to);
 
     error NotOwner();
+    error NotNewOwner(address newOwner);
 
     /// @dev Only {owner} can execute functions with this modifier
     modifier onlyOwner {
@@ -51,6 +52,9 @@ contract Owned {
 
     /// @dev Acceptance of ownership transfer by {newOwner}
     function acceptOwnership() public {
+        if (msg.sender != newOwner) {
+            revert NotNewOwner(newOwner);
+        }
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
         newOwner = address(0);

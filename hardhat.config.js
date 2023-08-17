@@ -13,6 +13,11 @@ module.exports = {
       }
     }
   },
+  networks: {
+      hardhat: {
+          blockGasLimit: 30_000_000,
+      },
+  },
   gasReporter: {
     enabled: true,
     // enabled: process.env.REPORT_GAS ? true : false,

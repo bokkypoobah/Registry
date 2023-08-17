@@ -226,7 +226,7 @@ describe("Registry", function () {
       await printTx(data, "tx4Regular", await tx4Regular.wait());
       await printState(data, "4 Entries, 2 Accounts, large item");
 
-      const string5 = "3".repeat(100000);
+      const string5 = "3".repeat(1000000);
       addHash(data, string5);
       console.log("      string5.length: " + string5.length);
       const tx5 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
@@ -261,7 +261,7 @@ describe("Registry", function () {
   // TODO: Test Fee Functions, Test Orders Cleared After Trades
 
   describe("RegistryExchange", function () {
-    it.only("RegistryExchange #2", async function () {
+    it.skip("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
 
       // const setup1 = [];
