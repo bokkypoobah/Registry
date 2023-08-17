@@ -256,6 +256,24 @@ describe("Registry", function () {
         "NotOwnerNorApproved"
       );
 
+      // Test isApprovedForAll
+      expect(await data.registry.isApprovedForAll(data.user1, data.user0)).to.equal(false);
+
+      // Approve for user0 to transfer user1's tokens
+      const tx4 = await data.registry.connect(data.user1).setApprovalForAll(data.user0.address, true);
+
+      // Transfer and check
+      await data.registry.connect(data.user0).transfer(data.user2.address, 0);
+      expect(await data.registry.ownerOf(0)).to.equal(data.user2.address);
+
+      // Test isApprovedForAll
+      expect(await data.registry.isApprovedForAll(data.user1, data.user0)).to.equal(true);
+      // await expect(
+      //   data.registry.connect(data.user0).transfer(data.user2.address, 0)).to.be.revertedWithCustomError(
+      //   data.registry,
+      //   "NotOwnerNorApproved"
+      // );
+
       await printState(data, "End");
     });
   });

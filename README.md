@@ -8,20 +8,19 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
-* [ ] RegistryReceiver
+* [x] RegistryReceiver
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
-  * [ ] TODO LOW Confirm tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract
 * [ ] Registry
   * [x] Confirm only RegistryReceiver can register
   * [x] Confirm `ownerOf(tokenId)` works
   * [x] Confirm `length()` works
   * [x] Confirm owner can transfer own tokens
   * [x] Confirm non-owner cannot transfer tokens
-  * [ ] Confirm `setApprovalForAll(...)` works
-  * [ ] Confirm `isApprovedForAll(...)` works
-  * [ ] Confirm that non-owner and non-approved cannot transfer tokens
+  * [x] Confirm `setApprovalForAll(...)` works
+  * [x] Confirm `isApprovedForAll(...)` works
+  * [ ] Check remaining readonly functions. Lower priority as these are used otherwise
 * [ ] RegistryExchange
   * [ ] Owned
     * [ ] Confirm `transferOwnership(...)` can only be executed by `owner`
@@ -47,6 +46,8 @@ See https://bokkypoobah.github.io/Registry/
   * [ ] Transfer new items
   * [ ] Confirm items exchanged
   * [ ] Confirm fees are correct
+* [ ] Low Priority
+  * [ ] Confirm RegistryReceiver tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract anyway
 
 <br />
 
