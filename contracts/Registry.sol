@@ -43,6 +43,8 @@ function onePlus(uint x) pure returns (uint) {
 }
 
 
+/// @title RegistryReceiver
+/// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryReceiver is RegistryReceiverInterface {
     RegistryInterface public immutable _registry;
 
@@ -59,6 +61,8 @@ contract RegistryReceiver is RegistryReceiverInterface {
 }
 
 
+/// @title Registry
+/// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Registry is RegistryInterface {
     struct Data {
         address owner;

@@ -74,6 +74,8 @@ contract ReentrancyGuard {
 }
 
 
+/// @title RegistryExchange
+/// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryExchange is Owned, ReentrancyGuard {
     struct Record {
         uint208 price;
