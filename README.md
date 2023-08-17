@@ -10,11 +10,11 @@ See https://bokkypoobah.github.io/Registry/
 
 Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh), with output in [testIt.out](testIt.out):
 
-* [x] [RegistryReceiver](contracts/Registry.sol)
+* [x] [contracts/RegistryReceiver](contracts/Registry.sol)
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
-* [ ] [Registry](contracts/Registry.sol)
+* [ ] [contracts/Registry](contracts/Registry.sol)
   * [x] Confirm only RegistryReceiver can register
   * [x] Confirm `ownerOf(tokenId)` works
   * [x] Confirm `length()` works
@@ -23,7 +23,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Confirm `setApprovalForAll(...)` works
   * [x] Confirm `isApprovedForAll(...)` works
   * [ ] Check remaining readonly functions. Lower priority as these are used otherwise
-* [ ] [RegistryExchange](contracts/RegistryExchange.sol)
+* [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
   * [ ] Owned
     * [ ] Confirm `transferOwnership(...)` can only be executed by `owner`
     * [ ] Confirm `acceptOwnership()` can only be executed by `newOwner`
