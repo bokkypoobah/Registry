@@ -17,6 +17,8 @@ See https://bokkypoobah.github.io/Registry/
   * [x] Confirm only RegistryReceiver can register
   * [x] Confirm `ownerOf(tokenId)` works
   * [x] Confirm `length()` works
+  * [x] Confirm owner can transfer own tokens
+  * [x] Confirm non-owner cannot transfer tokens
   * [ ] Confirm `setApprovalForAll(...)` works
   * [ ] Confirm `isApprovedForAll(...)` works
   * [ ] Confirm that non-owner and non-approved cannot transfer tokens

@@ -245,6 +245,17 @@ describe("Registry", function () {
       // Check length
       expect(await data.registry.length()).to.equal(3);
 
+      // Owner can transfer tokens
+      const tx3 = await data.registry.connect(data.user0).transfer(data.user1.address, 0);
+      expect(await data.registry.ownerOf(0)).to.equal(data.user1.address);
+
+      // Non-owner cannot transfer token
+      await expect(
+        data.registry.connect(data.user0).transfer(data.user2.address, 0)).to.be.revertedWithCustomError(
+        data.registry,
+        "NotOwnerNorApproved"
+      );
+
       await printState(data, "End");
     });
   });
