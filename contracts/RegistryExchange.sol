@@ -111,7 +111,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     error InvalidPrice(uint price, uint maxPrice);
     error IncorrectOwner(uint tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(uint tokenId, uint expiry);
-    error InvalidOrder(uint tokenId, address account);
+    error OrderInvalid(uint tokenId, address account);
     error CannotSelfTrade(uint tokenId);
     error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
@@ -157,7 +157,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             Record memory order = offers[t.account][t.tokenId];
             if (order.expiry == 0) {
-                revert InvalidOrder(t.tokenId, t.account);
+                revert OrderInvalid(t.tokenId, t.account);
             } else if (order.expiry < block.timestamp) {
                 revert OrderExpired(t.tokenId, order.expiry);
             }
@@ -189,7 +189,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             Record memory order = bids[t.account][t.tokenId];
             if (order.expiry == 0) {
-                revert InvalidOrder(t.tokenId, t.account);
+                revert OrderInvalid(t.tokenId, t.account);
             } else if (order.expiry < block.timestamp) {
                 revert OrderExpired(t.tokenId, order.expiry);
             }

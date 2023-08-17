@@ -258,6 +258,8 @@ describe("Registry", function () {
   });
 
 
+  // TODO: Test Fee Functions, Test Orders Cleared After Trades
+
   describe("RegistryExchange", function () {
     it.only("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
