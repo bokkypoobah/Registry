@@ -15,6 +15,7 @@ See https://bokkypoobah.github.io/Registry/
   * [ ] Confirm fees are correct
 * [ ] RegistryReceiver
   * [ ] Confirm unable to send ETH  
+  * [ ] Confirm unable to send null data  
   * [ ] Confirm tokenId returned as `output`
 * [ ] Registry
   * [ ] Confirm only RegistryReceiver can register
