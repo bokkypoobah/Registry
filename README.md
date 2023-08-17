@@ -8,11 +8,11 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
-* [x] RegistryReceiver
+* [x] [RegistryReceiver](contracts/Registry.sol)
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
-* [ ] Registry
+* [ ] [Registry](contracts/Registry.sol)
   * [x] Confirm only RegistryReceiver can register
   * [x] Confirm `ownerOf(tokenId)` works
   * [x] Confirm `length()` works
