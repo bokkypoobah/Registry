@@ -8,6 +8,11 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
+* [ ] Happy Path
+  * [ ] Register new items
+  * [ ] Transfer new items
+  * [ ] Confirm items exchanged
+  * [ ] Confirm fees are correct
 * [ ] RegistryReceiver
   * [ ] Confirm unable to send ETH  
   * [ ] Confirm tokenId returned as `output`
@@ -27,7 +32,13 @@ See https://bokkypoobah.github.io/Registry/
   * [ ] ReentrancyGuard
     * [ ] Confirm `reentrancyGuard()` works
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
+    * [ ] Confirm invalid orders cannot be executed
+    * [ ] Confirm expired orders cannot be executed
+    * [ ] Confirm order is removed after trade
   * [ ] Confirm `bid(...)` and `sell(...)` works as expected
+    * [ ] Confirm invalid orders cannot be executed
+    * [ ] Confirm expired orders cannot be executed
+    * [ ] Confirm order is removed after trade
   * [ ] Confirm `bulkTransfer(...)` works as expected
   * [ ] Confirm `updateFee(...)` works as expected
     * [ ] Cannot set above `MAX_FEE`
