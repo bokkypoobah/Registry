@@ -8,6 +8,8 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
+Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh):
+
 * [x] [RegistryReceiver](contracts/Registry.sol)
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
@@ -21,7 +23,7 @@ See https://bokkypoobah.github.io/Registry/
   * [x] Confirm `setApprovalForAll(...)` works
   * [x] Confirm `isApprovedForAll(...)` works
   * [ ] Check remaining readonly functions. Lower priority as these are used otherwise
-* [ ] RegistryExchange
+* [ ] [RegistryExchange](contracts/RegistryExchange.sol)
   * [ ] Owned
     * [ ] Confirm `transferOwnership(...)` can only be executed by `owner`
     * [ ] Confirm `acceptOwnership()` can only be executed by `newOwner`
