@@ -156,10 +156,10 @@ describe("Registry", function () {
       console.log("      " + padLeft(i, 3) + " " + getHashData(data, hash) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
-    // const hashesLength = await registry.hashesLength();
-    // for (let i = 0; i < hashesLength; i++) {
-    //   const hash = await registry.hashes(i);
-    //   const owner = await registry.ownerOf(i);
+    // const length = await data.registry.length();
+    // for (let i = 0; i < length; i++) {
+    //   const hash = await data.registry.hashes(i);
+    //   const owner = await data.registry.ownerOf(i);
     //   console.log("      printState using ownerOf(i) - " + prefix + " - " + hash + " " + owner);
     // }
     console.log();

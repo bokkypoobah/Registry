@@ -46,7 +46,7 @@ function onePlus(uint x) pure returns (uint) {
 /// @title RegistryReceiver
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryReceiver is RegistryReceiverInterface {
-    RegistryInterface public immutable _registry;
+    RegistryInterface private immutable _registry;
 
     constructor() {
         _registry = Registry(msg.sender);
@@ -73,19 +73,19 @@ contract Registry is RegistryInterface {
         uint40 created;
     }
 
-    RegistryReceiver public immutable _registryReceiver;
-    // Array of unique dataHashes
+    RegistryReceiver private immutable _registryReceiver;
+    // Array of unique data hashes
     bytes32[] public hashes;
-    // dataHash => [owner, tokenId, created]
+    // data hash => [owner, tokenId, created]
     mapping(bytes32 => Data) public data;
     // owner => operator => approved?
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    /// @dev New `hash` has been registered with `tokenId` with `owner`, at `timestamp`
+    /// @dev New `hash` has been registered with `tokenId` by `owner` at `timestamp`
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
-    /// @dev `tokenId` has been transferred from `from` to `to`, at `timestamp`
+    /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
     event Transfer(address indexed from, address indexed to, uint indexed tokenId, uint timestamp);
-    /// @dev `owner` has `approved` for `operator` to manage all of its assets, at `timestamp`
+    /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
     error OnlyRegistryReceiverCanRegister();
