@@ -317,7 +317,7 @@ describe("Registry", function () {
       const tx6 = await data.registryExchange.connect(data.user0).offer(offerData);
       await printTx(data, "tx6", await tx6.wait());
 
-      await printState(data, "Setup Tokens");
+      await printState(data, "After Offers Setup");
 
       const buyData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.buy(buyData)");
@@ -330,6 +330,8 @@ describe("Registry", function () {
       console.log("      user2 -> registryExchange.bid(bidData)");
       const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx8", await tx8.wait());
+
+      await printState(data, "After Bids Setup");
 
       const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.sell(sellData)");

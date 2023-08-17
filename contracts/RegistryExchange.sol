@@ -124,10 +124,10 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     event Offer(address indexed account, Order[] offers, uint timestamp);
     /// @dev `bids` from `account` to buy tokenIds, at `timestamp`
     event Bid(address indexed account, Order[] bids, uint timestamp);
-    /// @dev `tokenId` bought for `price` from `from` by `to`, at `timestamp`
-    event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
-    /// @dev `tokenId` sold for `price` from `from` by `to`, at `timestamp`
-    event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev `account` bought `tokenId` from `from`, at `timestamp`
+    event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev `account` sold `tokenId` to `to`, at `timestamp`
+    event Sold(address indexed account, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
@@ -209,7 +209,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                 payable(uiFeeAccount).transfer((orderPrice * fee) / 20_000);
             }
             registry.transfer(msg.sender, t.tokenId);
-            emit Bought(t.account, msg.sender, t.tokenId, orderPrice, block.timestamp);
+            emit Bought(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
         }
         if (available > 0) {
             payable(msg.sender).transfer(available);
