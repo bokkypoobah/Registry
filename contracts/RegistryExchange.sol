@@ -26,10 +26,12 @@ contract Owned {
     address public owner;
     address public newOwner;
 
+    /// @dev Ownership transferred from `from` to `to`
     event OwnershipTransferred(address indexed from, address indexed to);
 
     error NotOwner();
 
+    /// @dev Only {owner} can execute functions with this modifier
     modifier onlyOwner {
         if (msg.sender != owner) {
             revert NotOwner();
@@ -40,14 +42,23 @@ contract Owned {
     constructor() {
         owner = msg.sender;
     }
+
+    /// @dev Assign {newOnwer} to a `_newOwner`. `_newOwner` will have to {acceptOwnership} to confirm transfer
+    /// @param _newOwner New proposed owner
     function transferOwnership(address _newOwner) public onlyOwner {
         newOwner = _newOwner;
     }
+
+    /// @dev Acceptance of ownership transfer by {newOwner}
     function acceptOwnership() public {
         emit OwnershipTransferred(owner, newOwner);
         owner = newOwner;
         newOwner = address(0);
     }
+
+    /// @dev Withdraw fees to `owner` account. Only callable by `owner`
+    /// @param token ERC-20 token contract, or null for ETH
+    /// @param tokens Token amount, or 0 for the full balance
     function withdraw(ERC20 token, uint tokens) public onlyOwner {
         if (address(token) == address(0)) {
             payable(owner).transfer((tokens == 0 ? address(this).balance : tokens));
@@ -63,6 +74,7 @@ contract ReentrancyGuard {
 
     error ReentrancyAttempted();
 
+    /// @dev Functions with this modifier cannot be re-entered
     modifier reentrancyGuard() {
         if (_executing == 1) {
             revert ReentrancyAttempted();
@@ -92,21 +104,34 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         uint price;
     }
 
+    /// @dev Maximum price in orders
     uint public constant PRICE_MAX = 1_000_000 ether;
-    uint public constant MAX_FEE = 10; // 10 basis points = 0.1%
+    /// @dev Maximum fee in basis points (10 basis points = 0.1%)
+    uint public constant MAX_FEE = 10;
 
+    // WETH
     ERC20 public immutable weth;
+    // Registry
     RegistryInterface public immutable registry;
+    // Fee
     uint public fee = MAX_FEE;
+    // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => Record)) public offers;
+    // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => Record)) public bids;
 
+    /// @dev `offers` from `account` to sell tokenIds, at `timestamp`
     event Offer(address indexed account, Order[] offers, uint timestamp);
+    /// @dev `bids` from `account` to buy tokenIds, at `timestamp`
     event Bid(address indexed account, Order[] bids, uint timestamp);
+    /// @dev `tokenId` bought for `price` from `from` by `to`, at `timestamp`
     event Bought(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev `tokenId` sold for `price` from `from` by `to`, at `timestamp`
     event Sold(address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
-    event BulkTransferred(address indexed to, uint[] tokenIds, uint timestamp);
-    event FeeUpdated(uint indexed oldFee, uint indexed newFee);
+    /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
+    event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
+    /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
+    event FeeUpdated(uint indexed oldFee, uint indexed newFee, uint timestamp);
 
     error InvalidPrice(uint price, uint maxPrice);
     error IncorrectOwner(uint tokenId, address tokenOwner, address orderOwner);
@@ -150,9 +175,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         emit Bid(msg.sender, _bids, block.timestamp);
     }
 
-    /// @dev Taker execute `trades` against {offers} to buy tokens for ETH
+    /// @dev Taker execute `trades` against {offers} to buy tokens for ETH. Executed {offers} are removed
     /// @param trades [[maker, tokenId, price]]
-    /// @param uiFeeAccount Fee account that will receive half of the fees if set to a non-zero address
+    /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
     function buy(Trade[] calldata trades, address uiFeeAccount) public payable reentrancyGuard {
         uint available = msg.value;
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
@@ -191,9 +216,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         }
     }
 
-    /// @dev Taker execute `trades` against {bids} to sell tokens for WETH
+    /// @dev Taker execute `trades` against {bids} to sell tokens for WETH. Executed {bids} are removed
     /// @param trades [[maker, tokenId, price]]
-    /// @param uiFeeAccount Fee account that will receive half of the fees if set to a non-zero address
+    /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
     function sell(Trade[] calldata trades, address uiFeeAccount) public {
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
             Trade memory t = trades[i];
@@ -237,7 +262,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             registry.transfer(to, tokenIds[i]);
         }
-        emit BulkTransferred(to, tokenIds, block.timestamp);
+        emit BulkTransferred(msg.sender, to, tokenIds, block.timestamp);
     }
 
     /// @dev Update fee to `newFee`, with a limit of {MAX_FEE}. Only callable by {owner}
@@ -246,7 +271,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         if (newFee > MAX_FEE) {
             revert InvalidFee(newFee, MAX_FEE);
         }
-        emit FeeUpdated(fee, newFee);
+        emit FeeUpdated(fee, newFee, block.timestamp);
         fee = newFee;
     }
 
