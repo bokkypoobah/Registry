@@ -184,6 +184,39 @@ describe("Registry", function () {
     console.log();
   }
 
+  describe("RegistryReceiver", function () {
+    it.only("RegistryReceiver #1", async function () {
+      const data = await loadFixture(deployFixture);
+      await printState(data, "Empty");
+
+      // Revert if ETH sent
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
+
+      // Registration of null data is OK
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: null }))
+        .to.emit(data.registry, "Registered");
+        // .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
+
+      // Registration of duplicated null data is not OK
+      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: null })).to.be.revertedWithCustomError(
+        data.registry,
+        "AlreadyRegistered"
+      ).withArgs(anyValue, data.user0.address, 0, anyValue);
+
+      // Registration of a string is OK
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" }))
+        .to.emit(data.registry, "Registered");
+
+      // Registration of a duplicated string is not OK
+      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
+        data.registry,
+        "AlreadyRegistered"
+      ).withArgs(anyValue, data.user0.address, 1, anyValue);
+
+      await printState(data, "End");
+    });
+  });
+
   describe("Registry", function () {
     it("Registry #1", async function () {
       const data = await loadFixture(deployFixture);

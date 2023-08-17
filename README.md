@@ -8,15 +8,11 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
-* [ ] Happy Path
-  * [ ] Register new items
-  * [ ] Transfer new items
-  * [ ] Confirm items exchanged
-  * [ ] Confirm fees are correct
 * [ ] RegistryReceiver
-  * [ ] Confirm unable to send ETH  
-  * [ ] Confirm unable to send null data  
-  * [ ] Confirm tokenId returned as `output`
+  * [x] Cannot send ETH to RegistryReceiver
+  * [x] Can send null data to RegistryReceiver
+  * [x] Cannot send duplicate to RegistryReceiver
+  * [ ] LOW Confirm tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract
 * [ ] Registry
   * [ ] Confirm only RegistryReceiver can register
   * [ ] Confirm rejection for duplicate hashes
@@ -45,6 +41,11 @@ See https://bokkypoobah.github.io/Registry/
     * [ ] Cannot set above `MAX_FEE`
     * [ ] Non-owner cannot set
     * [ ] Change amount takes effect
+* [ ] Happy Path
+  * [ ] Register new items
+  * [ ] Transfer new items
+  * [ ] Confirm items exchanged
+  * [ ] Confirm fees are correct
 
 <br />
 
