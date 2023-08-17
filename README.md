@@ -8,7 +8,7 @@ See https://bokkypoobah.github.io/Registry/
 
 ## Testing
 
-Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh):
+Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh), with output in [testIt.out](testIt.out):
 
 * [x] [RegistryReceiver](contracts/Registry.sol)
   * [x] Cannot send ETH to RegistryReceiver
