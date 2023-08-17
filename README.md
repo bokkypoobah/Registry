@@ -27,6 +27,8 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Owned
     * [x] Confirm `transferOwnership(...)` can only be executed by `owner`
     * [x] Confirm `acceptOwnership()` can only be executed by `newOwner`
+  * [x] `bulkTransfer(...)`
+    * [x] Confirm can only `bulkTransfer(...)` own items
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
@@ -35,7 +37,6 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
-  * [ ] Confirm `bulkTransfer(...)` works as expected
   * [ ] Confirm `updateFee(...)` can only be called by owner
   * [ ] Confirm `updateFee(...)` works as expected
     * [ ] Cannot set above `MAX_FEE`
@@ -52,6 +53,10 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [ ] Confirm fees are correct
 * [ ] Low Priority
   * [ ] Confirm RegistryReceiver tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract anyway
+
+Notes:
+
+* Reentrancy is mainly an issue in the `buy(...)` function when sending back any ETH refunds that could trigger a callback
 
 <br />
 
