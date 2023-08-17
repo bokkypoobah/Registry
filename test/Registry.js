@@ -45,7 +45,26 @@ describe("Registry", function () {
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
-    return { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, uiFeeAccount, accounts, accountNames, hashes: {} };
+
+    const data = { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, uiFeeAccount, accounts, accountNames, hashes: {} };
+
+    const amount0 = ethers.parseEther("1000");
+    const txWethTransfer0 = await weth.connect(deployer).transfer(user0.address, amount0);
+    const txWethTransfer1 = await weth.connect(deployer).transfer(user1.address, amount0);
+    const txWethTransfer2 = await weth.connect(deployer).transfer(user2.address, amount0);
+    await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
+    await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
+    await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
+
+    const approveAmount0 = ethers.parseEther("111.111111111");
+    const txWethApprove0 = await weth.connect(user0).approve(registryExchange.target, approveAmount0);
+    const txWethApprove1 = await weth.connect(user1).approve(registryExchange.target, approveAmount0);
+    const txWethApprove2 = await weth.connect(user2).approve(registryExchange.target, approveAmount0);
+    await printTx(data, "txWethApprove0", await txWethApprove0.wait());
+    await printTx(data, "txWethApprove1", await txWethApprove1.wait());
+    await printTx(data, "txWethApprove2", await txWethApprove2.wait());
+
+    return data;
   }
 
   function padLeft(s, n) {
@@ -258,37 +277,9 @@ describe("Registry", function () {
   });
 
 
-  // TODO: Test Fee Functions, Test Orders Cleared After Trades
-
   describe("RegistryExchange", function () {
     it("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
-
-      // const setup1 = [];
-      const amount0 = ethers.parseEther("1000");
-      const approveAmount0 = ethers.parseEther("1111.111111111");
-      // setup1.push(data.weth.connect(data.deployer).transfer(data.user0.address, amount0));
-      // setup1.push(data.weth.connect(data.deployer).transfer(data.user1.address, amount0));
-      // setup1.push(data.weth.connect(data.deployer).transfer(data.user2.address, amount0));
-      // const exec1 = await Promise.all(setup1);
-      // exec1.forEach( async function (a) {
-      //   await printTx(data, "Transfer WETH", await a.wait());
-      // });
-
-      const txWethTransfer0 = await data.weth.connect(data.deployer).transfer(data.user0.address, amount0);
-      const txWethTransfer1 = await data.weth.connect(data.deployer).transfer(data.user1.address, amount0);
-      const txWethTransfer2 = await data.weth.connect(data.deployer).transfer(data.user2.address, amount0);
-      await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
-      await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
-      await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
-
-      const txWethApprove0 = await data.weth.connect(data.user0).approve(data.registryExchange.target, approveAmount0);
-      const txWethApprove1 = await data.weth.connect(data.user1).approve(data.registryExchange.target, approveAmount0);
-      const txWethApprove2 = await data.weth.connect(data.user2).approve(data.registryExchange.target, approveAmount0);
-      await printTx(data, "txWethApprove0", await txWethApprove0.wait());
-      await printTx(data, "txWethApprove1", await txWethApprove1.wait());
-      await printTx(data, "txWethApprove2", await txWethApprove2.wait());
-
       await printState(data, "Empty");
 
       addHash(data, "text0");
