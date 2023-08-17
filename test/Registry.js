@@ -273,10 +273,10 @@ describe("Registry", function () {
     });
   });
 
-  describe("RegistryExchange - Secondary", function () {
-    it.only("RegistryExchange - Secondary #1", async function () {
+  describe("RegistryExchange - Owned", function () {
+    it("RegistryExchange - Owned #1", async function () {
       const data = await loadFixture(deployFixture);
-      await printState(data, "Empty");
+      // await printState(data, "Empty");
 
       // owner() function
       expect(await data.registryExchange.owner()).to.equal(data.deployer.address);
