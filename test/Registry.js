@@ -262,24 +262,54 @@ describe("Registry", function () {
       // Approve for user0 to transfer user1's tokens
       const tx4 = await data.registry.connect(data.user1).setApprovalForAll(data.user0.address, true);
 
+      // Test isApprovedForAll
+      expect(await data.registry.isApprovedForAll(data.user1, data.user0)).to.equal(true);
+
       // Transfer and check
       await data.registry.connect(data.user0).transfer(data.user2.address, 0);
       expect(await data.registry.ownerOf(0)).to.equal(data.user2.address);
 
-      // Test isApprovedForAll
-      expect(await data.registry.isApprovedForAll(data.user1, data.user0)).to.equal(true);
-      // await expect(
-      //   data.registry.connect(data.user0).transfer(data.user2.address, 0)).to.be.revertedWithCustomError(
-      //   data.registry,
-      //   "NotOwnerNorApproved"
-      // );
-
-      await printState(data, "End");
+      // await printState(data, "End");
     });
   });
 
-  describe("Registry", function () {
-    it.skip("Registry #1 OLD", async function () {
+  describe("RegistryExchange - Secondary", function () {
+    it.only("RegistryExchange - Secondary #1", async function () {
+      const data = await loadFixture(deployFixture);
+      await printState(data, "Empty");
+
+      // owner() function
+      expect(await data.registryExchange.owner()).to.equal(data.deployer.address);
+
+      // Non-owner cannot transfer ownership
+      await expect(
+        data.registryExchange.connect(data.user0).transferOwnership(data.user1.address)).to.be.revertedWithCustomError(
+        data.registryExchange,
+        "NotOwner"
+      );
+
+      // Non-newOwner cannot accept ownership transfer
+      await expect(
+        data.registryExchange.connect(data.user2).acceptOwnership()).to.be.revertedWithCustomError(
+        data.registryExchange,
+        "NotNewOwner"
+      );
+
+      const tx1 = await data.registryExchange.connect(data.deployer).transferOwnership(data.user2.address);
+      expect(await data.registryExchange.newOwner()).to.equal(data.user2.address);
+
+      const tx2 = await data.registryExchange.connect(data.user2).acceptOwnership();
+      expect(await data.registryExchange.owner()).to.equal(data.user2.address);
+      expect(await data.registryExchange.newOwner()).to.equal(ZERO_ADDRESS);
+
+      // await printState(data, "End");
+
+    });
+  });
+
+
+  describe("Registry OLD", function () {
+    it.skip("Registry OLD #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
@@ -371,8 +401,8 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange", function () {
-    it.skip("RegistryExchange #2", async function () {
+  describe("RegistryExchange OLD", function () {
+    it.skip("RegistryExchange OLD #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 

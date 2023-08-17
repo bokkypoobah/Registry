@@ -24,12 +24,9 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Confirm `isApprovedForAll(...)` works
   * [ ] Check remaining readonly functions. Lower priority as these are used otherwise
 * [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
-  * [ ] Owned
-    * [ ] Confirm `transferOwnership(...)` can only be executed by `owner`
-    * [ ] Confirm `acceptOwnership()` can only be executed by `newOwner`
-    * [ ] Confirm `withdraw(...)` for partial and full ERC-20 and ETH withdrawals
-  * [ ] ReentrancyGuard
-    * [ ] Confirm `reentrancyGuard()` works
+  * [x] Owned
+    * [x] Confirm `transferOwnership(...)` can only be executed by `owner`
+    * [x] Confirm `acceptOwnership()` can only be executed by `newOwner`
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
@@ -39,10 +36,15 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
   * [ ] Confirm `bulkTransfer(...)` works as expected
+  * [ ] Confirm `updateFee(...)` can only be called by owner
   * [ ] Confirm `updateFee(...)` works as expected
     * [ ] Cannot set above `MAX_FEE`
     * [ ] Non-owner cannot set
     * [ ] Change amount takes effect
+  * [ ] Confirm `withdraw(...)` can only be called by owner
+  * [ ] Confirm `withdraw(...)` for partial and full ERC-20 and ETH withdrawals
+  * [ ] ReentrancyGuard
+    * [ ] Confirm `reentrancyGuard()` works
 * [ ] Happy Path
   * [ ] Register new items
   * [ ] Transfer new items
