@@ -12,10 +12,9 @@ See https://bokkypoobah.github.io/Registry/
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
-  * [ ] LOW Confirm tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract
+  * [ ] TODO LOW Confirm tokenId returned as `output`. Lower priority as we don't want smart contracts to call this contract
 * [ ] Registry
-  * [ ] Confirm only RegistryReceiver can register
-  * [ ] Confirm rejection for duplicate hashes
+  * [x] Confirm only RegistryReceiver can register
   * [ ] Confirm `ownerOf(tokenId)` works
   * [ ] Confirm `length()` works
   * [ ] Confirm `setApprovalForAll(...)` works

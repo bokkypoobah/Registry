@@ -1,66 +1,13 @@
 
   Registry
     RegistryReceiver
-      deployFixture - deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-      deployFixture - user0: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8
-      deployFixture - user1: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC
-      deployFixture - user2: 0x90F79bf6EB2c4f870365E785982E1f101E93b906
-      deployFixture - uiFeeAccount: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65
-      deployFixture - weth: 0x5FbDB2315678afecb367f032d93F642f64180aa3
-      deployFixture - registry: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
-      deployFixture - registryReceiver: 0xCafac3dD18aC6c6e92c921884f9E4176737C052c
-      deployFixture - registryExchange: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
-      deployFixture - registryExchange.owner: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
-
-      > txWethTransfer0 - gasUsed: 51421 ~ ETH 0.00102842 ~ USD 2.05684 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 4.0 Transfer(from: deployer:0xf39F, to: user0:0x7099, tokens: 1000000000000000000000)
-      > txWethTransfer1 - gasUsed: 51409 ~ ETH 0.00102818 ~ USD 2.05636 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 5.0 Transfer(from: deployer:0xf39F, to: user1:0x3C44, tokens: 1000000000000000000000)
-      > txWethTransfer2 - gasUsed: 51421 ~ ETH 0.00102842 ~ USD 2.05684 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 6.0 Transfer(from: deployer:0xf39F, to: user2:0x90F7, tokens: 1000000000000000000000)
-      > txWethApprove0 - gasUsed: 46179 ~ ETH 0.00092358 ~ USD 1.84716 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 7.0 Approval(tokenOwner: user0:0x7099, spender: registryExchange:0x9fE4, tokens: 111111111111000000000)
-      > txWethApprove1 - gasUsed: 46179 ~ ETH 0.00092358 ~ USD 1.84716 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 8.0 Approval(tokenOwner: user1:0x3C44, spender: registryExchange:0x9fE4, tokens: 111111111111000000000)
-      > txWethApprove2 - gasUsed: 46179 ~ ETH 0.00092358 ~ USD 1.84716 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + weth:0x5FbD -> 9.0 Approval(tokenOwner: user2:0x90F7, spender: registryExchange:0x9fE4, tokens: 111111111111000000000)
-
-      --- Empty ---
-       Id Account                                        ETH                     WETH
-      --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.994557873272745589                 997000.0
-        1 user0:0x7099               9999.999935137247347477                   1000.0
-        2 user1:0x3C44               9999.999937465526445328                   1000.0
-        3 user2:0x90F7               9999.999939503666626678                   1000.0
-        4 uiFeeAccount:0x15d3                        10000.0                      0.0
-        5 weth:0x5FbD                                    0.0                      0.0
-        6 registry:0xe7f1                                0.0                      0.0
-        7 registryReceiver:0xCafa                        0.0                      0.0
-        8 registryExchange:0x9fE4                        0.0                      0.0
-
-       Id String:Hash          Owner                          Registered
-      --- -------------------- ------------------------------ ------------------------
-
-
-      --- End ---
-       Id Account                                        ETH                     WETH
-      --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.994557873272745589                 997000.0
-        1 user0:0x7099               9999.999698929164797213                   1000.0
-        2 user1:0x3C44               9999.999873515770634002                   1000.0
-        3 user2:0x90F7               9999.999939503666626678                   1000.0
-        4 uiFeeAccount:0x15d3                        10000.0                      0.0
-        5 weth:0x5FbD                                    0.0                      0.0
-        6 registry:0xe7f1                                0.0                      0.0
-        7 registryReceiver:0xCafa                        0.0                      0.0
-        8 registryExchange:0x9fE4                        0.0                      0.0
-
-       Id String:Hash          Owner                          Registered
-      --- -------------------- ------------------------------ ------------------------
-        0 0xc5d2460186f7233c92 user0:0x7099                   2023-08-17T10:59:19.000Z
-        1 0x56570de287d73cd1cb user0:0x7099                   2023-08-17T10:59:21.000Z
-
       ✓ RegistryReceiver #1
+    Registry
+      ✓ Registry #1
+    Registry
+      - Registry #1 OLD
+    RegistryExchange
+      - RegistryExchange #2
 
 ·-------------------------|---------------------------|-------------|-----------------------------·
 |  [90mSolc version: 0.8.19[39m   ·  [90mOptimizer enabled: true[39m  ·  [90mRuns: 200[39m  ·  [90mBlock limit: 30000000 gas[39m  │
@@ -69,9 +16,9 @@
 ·············|············|·············|·············|·············|···············|··············
 |  [1mContract[22m  ·  [1mMethod[22m    ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1musd (avg)[22m  │
 ·············|············|·············|·············|·············|···············|··············
-|  [90mToken[39m     ·  approve   ·          -  ·          -  ·      46179  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+|  [90mToken[39m     ·  approve   ·          -  ·          -  ·      46179  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ·············|············|·············|·············|·············|···············|··············
-|  [90mToken[39m     ·  transfer  ·      [36m51409[39m  ·      [31m51421[39m  ·      51417  ·            [90m6[39m  ·          [32m[90m-[32m[39m  │
+|  [90mToken[39m     ·  transfer  ·      [36m51409[39m  ·      [31m51421[39m  ·      51417  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ·············|············|·············|·············|·············|···············|··············
 |  [32m[1mDeployments[22m[39m            ·                                         ·  [1m% of limit[22m   ·             │
 ··························|·············|·············|·············|···············|··············
@@ -82,5 +29,6 @@
 |  Token                  ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·-------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (777ms)
+  2 passing (770ms)
+  2 pending
 

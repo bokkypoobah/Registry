@@ -23,17 +23,17 @@ describe("Registry", function () {
     const registryExchange = await RegistryExchange.deploy(weth.target, registry.target);
     const registryReceiver = await registry.registryReceiver();
     const registryExchangeOwner = await registryExchange.owner();
-    console.log("      deployFixture - deployer: " + deployer.address);
-    console.log("      deployFixture - user0: " + user0.address);
-    console.log("      deployFixture - user1: " + user1.address);
-    console.log("      deployFixture - user2: " + user2.address);
-    console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
-    console.log("      deployFixture - weth: " + weth.target);
-    console.log("      deployFixture - registry: " + registry.target);
-    console.log("      deployFixture - registryReceiver: " + registryReceiver);
-    console.log("      deployFixture - registryExchange: " + registryExchange.target);
-    console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
-    console.log();
+    // console.log("      deployFixture - deployer: " + deployer.address);
+    // console.log("      deployFixture - user0: " + user0.address);
+    // console.log("      deployFixture - user1: " + user1.address);
+    // console.log("      deployFixture - user2: " + user2.address);
+    // console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
+    // console.log("      deployFixture - weth: " + weth.target);
+    // console.log("      deployFixture - registry: " + registry.target);
+    // console.log("      deployFixture - registryReceiver: " + registryReceiver);
+    // console.log("      deployFixture - registryExchange: " + registryExchange.target);
+    // console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
+    // console.log();
     const accounts = [deployer.address, user0.address, user1.address, user2.address, uiFeeAccount.address, weth.target, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
@@ -52,17 +52,17 @@ describe("Registry", function () {
     const txWethTransfer0 = await weth.connect(deployer).transfer(user0.address, amount0);
     const txWethTransfer1 = await weth.connect(deployer).transfer(user1.address, amount0);
     const txWethTransfer2 = await weth.connect(deployer).transfer(user2.address, amount0);
-    await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
-    await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
-    await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
+    // await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
+    // await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
+    // await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
 
     const approveAmount0 = ethers.parseEther("111.111111111");
     const txWethApprove0 = await weth.connect(user0).approve(registryExchange.target, approveAmount0);
     const txWethApprove1 = await weth.connect(user1).approve(registryExchange.target, approveAmount0);
     const txWethApprove2 = await weth.connect(user2).approve(registryExchange.target, approveAmount0);
-    await printTx(data, "txWethApprove0", await txWethApprove0.wait());
-    await printTx(data, "txWethApprove1", await txWethApprove1.wait());
-    await printTx(data, "txWethApprove2", await txWethApprove2.wait());
+    // await printTx(data, "txWethApprove0", await txWethApprove0.wait());
+    // await printTx(data, "txWethApprove1", await txWethApprove1.wait());
+    // await printTx(data, "txWethApprove2", await txWethApprove2.wait());
 
     return data;
   }
@@ -185,9 +185,9 @@ describe("Registry", function () {
   }
 
   describe("RegistryReceiver", function () {
-    it.only("RegistryReceiver #1", async function () {
+    it("RegistryReceiver #1", async function () {
       const data = await loadFixture(deployFixture);
-      await printState(data, "Empty");
+      // await printState(data, "Empty");
 
       // Revert if ETH sent
       await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
@@ -213,12 +213,25 @@ describe("Registry", function () {
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 1, anyValue);
 
-      await printState(data, "End");
+      // await printState(data, "End");
     });
   });
 
   describe("Registry", function () {
     it("Registry #1", async function () {
+      const data = await loadFixture(deployFixture);
+      // await printState(data, "Empty");
+
+      // Only RegistryReceiver can register
+      await expect(data.registry.register(DUMMY_HASH, data.user0.address)).to.be.revertedWithCustomError(
+        data.registry,
+        "OnlyRegistryReceiverCanRegister"
+      );
+    });
+  });
+
+  describe("Registry", function () {
+    it.skip("Registry #1 OLD", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
@@ -311,7 +324,7 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange", function () {
-    it("RegistryExchange #2", async function () {
+    it.skip("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
