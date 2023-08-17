@@ -64,7 +64,7 @@ contract RegistryReceiver is RegistryReceiverInterface {
 }
 
 
-/// @title Registry
+/// @title Registry of hashes of data with sequential tokenIds with transferable ownership
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Registry is RegistryInterface {
     struct Data {
@@ -91,10 +91,14 @@ contract Registry is RegistryInterface {
     constructor() {
         _registryReceiver = new RegistryReceiver();
     }
+
+    /// @dev RegistryReceiver address
     function registryReceiver() external view returns (RegistryReceiverInterface) {
         return _registryReceiver;
     }
 
+    /// @dev Only {registryReceiver} can register `hash` on behalf of `msgSender`
+    /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
         if (msg.sender != address(_registryReceiver)) {
             revert OnlyRegistryReceiverCanRegister();
@@ -108,13 +112,18 @@ contract Registry is RegistryInterface {
         output = bytes.concat(bytes32(hashes.length));
         hashes.push(hash);
     }
+
+    /// @dev Returns the owner of `tokenId`
     function ownerOf(uint tokenId) external view returns (address) {
         return data[hashes[tokenId]].owner;
     }
+
+    /// @dev Number of items
     function length() external view returns (uint) {
         return hashes.length;
     }
 
+    /// @dev Approve or remove `operator` to execute {transfer} on the caller's tokens
     function setApprovalForAll(address operator, bool approved) external {
         if (operator == msg.sender) {
             revert CannotApproveSelf();
@@ -122,11 +131,13 @@ contract Registry is RegistryInterface {
         _operatorApprovals[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved, block.timestamp);
     }
+
+    /// @dev Is `operator` allowed to manage all of the assets of `owner`?
     function isApprovedForAll(address owner, address operator) public view returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
-    /// @dev Is `spender` is allowed to manage `tokenId`.
+    /// @dev Is `spender` is allowed to manage `tokenId`?
     function _isApprovedOrOwner(address spender, uint tokenId) internal view returns (bool) {
         address owner = data[hashes[tokenId]].owner;
         if (owner == address(0)) {
@@ -148,7 +159,7 @@ contract Registry is RegistryInterface {
         emit Transfer(from, to, tokenId, block.timestamp);
     }
 
-    /// @dev Get info
+    /// @dev Get `count` rows of data beginning at `offset`
     /// @param count Number of results
     /// @param offset Offset
     /// @return results [[hash, owner, created]]
