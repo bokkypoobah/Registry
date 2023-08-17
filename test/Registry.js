@@ -12,7 +12,7 @@ const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000
 
 describe("Registry", function () {
   async function deployFixture() {
-    const [deployer, user0, user1, user2] = await ethers.getSigners();
+    const [deployer, user0, user1, user2, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
     // const wethReceipt = await weth.waitForDeployment();
@@ -27,23 +27,25 @@ describe("Registry", function () {
     console.log("      deployFixture - user0: " + user0.address);
     console.log("      deployFixture - user1: " + user1.address);
     console.log("      deployFixture - user2: " + user2.address);
+    console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
     console.log("      deployFixture - weth: " + weth.target);
     console.log("      deployFixture - registry: " + registry.target);
     console.log("      deployFixture - registryReceiver: " + registryReceiver);
     console.log("      deployFixture - registryExchange: " + registryExchange.target);
     console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
     console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, weth.target, registry.target, registryReceiver, registryExchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, uiFeeAccount.address, weth.target, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
     accountNames[user1.address.toLowerCase()] = "user1";
     accountNames[user2.address.toLowerCase()] = "user2";
+    accountNames[uiFeeAccount.address.toLowerCase()] = "uiFeeAccount";
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
-    return { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, accounts, accountNames, hashes: {} };
+    return { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, uiFeeAccount, accounts, accountNames, hashes: {} };
   }
 
   function padLeft(s, n) {
@@ -257,7 +259,7 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange", function () {
-    it("RegistryExchange #2", async function () {
+    it.only("RegistryExchange #2", async function () {
       const data = await loadFixture(deployFixture);
 
       // const setup1 = [];
@@ -317,7 +319,7 @@ describe("Registry", function () {
 
       const buyData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.buy(buyData)");
-      const tx7 = await data.registryExchange.connect(data.user1).buy(buyData, { value: ethers.parseEther("110") });
+      const tx7 = await data.registryExchange.connect(data.user1).buy(buyData, data.uiFeeAccount, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
       await printState(data, "After Purchases");
@@ -329,7 +331,7 @@ describe("Registry", function () {
 
       const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
       console.log("      user1 -> registryExchange.sell(sellData)");
-      const tx9 = await data.registryExchange.connect(data.user1).sell(sellData);
+      const tx9 = await data.registryExchange.connect(data.user1).sell(sellData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
       await printState(data, "After Sales");

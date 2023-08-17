@@ -142,7 +142,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         }
         emit Bid(msg.sender, orders, block.timestamp);
     }
-    function buy(Trade[] calldata trades) public payable reentrancyGuard {
+    function buy(Trade[] calldata trades, address uiFeeAccount) public payable reentrancyGuard {
         uint available = msg.value;
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
             Trade memory t = trades[i];
@@ -169,6 +169,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             available -= orderPrice;
             delete offers[t.account][t.tokenId];
             payable(t.account).transfer((orderPrice * (10_000 - fee)) / 10_000);
+            if (uiFeeAccount != address(0)) {
+                payable(uiFeeAccount).transfer((orderPrice * fee) / 20_000);
+            }
             registry.transfer(msg.sender, t.tokenId);
             emit Bought(t.account, msg.sender, t.tokenId, orderPrice, block.timestamp);
         }
@@ -176,7 +179,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             payable(msg.sender).transfer(available);
         }
     }
-    function sell(Trade[] calldata trades) public {
+    function sell(Trade[] calldata trades, address uiFeeAccount) public {
         for (uint i = 0; i < trades.length; i = onePlus(i)) {
             Trade memory t = trades[i];
             if (t.account == msg.sender) {
@@ -198,7 +201,12 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             delete bids[t.account][t.tokenId];
             weth.transferFrom(t.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
-            weth.transferFrom(t.account, address(this), (orderPrice * fee) / 10_000);
+            if (uiFeeAccount != address(0)) {
+                weth.transferFrom(t.account, uiFeeAccount, (orderPrice * fee) / 20_000);
+                weth.transferFrom(t.account, address(this), (orderPrice * fee) / 20_000);
+            } else {
+                weth.transferFrom(t.account, address(this), (orderPrice * fee) / 10_000);
+            }
             registry.transfer(t.account, t.tokenId);
             emit Sold(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
         }

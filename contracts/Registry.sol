@@ -23,7 +23,7 @@ interface RegistryReceiverInterface {
 }
 
 interface RegistryInterface {
-    struct DataResult {
+    struct Result {
         bytes32 hash;
         address owner;
         uint created;
@@ -35,7 +35,7 @@ interface RegistryInterface {
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
-    function getData(uint count, uint offset) external view returns (DataResult[] memory results);
+    function getData(uint count, uint offset) external view returns (Result[] memory results);
 }
 
 function onePlus(uint x) pure returns (uint) {
@@ -102,8 +102,7 @@ contract Registry is RegistryInterface {
         hashes.push(hash);
     }
     function ownerOf(uint tokenId) external view returns (address) {
-        bytes32 hash = hashes[tokenId];
-        return data[hash].owner;
+        return data[hashes[tokenId]].owner;
     }
     function hashesLength() external view returns (uint) {
         return hashes.length;
@@ -137,12 +136,12 @@ contract Registry is RegistryInterface {
         emit Transfer(from, to, tokenId, block.timestamp);
     }
 
-    function getData(uint count, uint offset) public view returns (DataResult[] memory results) {
-        results = new DataResult[](count);
+    function getData(uint count, uint offset) public view returns (Result[] memory results) {
+        results = new Result[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
             Data memory d = data[hash];
-            results[i] = DataResult(hash, d.owner, uint(d.created));
+            results[i] = Result(hash, d.owner, uint(d.created));
         }
     }
 }
