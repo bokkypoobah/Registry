@@ -92,7 +92,7 @@ contract Registry is RegistryInterface {
     error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, uint created);
     error CannotApproveSelf();
     error InvalidTokenId();
-    error NotOwnerNorApproved();
+    error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
         _registryReceiver = new RegistryReceiver();
@@ -157,7 +157,7 @@ contract Registry is RegistryInterface {
     /// @param tokenId Token Id
     function transfer(address to, uint tokenId) public {
         if (!_isApprovedOrOwner(msg.sender, tokenId)) {
-            revert NotOwnerNorApproved();
+            revert NotOwnerNorApproved(msg.sender, tokenId);
         }
         bytes32 hash = hashes[tokenId];
         address from = data[hash].owner;

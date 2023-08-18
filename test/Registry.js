@@ -417,17 +417,19 @@ describe("Registry", function () {
 
       await printState(data, "Before Sales");
 
-      // const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
+      const bidData = [[0, ethers.parseEther("1.11"), expiry], [1, ethers.parseEther("1.11"), expiry], [2, ethers.parseEther("1.11"), expiry], [3, ethers.parseEther("1.11"), expiry], [4, ethers.parseEther("1.11"), expiry]];
       // console.log("      user2 -> registryExchange.bid(bidData)");
-      // const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
-      // await printTx(data, "tx8", await tx8.wait());
-      //
-      // await printState(data, "After Bids Setup");
-      //
-      // const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
+      const tx7 = await data.registryExchange.connect(data.user2).bid(bidData);
+      await printTx(data, "tx7", await tx7.wait());
+
+      await printState(data, "After Bids Setup");
+
+      const tx8 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
+
+      const sellData = [[data.user2.address, 0, ethers.parseEther("1.11")], [data.user2.address, 4, ethers.parseEther("1.11")]];
       // console.log("      user1 -> registryExchange.sell(sellData)");
-      // const tx9 = await data.registryExchange.connect(data.user1).sell(sellData, data.uiFeeAccount);
-      // await printTx(data, "tx9", await tx9.wait());
+      const tx9 = await data.registryExchange.connect(data.user0).sell(sellData, data.uiFeeAccount);
+      await printTx(data, "tx9", await tx9.wait());
       //
       // await printState(data, "After Sales");
 
