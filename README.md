@@ -15,35 +15,37 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
 * [x] [contracts/Registry](contracts/Registry.sol)
-  * [x] Confirm only RegistryReceiver can register
-  * [x] Confirm `ownerOf(tokenId)` works
-  * [x] Confirm `length()` works
-  * [x] Confirm owner can transfer own tokens
-  * [x] Confirm non-owner cannot transfer tokens
-  * [x] Confirm `setApprovalForAll(...)` works
-  * [x] Confirm `isApprovedForAll(...)` works
+  * [x] Only RegistryReceiver can register
+  * [x] `ownerOf(tokenId)` works
+  * [x] `length()` works
+  * [x] Owner can transfer own tokens
+  * [x] Non-owner cannot transfer tokens
+  * [x] `setApprovalForAll(...)` works
+  * [x] `isApprovedForAll(...)` works
 * [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
   * [x] Owned
-    * [x] Confirm `transferOwnership(...)` can only be executed by `owner`
-    * [x] Confirm `acceptOwnership()` can only be executed by `newOwner`
-    * [x] Confirm `withdraw(...)` can only be called by `owner`
+    * [x] `transferOwnership(...)` can only be executed by `owner`
+    * [x] `acceptOwnership()` can only be executed by `newOwner`
+    * [x] `withdraw(...)` can only be called by `owner`
   * [x] `bulkTransfer(...)`
-    * [x] Confirm can only `bulkTransfer(...)` own items
+    * [x] Can only `bulkTransfer(...)` own items
   * [x] `updateFee(...)` and `withdraw(...)`
-    * [x] Confirm `updateFee(...)` can only be called by owner
-    * [x] Cannot set above `MAX_FEE`
-    * [x] Confirm `updateFee(...)` changed amount takes effect for ETH trades
-    * [x] Confirm `updateFee(...)` changed amount takes effect for WETH trades
-    * [x] Confirm `withdraw(...)` for partial ERC-20 and ETH withdrawals
-    * [x] Confirm `withdraw(...)` for full ERC-20 and ETH withdrawals
-  * [ ] Confirm `offer(...)` and `buy(...)` works as expected
+    * [x] `updateFee(...)` can only be called by owner
+    * [x] Cannot `updateFee(...)` above `MAX_FEE`
+    * [x] `updateFee(...)` updated amount takes effect for ETH trades
+    * [x] `updateFee(...)` updated amount takes effect for WETH trades
+    * [x] `withdraw(...)` for partial ERC-20 and ETH withdrawals
+    * [x] `withdraw(...)` for full ERC-20 and ETH withdrawals
+  * [ ] `offer(...)` and `buy(...)`
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
-  * [ ] Confirm `bid(...)` and `sell(...)` works as expected
+    * [ ] Confirm fees are correct for uiFeeAccount = null or not
+  * [ ] `bid(...)` and `sell(...)`
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
+    * [ ] Confirm fees are correct for uiFeeAccount = null or not
   * [ ] ReentrancyGuard
     * [ ] Confirm `reentrancyGuard()` works
 * [ ] Happy Path

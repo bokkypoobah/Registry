@@ -15,8 +15,6 @@ describe("Registry", function () {
     const [deployer, user0, user1, user2, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
-    // const wethReceipt = await weth.waitForDeployment();
-    // console.log("wethReceipt: " + JSON.stringify(wethReceipt, null, 2));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
@@ -184,6 +182,7 @@ describe("Registry", function () {
     console.log();
   }
 
+
   describe("RegistryReceiver", function () {
     it("RegistryReceiver #1", async function () {
       const data = await loadFixture(deployFixture);
@@ -216,6 +215,7 @@ describe("Registry", function () {
       // await printState(data, "End");
     });
   });
+
 
   describe("Registry", function () {
     it("Registry #1", async function () {
@@ -273,6 +273,7 @@ describe("Registry", function () {
     });
   });
 
+
   describe("RegistryExchange - Owned", function () {
     it("RegistryExchange - Owned #1", async function () {
       const data = await loadFixture(deployFixture);
@@ -320,6 +321,7 @@ describe("Registry", function () {
       // await printState(data, "End");
     });
   });
+
 
   describe("RegistryExchange - Bulk Transfer", function () {
     it("RegistryExchange - Bulk Transfer #1", async function () {
@@ -460,9 +462,6 @@ describe("Registry", function () {
 
       // await printState(data, "Before Withdrawals");
 
-      const tx12 = await data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0.00000123"));
-      // await printTx(data, "tx12", await tx12.wait());
-
       await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0.00000123"))).to.changeEtherBalances(
         [data.deployer, data.registryExchange.target],
         [ethers.parseEther("0.00000123"), -ethers.parseEther("0.00000123")]
@@ -470,23 +469,39 @@ describe("Registry", function () {
 
       const tx13 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0.00000123"));
       // await printTx(data, "tx13", await tx13.wait());
-
       expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.00000123"));
       expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.00121977"));
 
       await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0"))).to.changeEtherBalances(
         [data.deployer, data.registryExchange.target],
-        [ethers.parseEther("0.00104304"), -ethers.parseEther("0.00104304")]
+        [ethers.parseEther("0.00104427"), -ethers.parseEther("0.00104427")]
       );
 
       const tx14 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0"));
       // await printTx(data, "tx14", await tx14.wait());
-
       expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.001221"));
       expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0"));
+      // await printState(data, "End");
+    });
+  });
+
+
+  describe("RegistryExchange - Offer & Buy", function () {
+    it("RegistryExchange - Offer & Buy #1", async function () {
+      const data = await loadFixture(deployFixture);
+      // await printState(data, "Empty");
 
       // await printState(data, "End");
+    });
+  });
 
+
+  describe("RegistryExchange - Bid & Sell", function () {
+    it("RegistryExchange - Bid & Sell #1", async function () {
+      const data = await loadFixture(deployFixture);
+      // await printState(data, "Empty");
+
+      // await printState(data, "End");
     });
   });
 
