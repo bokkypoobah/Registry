@@ -29,7 +29,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [x] Confirm `withdraw(...)` can only be called by `owner`
   * [x] `bulkTransfer(...)`
     * [x] Confirm can only `bulkTransfer(...)` own items
-  * [ ] `updateFee(...)` and `withdraw(...)`
+  * [x] `updateFee(...)` and `withdraw(...)`
     * [x] Confirm `updateFee(...)` can only be called by owner
     * [x] Cannot set above `MAX_FEE`
     * [x] Confirm `updateFee(...)` changed amount takes effect for ETH trades
