@@ -34,7 +34,8 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [x] Cannot set above `MAX_FEE`
     * [x] Confirm `updateFee(...)` changed amount takes effect for ETH trades
     * [x] Confirm `updateFee(...)` changed amount takes effect for WETH trades
-    * [ ] Confirm `withdraw(...)` for partial and full ERC-20 and ETH withdrawals
+    * [x] Confirm `withdraw(...)` for partial ERC-20 and ETH withdrawals
+    * [x] Confirm `withdraw(...)` for full ERC-20 and ETH withdrawals
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed

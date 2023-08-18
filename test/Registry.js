@@ -365,8 +365,8 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Update Fee", function () {
-    it("RegistryExchange - Update Fee #1", async function () {
+  describe("RegistryExchange - Update Fee & Withdraw", function () {
+    it("RegistryExchange - Update Fee & Withdraw #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -457,6 +457,33 @@ describe("Registry", function () {
 
       expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001221"));
       expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.001221"));
+
+      // await printState(data, "Before Withdrawals");
+
+      const tx12 = await data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0.00000123"));
+      // await printTx(data, "tx12", await tx12.wait());
+
+      await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0.00000123"))).to.changeEtherBalances(
+        [data.deployer, data.registryExchange.target],
+        [ethers.parseEther("0.00000123"), -ethers.parseEther("0.00000123")]
+      );
+
+      const tx13 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0.00000123"));
+      // await printTx(data, "tx13", await tx13.wait());
+
+      expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.00000123"));
+      expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.00121977"));
+
+      await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0"))).to.changeEtherBalances(
+        [data.deployer, data.registryExchange.target],
+        [ethers.parseEther("0.00104304"), -ethers.parseEther("0.00104304")]
+      );
+
+      const tx14 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0"));
+      // await printTx(data, "tx14", await tx14.wait());
+
+      expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.001221"));
+      expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0"));
 
       // await printState(data, "End");
 
