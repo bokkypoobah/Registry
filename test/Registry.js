@@ -351,7 +351,7 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange - Update Fee", function () {
-    it.only("RegistryExchange - Update Fee #1", async function () {
+    it("RegistryExchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
@@ -371,23 +371,50 @@ describe("Registry", function () {
         "InvalidFee"
       ).withArgs(11, 10);
 
+      // Update fee to 5bp
       await expect(data.registryExchange.connect(data.deployer).updateFee(5))
         .to.emit(data.registryExchange, "FeeUpdated")
         .withArgs(10, 5, anyValue);
-
       expect(await data.registryExchange.fee()).to.equal(5);
 
-      // addHash(data, "user0string0");
-      // addHash(data, "user1string1");
-      // addHash(data, "user2string0");
-      // addHash(data, "user2string1");
-      // addHash(data, "user2string2");
-      //
-      // const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
-      // const tx1 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string1")) });
-      // const tx2 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string0")) });
-      // const tx3 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string1")) });
-      // const tx4 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string2")) });
+      addHash(data, "user0string0");
+      addHash(data, "user0string1");
+      addHash(data, "user0string2");
+      addHash(data, "user0string3");
+      addHash(data, "user0string4");
+
+      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
+
+      const expiry = parseInt(new Date() / 1000) + 60 * 60;
+      const offerData = [[1, ethers.parseEther("1.23"), expiry], [2, ethers.parseEther("1.23"), expiry], [3, ethers.parseEther("1.23"), expiry]];
+      const tx5 = await data.registryExchange.connect(data.user0).offer(offerData);
+      // await printTx(data, "tx5", await tx5.wait());
+
+      const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
+      // await printTx(data, "tx6", await tx6.wait());
+
+      const buyData1 = [[data.user0.address, 1, ethers.parseEther("1.23")], [data.user0.address, 3, ethers.parseEther("1.23")]];
+      await expect(data.registryExchange.connect(data.user1).buy(buyData1, data.uiFeeAccount, { value: ethers.parseEther("110") })).to.changeEtherBalances(
+        [data.user1, data.uiFeeAccount, data.registryExchange.target],
+        [-ethers.parseEther("2.46"), ethers.parseEther("0.000615"), ethers.parseEther("0.000615")]
+      );
+
+      // Update fee to 7bp
+      await expect(data.registryExchange.connect(data.deployer).updateFee(7))
+        .to.emit(data.registryExchange, "FeeUpdated")
+        .withArgs(5, 7, anyValue);
+      expect(await data.registryExchange.fee()).to.equal(7);
+
+      const buyData2 = [[data.user0.address, 2, ethers.parseEther("1.23")]];
+      await expect(data.registryExchange.connect(data.user2).buy(buyData2, data.uiFeeAccount, { value: ethers.parseEther("110") })).to.changeEtherBalances(
+        [data.user2, data.uiFeeAccount, data.registryExchange.target],
+        [-ethers.parseEther("1.23"), ethers.parseEther("0.0004305"), ethers.parseEther("0.0004305")]
+      );
+
       //
       // // Token owner cannot bulk transfer before approving
       // await expect(
@@ -410,7 +437,7 @@ describe("Registry", function () {
       // expect(await data.registry.ownerOf(2)).to.equal(data.user0.address);
       // expect(await data.registry.ownerOf(4)).to.equal(data.user0.address);
       //
-      // await printState(data, "End");
+      await printState(data, "End");
 
     });
   });
