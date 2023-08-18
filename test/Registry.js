@@ -415,47 +415,40 @@ describe("Registry", function () {
         [-ethers.parseEther("1.23"), ethers.parseEther("0.0004305"), ethers.parseEther("0.0004305")]
       );
 
-      await printState(data, "Before Sales");
+      // await printState(data, "Before Sales");
 
       const bidData = [[0, ethers.parseEther("1.11"), expiry], [1, ethers.parseEther("1.11"), expiry], [2, ethers.parseEther("1.11"), expiry], [3, ethers.parseEther("1.11"), expiry], [4, ethers.parseEther("1.11"), expiry]];
-      // console.log("      user2 -> registryExchange.bid(bidData)");
       const tx7 = await data.registryExchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx7", await tx7.wait());
 
-      await printState(data, "After Bids Setup");
+      // await printState(data, "After Bids Setup");
 
       const tx8 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
 
-      const sellData = [[data.user2.address, 0, ethers.parseEther("1.11")], [data.user2.address, 4, ethers.parseEther("1.11")]];
-      // console.log("      user1 -> registryExchange.sell(sellData)");
-      const tx9 = await data.registryExchange.connect(data.user0).sell(sellData, data.uiFeeAccount);
+      const sellData1 = [[data.user2.address, 0, ethers.parseEther("1.11")], [data.user2.address, 4, ethers.parseEther("1.11")]];
+      const tx9 = await data.registryExchange.connect(data.user0).sell(sellData1, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
-      //
-      // await printState(data, "After Sales");
 
+      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000777"));
+      expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.000777"));
 
-      //
-      // // Token owner cannot bulk transfer before approving
-      // await expect(
-      //   data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
-      //   data.registry,
-      //   "NotOwnerNorApproved"
-      // );
-      //
-      // const tx6 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
-      //
-      // // Only token owner can bulk transfer
-      // await expect(
-      //   data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
-      //   data.registryExchange,
-      //   "OnlyTokenOwnerCanTransfer"
-      // );
-      //
-      // const tx7 = await data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4]);
-      //
-      // expect(await data.registry.ownerOf(2)).to.equal(data.user0.address);
-      // expect(await data.registry.ownerOf(4)).to.equal(data.user0.address);
-      //
+      // Update fee to 4bp
+      await expect(data.registryExchange.connect(data.deployer).updateFee(4))
+        .to.emit(data.registryExchange, "FeeUpdated")
+        .withArgs(7, 4, anyValue);
+      expect(await data.registryExchange.fee()).to.equal(4);
+
+      const tx10 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
+
+      await printState(data, "Before Sales");
+
+      const sellData2 = [[data.user2.address, 1, ethers.parseEther("1.11")], [data.user2.address, 3, ethers.parseEther("1.11")]];
+      const tx11 = await data.registryExchange.connect(data.user1).sell(sellData2, data.uiFeeAccount);
+      await printTx(data, "tx11", await tx11.wait());
+
+      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001221"));
+      expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.001221"));
+
       await printState(data, "End");
 
     });
