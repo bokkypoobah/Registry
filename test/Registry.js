@@ -351,9 +351,9 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange - Update Fee", function () {
-    it("RegistryExchange - Update Fee #1", async function () {
+    it.only("RegistryExchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
-      await printState(data, "Empty");
+      // await printState(data, "Empty");
 
       expect(await data.registryExchange.fee()).to.equal(10);
 
@@ -414,6 +414,23 @@ describe("Registry", function () {
         [data.user2, data.uiFeeAccount, data.registryExchange.target],
         [-ethers.parseEther("1.23"), ethers.parseEther("0.0004305"), ethers.parseEther("0.0004305")]
       );
+
+      await printState(data, "Before Sales");
+
+      // const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
+      // console.log("      user2 -> registryExchange.bid(bidData)");
+      // const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
+      // await printTx(data, "tx8", await tx8.wait());
+      //
+      // await printState(data, "After Bids Setup");
+      //
+      // const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
+      // console.log("      user1 -> registryExchange.sell(sellData)");
+      // const tx9 = await data.registryExchange.connect(data.user1).sell(sellData, data.uiFeeAccount);
+      // await printTx(data, "tx9", await tx9.wait());
+      //
+      // await printState(data, "After Sales");
+
 
       //
       // // Token owner cannot bulk transfer before approving

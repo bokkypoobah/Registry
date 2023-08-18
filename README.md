@@ -31,6 +31,8 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] `updateFee(...)`
     * [x] Confirm `updateFee(...)` can only be called by owner
     * [x] Cannot set above `MAX_FEE`
+    * [x] Confirm `updateFee(...)` changed amount takes effect for ETH trades
+    * [ ] Confirm `updateFee(...)` changed amount takes effect for WETH trades
   * [ ] Confirm `offer(...)` and `buy(...)` works as expected
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
@@ -39,7 +41,6 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
-  * [ ] Confirm `updateFee(...)` changed amount takes effect
   * [ ] Confirm `withdraw(...)` can only be called by owner
   * [ ] Confirm `withdraw(...)` for partial and full ERC-20 and ETH withdrawals
   * [ ] ReentrancyGuard
