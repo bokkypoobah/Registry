@@ -185,24 +185,41 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     }
 
 
-    function execute(Input[] calldata inputs) public {
+    function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
             if (input.action == Action.Offer || input.action == Action.Bid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
-            }
-            if (input.action == Action.Offer) {
-                offers[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
-                emit Offer_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
-            } else if (input.action == Action.Bid) {
-                bids[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
-                emit Bid_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
-            } else if (input.action == Action.Buy) {
-
-            } else if (input.action == Action.Sell) {
-
+                if (input.action == Action.Offer) {
+                    offers[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                    emit Offer_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+                } else if (input.action == Action.Bid) {
+                    bids[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                    emit Bid_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+                }
+            } else if (input.action == Action.Buy || input.action == Action.Sell) {
+                if (input.account == msg.sender) {
+                    revert CannotSelfTrade(input.tokenId);
+                }
+                address tokenOwner = registry.ownerOf(input.tokenId);
+                if (input.account != tokenOwner) {
+                    revert IncorrectOwner(input.tokenId, tokenOwner, input.account);
+                }
+                Record memory order = input.action == Action.Buy ? offers[input.account][input.tokenId] : bids[input.account][input.tokenId];
+                if (order.expiry == 0) {
+                    revert OrderInvalid(input.tokenId, input.account);
+                } else if (order.expiry < block.timestamp) {
+                    revert OrderExpired(input.tokenId, order.expiry);
+                }
+                uint orderPrice = uint(order.price);
+                if (orderPrice != input.price) {
+                    revert PriceMismatch(input.tokenId, orderPrice, input.price);
+                }
+                if (input.action == Action.Buy) {
+                } else if (input.action == Action.Sell) {
+                }
             }
         }
     }
