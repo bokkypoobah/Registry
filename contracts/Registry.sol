@@ -110,13 +110,18 @@ contract Registry is RegistryInterface {
             revert OnlyRegistryReceiverCanRegister();
         }
         Data memory d = data[hash];
+        bool burnt = false;
         if (d.owner != address(0)) {
             revert AlreadyRegistered(hash, d.owner, d.tokenId, d.created);
+        } else if (d.created != 0) {
+            burnt = true;
         }
         data[hash] = Data(msgSender, uint56(hashes.length), uint40(block.timestamp));
         emit Registered(hashes.length, hash, msgSender, block.timestamp);
         output = bytes.concat(bytes32(hashes.length));
-        hashes.push(hash);
+        if (!burnt) {
+            hashes.push(hash);            
+        }
     }
 
     /// @dev Returns the owner of `tokenId`

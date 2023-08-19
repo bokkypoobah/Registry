@@ -90,6 +90,19 @@ contract ReentrancyGuard {
 }
 
 
+// 2^16 = 65,536
+// 2^32 = 4,294,967,296
+// 2^48 = 281,474,976,710,656
+// 2^60 = 1, 152,921,504, 606,846,976
+// 2^64 = 18, 446,744,073,709,551,616 <- expiry
+// 2^72 = 4,722,366,482,869,645,213,696
+// 2^80 = 1,208,925, 819,614,629, 174,706,176 <- ok for price max 1_000_000
+// 2^96 = 79,228,162,514, 264,337,593,543,950,336
+// 2^112 = 5192296858534827628530496329220096
+// 2^128 = 340, 282,366,920,938,463,463, 374,607,431,768,211,456
+// 2^256 = 115,792, 089,237,316,195,423,570, 985,008,687,907,853,269, 984,665,640,564,039,457, 584,007,913,129,639,936
+
+
 /// @title RegistryExchange
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryExchange is Owned, ReentrancyGuard {
@@ -98,9 +111,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         uint48 expiry;
     }
     struct Order {
-        uint tokenId;
-        uint price;
-        uint expiry;
+        uint tokenId; // 96?
+        uint price; // 96?
+        uint expiry; // 64?
     }
     struct Trade {
         address account;

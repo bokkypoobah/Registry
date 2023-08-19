@@ -14,6 +14,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Cannot send ETH to RegistryReceiver
   * [x] Can send null data to RegistryReceiver
   * [x] Cannot send duplicate to RegistryReceiver
+  * [x] Can burn and resubmit same data
 * [x] [contracts/Registry](contracts/Registry.sol)
   * [x] Only RegistryReceiver can register
   * [x] `ownerOf(tokenId)` works
@@ -37,11 +38,13 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [x] `withdraw(...)` for partial ERC-20 and ETH withdrawals
     * [x] `withdraw(...)` for full ERC-20 and ETH withdrawals
   * [ ] `offer(...)` and `buy(...)`
+    * [ ] Confirm valid order on tokens not owned cannot be executed
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
     * [ ] Confirm fees are correct for uiFeeAccount = null or not
   * [ ] `bid(...)` and `sell(...)`
+    * [ ] Confirm valid order on tokens not owned cannot be executed
     * [ ] Confirm invalid orders cannot be executed
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade

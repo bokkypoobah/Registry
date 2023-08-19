@@ -203,6 +203,7 @@ describe("Registry", function () {
       ).withArgs(anyValue, data.user0.address, 0, anyValue);
 
       // Registration of a string is OK
+      addHash(data, "0x1234");
       await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" }))
         .to.emit(data.registry, "Registered");
 
@@ -211,6 +212,12 @@ describe("Registry", function () {
         data.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 1, anyValue);
+
+      await expect(data.registry.connect(data.user0).transfer(ZERO_ADDRESS, 1))
+        .to.emit(data.registry, "Transfer");
+
+      await expect(data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" }))
+        .to.emit(data.registry, "Registered");
 
       // await printState(data, "End");
     });
