@@ -106,6 +106,17 @@ contract ReentrancyGuard {
 /// @title RegistryExchange
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryExchange is Owned, ReentrancyGuard {
+
+    enum Action { Offer, Bid, Buy, Sell }
+
+    struct Input {
+        Action action;
+        address account; // Required for Buy And Sell
+        uint tokenId;
+        uint price;
+        uint expiry; // Required for Offer and Bid
+    }
+
     struct Record {
         uint208 price;
         uint48 expiry;
@@ -137,6 +148,13 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => Record)) public bids;
 
+
+    /// @dev `offers` from `account` to sell `tokenId` at `price`, at `timestamp`
+    event Offer_new(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
+    /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
+    event Bid_new(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
+
+
     /// @dev `offers` from `account` to sell tokenIds, at `timestamp`
     event Offer(address indexed account, Order[] offers, uint timestamp);
     /// @dev `bids` from `account` to buy tokenIds, at `timestamp`
@@ -164,6 +182,29 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     constructor(ERC20 _weth, RegistryInterface _registry) {
         weth = _weth;
         registry = _registry;
+    }
+
+
+    function execute(Input[] calldata inputs) public {
+        for (uint i = 0; i < inputs.length; i = onePlus(i)) {
+            Input memory input = inputs[i];
+            if (input.action == Action.Offer || input.action == Action.Bid) {
+                if (input.price > PRICE_MAX) {
+                    revert InvalidPrice(input.price, PRICE_MAX);
+                }
+            }
+            if (input.action == Action.Offer) {
+                offers[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                emit Offer_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+            } else if (input.action == Action.Bid) {
+                bids[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                emit Bid_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+            } else if (input.action == Action.Buy) {
+
+            } else if (input.action == Action.Sell) {
+
+            }
+        }
     }
 
     /// @dev Maker update `_offers` to sell tokens for ETH
