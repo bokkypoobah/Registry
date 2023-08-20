@@ -22,10 +22,10 @@ describe("Registry", function () {
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
-    const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
-    const registryExchange = await RegistryExchange.deploy(weth.target, registry.target);
+    const Exchange = await ethers.getContractFactory("Exchange");
+    const exchange = await Exchange.deploy(weth.target, registry.target);
     const receiver = await registry.getReceiver(0);
-    const registryExchangeOwner = await registryExchange.owner();
+    const exchangeOwner = await exchange.owner();
     // console.log("      deployFixture - deployer: " + deployer.address);
     // console.log("      deployFixture - user0: " + user0.address);
     // console.log("      deployFixture - user1: " + user1.address);
@@ -35,10 +35,10 @@ describe("Registry", function () {
     // console.log("      deployFixture - weth: " + weth.target);
     // console.log("      deployFixture - registry: " + registry.target);
     // console.log("      deployFixture - receiver: " + receiver);
-    // console.log("      deployFixture - registryExchange: " + registryExchange.target);
-    // console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
+    // console.log("      deployFixture - exchange: " + exchange.target);
+    // console.log("      deployFixture - exchange.owner: " + exchangeOwner);
     // console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, registryExchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, exchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
@@ -49,11 +49,11 @@ describe("Registry", function () {
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[receiver.toLowerCase()] = "receiver";
-    accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
+    accountNames[exchange.target.toLowerCase()] = "exchange";
 
-    const data = { weth, registry, receiver, registryExchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
+    const data = { weth, registry, receiver, exchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
 
-    const updateFeeAccountTx = await registryExchange.updateFeeAccount(feeAccount);
+    const updateFeeAccountTx = await exchange.updateFeeAccount(feeAccount);
     // await printTx(data, "updateFeeAccountTx", await updateFeeAccountTx.wait());
 
     const amount0 = ethers.parseEther("1000");
@@ -65,9 +65,9 @@ describe("Registry", function () {
     // await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
 
     const approveAmount0 = ethers.parseEther("111.111111111");
-    const txWethApprove0 = await weth.connect(user0).approve(registryExchange.target, approveAmount0);
-    const txWethApprove1 = await weth.connect(user1).approve(registryExchange.target, approveAmount0);
-    const txWethApprove2 = await weth.connect(user2).approve(registryExchange.target, approveAmount0);
+    const txWethApprove0 = await weth.connect(user0).approve(exchange.target, approveAmount0);
+    const txWethApprove1 = await weth.connect(user1).approve(exchange.target, approveAmount0);
+    const txWethApprove2 = await weth.connect(user2).approve(exchange.target, approveAmount0);
     // await printTx(data, "txWethApprove0", await txWethApprove0.wait());
     // await printTx(data, "txWethApprove1", await txWethApprove1.wait());
     // await printTx(data, "txWethApprove2", await txWethApprove2.wait());
@@ -130,8 +130,8 @@ describe("Registry", function () {
       let logData = null;
       if (log.address == data.registry.target) {
         logData = data.registry.interface.parseLog(log);
-      } else if (log.address == data.registryExchange.target) {
-        logData = data.registryExchange.interface.parseLog(log);
+      } else if (log.address == data.exchange.target) {
+        logData = data.exchange.interface.parseLog(log);
       } else if (log.address == data.weth.target) {
         logData = data.weth.interface.parseLog(log);
       }
@@ -304,42 +304,42 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Owned", function () {
-    it("RegistryExchange - Owned #1", async function () {
+  describe("Exchange - Owned", function () {
+    it("Exchange - Owned #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
       // owner() function
-      expect(await data.registryExchange.owner()).to.equal(data.deployer.address);
+      expect(await data.exchange.owner()).to.equal(data.deployer.address);
 
       // Non-owner cannot transfer ownership
       await expect(
-        data.registryExchange.connect(data.user0).transferOwnership(data.user1.address)).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.user0).transferOwnership(data.user1.address)).to.be.revertedWithCustomError(
+        data.exchange,
         "NotOwner"
       );
 
       // Non-newOwner cannot accept ownership transfer
       await expect(
-        data.registryExchange.connect(data.user2).acceptOwnership()).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.user2).acceptOwnership()).to.be.revertedWithCustomError(
+        data.exchange,
         "NotNewOwner"
       );
 
-      const tx1 = await data.registryExchange.connect(data.deployer).transferOwnership(data.user2.address);
-      expect(await data.registryExchange.newOwner()).to.equal(data.user2.address);
+      const tx1 = await data.exchange.connect(data.deployer).transferOwnership(data.user2.address);
+      expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
-      const tx2 = await data.registryExchange.connect(data.user2).acceptOwnership();
-      expect(await data.registryExchange.owner()).to.equal(data.user2.address);
-      expect(await data.registryExchange.newOwner()).to.equal(ZERO_ADDRESS);
+      const tx2 = await data.exchange.connect(data.user2).acceptOwnership();
+      expect(await data.exchange.owner()).to.equal(data.user2.address);
+      expect(await data.exchange.newOwner()).to.equal(ZERO_ADDRESS);
 
       // await printState(data, "End");
     });
   });
 
 
-  describe("RegistryExchange - Bulk Transfer", function () {
-    it("RegistryExchange - Bulk Transfer #1", async function () {
+  describe("Exchange - Bulk Transfer", function () {
+    it("Exchange - Bulk Transfer #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -357,21 +357,21 @@ describe("Registry", function () {
 
       // Token owner cannot bulk transfer before approving
       await expect(
-        data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
+        data.exchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
         data.registry,
         "NotOwnerNorApproved"
       );
 
-      const tx6 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
+      const tx6 = await data.registry.connect(data.user2).setApprovalForAll(data.exchange.target, true);
 
       // Only token owner can bulk transfer
       await expect(
-        data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.user1).bulkTransfer(data.user0.address, [2, 4])).to.be.revertedWithCustomError(
+        data.exchange,
         "OnlyTokenOwnerCanTransfer"
       );
 
-      const tx7 = await data.registryExchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4]);
+      const tx7 = await data.exchange.connect(data.user2).bulkTransfer(data.user0.address, [2, 4]);
 
       expect(await data.registry.ownerOf(2)).to.equal(data.user0.address);
       expect(await data.registry.ownerOf(4)).to.equal(data.user0.address);
@@ -382,32 +382,32 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Update Fee", function () {
-    it("RegistryExchange - Update Fee #1", async function () {
+  describe("Exchange - Update Fee", function () {
+    it("Exchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
-      expect(await data.registryExchange.fee()).to.equal(10);
+      expect(await data.exchange.fee()).to.equal(10);
 
       // Non-owner cannot update the fee
       await expect(
-        data.registryExchange.connect(data.user2).updateFee(11)).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.user2).updateFee(11)).to.be.revertedWithCustomError(
+        data.exchange,
         "NotOwner"
       );
 
       // Cannot set fee > MAX_FEE
       await expect(
-        data.registryExchange.connect(data.deployer).updateFee(11)).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.deployer).updateFee(11)).to.be.revertedWithCustomError(
+        data.exchange,
         "InvalidFee"
       ).withArgs(11, 10);
 
       // Update fee to 5bp
-      await expect(data.registryExchange.connect(data.deployer).updateFee(5))
-        .to.emit(data.registryExchange, "FeeUpdated")
+      await expect(data.exchange.connect(data.deployer).updateFee(5))
+        .to.emit(data.exchange, "FeeUpdated")
         .withArgs(10, 5, anyValue);
-      expect(await data.registryExchange.fee()).to.equal(5);
+      expect(await data.exchange.fee()).to.equal(5);
 
       addHash(data, "user0string0");
       addHash(data, "user0string1");
@@ -423,14 +423,14 @@ describe("Registry", function () {
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
       const offerData = [[INPUT_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.23"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("1.23"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("1.23"), expiry]];
-      const tx5 = await data.registryExchange.connect(data.user0).execute(offerData, data.uiFeeAccount);
+      const tx5 = await data.exchange.connect(data.user0).execute(offerData, data.uiFeeAccount);
       await printTx(data, "tx5", await tx5.wait());
 
-      const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
+      const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
       // await printTx(data, "tx6", await tx6.wait());
 
       const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.23"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("1.23"), 0]];
-      const tx7 = await data.registryExchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
+      const tx7 = await data.exchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
 
       expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
@@ -438,13 +438,13 @@ describe("Registry", function () {
       expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000615"));
 
       // Update fee to 7bp
-      await expect(data.registryExchange.connect(data.deployer).updateFee(7))
-        .to.emit(data.registryExchange, "FeeUpdated")
+      await expect(data.exchange.connect(data.deployer).updateFee(7))
+        .to.emit(data.exchange, "FeeUpdated")
         .withArgs(5, 7, anyValue);
-      expect(await data.registryExchange.fee()).to.equal(7);
+      expect(await data.exchange.fee()).to.equal(7);
 
       const buyData2 = [[INPUT_BUY, data.user0.address, 2, ethers.parseEther("1.23"), 0]];
-      const tx8 = await data.registryExchange.connect(data.user2).execute(buyData2, data.uiFeeAccount);
+      const tx8 = await data.exchange.connect(data.user2).execute(buyData2, data.uiFeeAccount);
       await printTx(data, "tx8", await tx8.wait());
 
       expect(await data.weth.balanceOf(data.user2)).to.equal(ethers.parseEther("998.77"));
@@ -452,13 +452,13 @@ describe("Registry", function () {
       expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.0010455"));
 
       const bidData = [[INPUT_BID, ZERO_ADDRESS, 0, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 4, ethers.parseEther("1.11"), expiry]];
-      const tx9 = await data.registryExchange.connect(data.user2).execute(bidData, data.uiFeeAccount);
+      const tx9 = await data.exchange.connect(data.user2).execute(bidData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
-      const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
+      const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.exchange.target, true);
 
       const sellData1 = [[INPUT_SELL, data.user2.address, 2, ethers.parseEther("1.11"), 0]];
-      const tx11 = await data.registryExchange.connect(data.user0).execute(sellData1, ZERO_ADDRESS);
+      const tx11 = await data.exchange.connect(data.user0).execute(sellData1, ZERO_ADDRESS);
       await printTx(data, "tx11", await tx11.wait());
 
       expect(await data.weth.balanceOf(data.user0)).to.equal(ethers.parseEther("1004.797132"));
@@ -470,8 +470,8 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Offer & Buy", function () {
-    it("RegistryExchange - Offer & Buy #1", async function () {
+  describe("Exchange - Offer & Buy", function () {
+    it("Exchange - Offer & Buy #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -480,8 +480,8 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Bid & Sell", function () {
-    it("RegistryExchange - Bid & Sell #1", async function () {
+  describe("Exchange - Bid & Sell", function () {
+    it("Exchange - Bid & Sell #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -561,30 +561,30 @@ describe("Registry", function () {
       await printState(data, "5 Entries, 2 Accounts, large items");
 
       await expect(
-        data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [0])).to.be.revertedWithCustomError(
-        data.registryExchange,
+        data.exchange.connect(data.user1).bulkTransfer(data.user0.address, [0])).to.be.revertedWithCustomError(
+        data.exchange,
         "OnlyTokenOwnerCanTransfer"
       );
       await expect(
-        data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [1, 2])).to.be.revertedWithCustomError(
+        data.exchange.connect(data.user1).bulkTransfer(data.user0.address, [1, 2])).to.be.revertedWithCustomError(
         data.registry,
         "NotOwnerNorApproved"
       );
 
-      console.log("      user1 -> registry.setApprovalForAll(" + getAccountName(data, data.registryExchange.target) + ", true)");
-      const tx6 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
+      console.log("      user1 -> registry.setApprovalForAll(" + getAccountName(data, data.exchange.target) + ", true)");
+      const tx6 = await data.registry.connect(data.user1).setApprovalForAll(data.exchange.target, true);
       await printTx(data, "tx6", await tx6.wait());
 
-      console.log("      user1 -> registryExchange.bulkTransfer(" + getAccountName(data, data.user0.address) + ", [1, 3])");
-      const tx7 = await data.registryExchange.connect(data.user1).bulkTransfer(data.user0.address, [1, 3]);
+      console.log("      user1 -> exchange.bulkTransfer(" + getAccountName(data, data.user0.address) + ", [1, 3])");
+      const tx7 = await data.exchange.connect(data.user1).bulkTransfer(data.user0.address, [1, 3]);
       await printTx(data, "tx7", await tx7.wait());
       await printState(data, "5 Entries, 2 Accounts, Transferred");
     });
   });
 
 
-  describe("RegistryExchange OLD", function () {
-    it.skip("RegistryExchange OLD #1", async function () {
+  describe("Exchange OLD", function () {
+    it.skip("Exchange OLD #1", async function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
@@ -600,48 +600,48 @@ describe("Registry", function () {
       const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
       await printTx(data, "tx0", await tx0.wait());
 
-      console.log("      user0 -> registry.setApprovalForAll(registryExchange, true)");
-      const tx5a = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
+      console.log("      user0 -> registry.setApprovalForAll(exchange, true)");
+      const tx5a = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
       await printTx(data, "tx5a", await tx5a.wait());
-      console.log("      user1 -> registry.setApprovalForAll(registryExchange, true)");
-      const tx5b = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
+      console.log("      user1 -> registry.setApprovalForAll(exchange, true)");
+      const tx5b = await data.registry.connect(data.user1).setApprovalForAll(data.exchange.target, true);
       await printTx(data, "tx5b", await tx5b.wait());
 
       const now = parseInt(new Date() / 1000);
       const expiry = parseInt(now) + 60 * 60;
       const offerData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
-      console.log("      user0 -> registryExchange.offer(offerData)");
-      const tx6 = await data.registryExchange.connect(data.user0).offer(offerData);
+      console.log("      user0 -> exchange.offer(offerData)");
+      const tx6 = await data.exchange.connect(data.user0).offer(offerData);
       await printTx(data, "tx6", await tx6.wait());
 
       await printState(data, "After Offers Setup");
 
       const buyData = [[data.user0.address, 1, ethers.parseEther("11")], [data.user0.address, 3, ethers.parseEther("33")]];
-      console.log("      user1 -> registryExchange.buy(buyData)");
-      const tx7 = await data.registryExchange.connect(data.user1).buy(buyData, data.uiFeeAccount, { value: ethers.parseEther("110") });
+      console.log("      user1 -> exchange.buy(buyData)");
+      const tx7 = await data.exchange.connect(data.user1).buy(buyData, data.uiFeeAccount, { value: ethers.parseEther("110") });
       await printTx(data, "tx7", await tx7.wait());
 
       await printState(data, "After Purchases");
 
       const bidData = [[1, ethers.parseEther("11"), expiry], [2, ethers.parseEther("22"), expiry], [3, ethers.parseEther("33"), expiry]];
-      console.log("      user2 -> registryExchange.bid(bidData)");
-      const tx8 = await data.registryExchange.connect(data.user2).bid(bidData);
+      console.log("      user2 -> exchange.bid(bidData)");
+      const tx8 = await data.exchange.connect(data.user2).bid(bidData);
       await printTx(data, "tx8", await tx8.wait());
 
       await printState(data, "After Bids Setup");
 
       const sellData = [[data.user2.address, 1, ethers.parseEther("11")], [data.user2.address, 3, ethers.parseEther("33")]];
-      console.log("      user1 -> registryExchange.sell(sellData)");
-      const tx9 = await data.registryExchange.connect(data.user1).sell(sellData, data.uiFeeAccount);
+      console.log("      user1 -> exchange.sell(sellData)");
+      const tx9 = await data.exchange.connect(data.user1).sell(sellData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
       await printState(data, "After Sales");
 
-      console.log("      deployer -> registryExchange.withdraw(0, 0)");
-      const tx10 = await data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, 0);
+      console.log("      deployer -> exchange.withdraw(0, 0)");
+      const tx10 = await data.exchange.connect(data.deployer).withdraw(ZERO_ADDRESS, 0);
       await printTx(data, "tx10", await tx10.wait());
-      console.log("      deployer -> registryExchange.withdraw(WETH, 0)");
-      const tx11 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, 0);
+      console.log("      deployer -> exchange.withdraw(WETH, 0)");
+      const tx11 = await data.exchange.connect(data.deployer).withdraw(data.weth.target, 0);
       await printTx(data, "tx11", await tx11.wait());
 
       await printState(data, "After Deployer Withdraw");

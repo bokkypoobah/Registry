@@ -1,10 +1,10 @@
 pragma solidity ^0.8.19;
 
 // ----------------------------------------------------------------------------
-// RegistryExchange v0.8.8-testing
+// Exchange v0.8.8-testing
 //
 // Deployed to Sepolia
-// - RegistryExchange
+// - Exchange
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -62,9 +62,9 @@ contract Owned {
 }
 
 
-/// @title RegistryExchange
+/// @title Exchange
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
-contract RegistryExchange is Owned {
+contract Exchange is Owned {
 
     enum Action { Offer, Bid, Buy, Sell }
 
@@ -232,7 +232,7 @@ contract RegistryExchange is Owned {
         fee = newFee;
     }
 
-    /// @dev Minimum of WETH balance and spending allowance to this {RegistryExchange} for `account`
+    /// @dev Minimum of WETH balance and spending allowance to this {Exchange} for `account`
     function availableWeth(address account) internal view returns (uint tokens) {
         uint allowance = weth.allowance(account, address(this));
         uint balance = weth.balanceOf(account);
