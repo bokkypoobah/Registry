@@ -62,26 +62,9 @@ contract Owned {
 }
 
 
-contract ReentrancyGuard {
-    uint private _executing;
-
-    error ReentrancyAttempted();
-
-    /// @dev Functions with this modifier cannot be re-entered
-    modifier reentrancyGuard() {
-        if (_executing == 1) {
-            revert ReentrancyAttempted();
-        }
-        _executing = 1;
-        _;
-        _executing = 2;
-    }
-}
-
-
 /// @title RegistryExchange
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
-contract RegistryExchange is Owned, ReentrancyGuard {
+contract RegistryExchange is Owned {
 
     enum Action { Offer, Bid, Buy, Sell }
 
