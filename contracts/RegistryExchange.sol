@@ -113,7 +113,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
-
     /// @dev `offers` from `account` to sell `tokenId` at `price`, at `timestamp`
     event Offer(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
     /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
