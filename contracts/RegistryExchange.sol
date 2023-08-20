@@ -59,17 +59,6 @@ contract Owned {
         owner = newOwner;
         newOwner = address(0);
     }
-
-    /// @dev Withdraw fees to `owner` account. Only callable by `owner`
-    /// @param token ERC-20 token contract, or null for ETH
-    /// @param tokens Token amount, or 0 for the full balance
-    function withdraw(ERC20 token, uint tokens) public onlyOwner {
-        if (address(token) == address(0)) {
-            payable(owner).transfer((tokens == 0 ? address(this).balance : tokens));
-        } else {
-            token.transfer(owner, tokens == 0 ? token.balanceOf(address(this)) : tokens);
-        }
-    }
 }
 
 
@@ -90,19 +79,6 @@ contract ReentrancyGuard {
 }
 
 
-// 2^16 = 65,536
-// 2^32 = 4,294,967,296
-// 2^48 = 281,474,976,710,656
-// 2^60 = 1, 152,921,504, 606,846,976
-// 2^64 = 18, 446,744,073,709,551,616 <- expiry
-// 2^72 = 4,722,366,482,869,645,213,696
-// 2^80 = 1,208,925, 819,614,629, 174,706,176 <- ok for price max 1_000_000
-// 2^96 = 79,228,162,514, 264,337,593,543,950,336
-// 2^112 = 5192296858534827628530496329220096
-// 2^128 = 340, 282,366,920,938,463,463, 374,607,431,768,211,456
-// 2^256 = 115,792, 089,237,316,195,423,570, 985,008,687,907,853,269, 984,665,640,564,039,457, 584,007,913,129,639,936
-
-
 /// @title RegistryExchange
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract RegistryExchange is Owned, ReentrancyGuard {
@@ -116,20 +92,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         uint price;
         uint expiry; // Required for Offer and Bid
     }
-
     struct Record {
         uint192 price;
         uint64 expiry;
-    }
-    struct Order {
-        uint tokenId; // 96?
-        uint price; // 96?
-        uint expiry; // 64?
-    }
-    struct Trade {
-        address account;
-        uint tokenId;
-        uint price;
     }
 
     /// @dev Maximum price in orders
@@ -146,10 +111,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     // Fee in basis points (10 bps = 0.1%)
     uint public fee = MAX_FEE;
     // maker => tokenId => [price, expiry]
-    mapping(address => mapping(uint => Record)) public offers;
-    // maker => tokenId => [price, expiry]
-    mapping(address => mapping(uint => Record)) public bids;
-    // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
 
@@ -157,10 +118,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     event Offer(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
     /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
     event Bid(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
-    /// @dev `offers` from `account` to sell tokenIds, at `timestamp`
-    event Offer_old(address indexed account, Order[] offers, uint timestamp);
-    /// @dev `bids` from `account` to buy tokenIds, at `timestamp`
-    event Bid_old(address indexed account, Order[] bids, uint timestamp);
     /// @dev `account` bought `tokenId` from `from`, at `timestamp`
     event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `account` sold `tokenId` to `to`, at `timestamp`
@@ -189,7 +146,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
         registry = _registry;
         feeAccount = msg.sender;
     }
-
 
     /// @dev Execute Offer, Bid, Buy and Sell orders
     /// @param inputs [[action, account, tokenId, price, expiry]]
@@ -234,8 +190,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     delete orders[input.account][input.tokenId][orderAction];
                     weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
-                        weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
                         weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
                     } else {
                         weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 10_000);
                     }
@@ -249,8 +205,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     delete orders[input.account][input.tokenId][orderAction];
                     weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
-                        weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
                         weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
                     } else {
                         weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 10_000);
                     }
@@ -258,109 +214,6 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 }
             }
-        }
-    }
-
-    /// @dev Maker update `_offers` to sell tokens for ETH
-    /// @param _offers [[tokenId, price, expiry]]
-    function offer(Order[] memory _offers) public {
-        for (uint i = 0; i < _offers.length; i = onePlus(i)) {
-            Order memory o = _offers[i];
-            if (o.price > PRICE_MAX) {
-                revert InvalidPrice(o.price, PRICE_MAX);
-            }
-            offers[msg.sender][o.tokenId] = Record(uint192(o.price), uint64(o.expiry));
-        }
-        emit Offer_old(msg.sender, _offers, block.timestamp);
-    }
-
-    /// @dev Maker update `_bids` to buy tokens for WETH
-    /// @param _bids [[tokenId, price, expiry]]
-    function bid(Order[] memory _bids) public {
-        for (uint i = 0; i < _bids.length; i = onePlus(i)) {
-            Order memory o = _bids[i];
-            if (o.price > PRICE_MAX) {
-                revert InvalidPrice(o.price, PRICE_MAX);
-            }
-            bids[msg.sender][o.tokenId] = Record(uint192(o.price), uint64(o.expiry));
-        }
-        emit Bid_old(msg.sender, _bids, block.timestamp);
-    }
-
-    /// @dev Taker execute `trades` against {offers} to buy tokens for ETH. Executed {offers} are removed
-    /// @param trades [[maker, tokenId, price]]
-    /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
-    function buy(Trade[] calldata trades, address uiFeeAccount) public payable reentrancyGuard {
-        uint available = msg.value;
-        for (uint i = 0; i < trades.length; i = onePlus(i)) {
-            Trade memory t = trades[i];
-            if (t.account == msg.sender) {
-                revert CannotSelfTrade(t.tokenId);
-            }
-            address tokenOwner = registry.ownerOf(t.tokenId);
-            if (t.account != tokenOwner) {
-                revert IncorrectOwner(t.tokenId, tokenOwner, t.account);
-            }
-            Record memory order = offers[t.account][t.tokenId];
-            if (order.expiry == 0) {
-                revert OrderInvalid(t.tokenId, t.account);
-            } else if (order.expiry < block.timestamp) {
-                revert OrderExpired(t.tokenId, order.expiry);
-            }
-            uint orderPrice = uint(order.price);
-            if (orderPrice != t.price) {
-                revert PriceMismatch(t.tokenId, orderPrice, t.price);
-            }
-            if (available < orderPrice) {
-                revert TakerHasInsufficientEth(t.tokenId, orderPrice, available);
-            }
-            available -= orderPrice;
-            delete offers[t.account][t.tokenId];
-            payable(t.account).transfer((orderPrice * (10_000 - fee)) / 10_000);
-            if (uiFeeAccount != address(0)) {
-                payable(uiFeeAccount).transfer((orderPrice * fee) / 20_000);
-            }
-            registry.transfer(msg.sender, t.tokenId);
-            emit Bought(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
-        }
-        if (available > 0) {
-            payable(msg.sender).transfer(available);
-        }
-    }
-
-    /// @dev Taker execute `trades` against {bids} to sell tokens for WETH. Executed {bids} are removed
-    /// @param trades [[maker, tokenId, price]]
-    /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
-    function sell(Trade[] calldata trades, address uiFeeAccount) public {
-        for (uint i = 0; i < trades.length; i = onePlus(i)) {
-            Trade memory t = trades[i];
-            if (t.account == msg.sender) {
-                revert CannotSelfTrade(t.tokenId);
-            }
-            Record memory order = bids[t.account][t.tokenId];
-            if (order.expiry == 0) {
-                revert OrderInvalid(t.tokenId, t.account);
-            } else if (order.expiry < block.timestamp) {
-                revert OrderExpired(t.tokenId, order.expiry);
-            }
-            uint orderPrice = uint(order.price);
-            if (orderPrice != t.price) {
-                revert PriceMismatch(t.tokenId, orderPrice, t.price);
-            }
-            uint available = availableWeth(t.account);
-            if (available < orderPrice) {
-                revert MakerHasInsufficientWeth(t.account, t.tokenId, orderPrice, available);
-            }
-            delete bids[t.account][t.tokenId];
-            weth.transferFrom(t.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
-            if (uiFeeAccount != address(0)) {
-                weth.transferFrom(t.account, uiFeeAccount, (orderPrice * fee) / 20_000);
-                weth.transferFrom(t.account, address(this), (orderPrice * fee) / 20_000);
-            } else {
-                weth.transferFrom(t.account, address(this), (orderPrice * fee) / 10_000);
-            }
-            registry.transfer(t.account, t.tokenId);
-            emit Sold(msg.sender, t.account, t.tokenId, orderPrice, block.timestamp);
         }
     }
 

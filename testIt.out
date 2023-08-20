@@ -1,3 +1,4 @@
+Compiled 1 Solidity file successfully
 
   Registry
     RegistryReceiver
@@ -8,48 +9,48 @@
       ✓ RegistryExchange - Owned #1
     RegistryExchange - Bulk Transfer
       ✓ RegistryExchange - Bulk Transfer #1
-    RegistryExchange - Update Fee & Withdraw
-      > tx5 - gasUsed: 102088 ~ ETH 0.00204176 ~ USD 4.08352 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 19.0 Offer(account: user0:0x7099, tokenId: 1, price: 1.23, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:36.000Z)
-        + registryExchange:0x9fE4 -> 19.1 Offer(account: user0:0x7099, tokenId: 2, price: 1.23, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:36.000Z)
-        + registryExchange:0x9fE4 -> 19.2 Offer(account: user0:0x7099, tokenId: 3, price: 1.23, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:36.000Z)
-      > tx7 - gasUsed: 162033 ~ ETH 0.00324066 ~ USD 6.48132 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+    RegistryExchange - Update Fee
+      > tx5 - gasUsed: 101946 ~ ETH 0.00203892 ~ USD 4.07784 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registryExchange:0x9fE4 -> 19.0 Offer(account: user0:0x7099, tokenId: 1, price: 1.23, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:37.000Z)
+        + registryExchange:0x9fE4 -> 19.1 Offer(account: user0:0x7099, tokenId: 2, price: 1.23, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:37.000Z)
+        + registryExchange:0x9fE4 -> 19.2 Offer(account: user0:0x7099, tokenId: 3, price: 1.23, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:37.000Z)
+      > tx7 - gasUsed: 161927 ~ ETH 0.00323854 ~ USD 6.47708 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 21.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.229385)
-        + weth:0x5FbD -> 21.1 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x9965, tokens: 0.0003075)
-        + weth:0x5FbD -> 21.2 Transfer(from: user1:0x3C44, to: feeAccount:0x15d3, tokens: 0.0003075)
-        + registry:0xe7f1 -> 21.3 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-20T05:12:38.000Z)
-        + registryExchange:0x9fE4 -> 21.4 Bought(account: user1:0x3C44, from: user0:0x7099, tokenId: 1, price: 1.23, timestamp: 2023-08-20T05:12:38.000Z)
+        + weth:0x5FbD -> 21.1 Transfer(from: user1:0x3C44, to: feeAccount:0x15d3, tokens: 0.0003075)
+        + weth:0x5FbD -> 21.2 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x9965, tokens: 0.0003075)
+        + registry:0xe7f1 -> 21.3 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-20T05:20:39.000Z)
+        + registryExchange:0x9fE4 -> 21.4 Bought(account: user1:0x3C44, from: user0:0x7099, tokenId: 1, price: 1.23, timestamp: 2023-08-20T05:20:39.000Z)
         + weth:0x5FbD -> 21.5 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.229385)
-        + weth:0x5FbD -> 21.6 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x9965, tokens: 0.0003075)
-        + weth:0x5FbD -> 21.7 Transfer(from: user1:0x3C44, to: feeAccount:0x15d3, tokens: 0.0003075)
-        + registry:0xe7f1 -> 21.8 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-20T05:12:38.000Z)
-        + registryExchange:0x9fE4 -> 21.9 Bought(account: user1:0x3C44, from: user0:0x7099, tokenId: 3, price: 1.23, timestamp: 2023-08-20T05:12:38.000Z)
-      > tx8 - gasUsed: 93595 ~ ETH 0.0018719 ~ USD 3.7438 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + weth:0x5FbD -> 21.6 Transfer(from: user1:0x3C44, to: feeAccount:0x15d3, tokens: 0.0003075)
+        + weth:0x5FbD -> 21.7 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x9965, tokens: 0.0003075)
+        + registry:0xe7f1 -> 21.8 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-20T05:20:39.000Z)
+        + registryExchange:0x9fE4 -> 21.9 Bought(account: user1:0x3C44, from: user0:0x7099, tokenId: 3, price: 1.23, timestamp: 2023-08-20T05:20:39.000Z)
+      > tx8 - gasUsed: 93525 ~ ETH 0.0018705 ~ USD 3.741 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 23.0 Transfer(from: user2:0x90F7, to: user0:0x7099, tokens: 1.229139)
-        + weth:0x5FbD -> 23.1 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x9965, tokens: 0.0004305)
-        + weth:0x5FbD -> 23.2 Transfer(from: user2:0x90F7, to: feeAccount:0x15d3, tokens: 0.0004305)
-        + registry:0xe7f1 -> 23.3 Transfer(from: user0:0x7099, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-20T05:12:40.000Z)
-        + registryExchange:0x9fE4 -> 23.4 Bought(account: user2:0x90F7, from: user0:0x7099, tokenId: 2, price: 1.23, timestamp: 2023-08-20T05:12:40.000Z)
-      > tx9 - gasUsed: 155807 ~ ETH 0.00311614 ~ USD 6.23228 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registryExchange:0x9fE4 -> 24.0 Bid(account: user2:0x90F7, tokenId: 0, price: 1.11, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:41.000Z)
-        + registryExchange:0x9fE4 -> 24.1 Bid(account: user2:0x90F7, tokenId: 1, price: 1.11, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:41.000Z)
-        + registryExchange:0x9fE4 -> 24.2 Bid(account: user2:0x90F7, tokenId: 2, price: 1.11, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:41.000Z)
-        + registryExchange:0x9fE4 -> 24.3 Bid(account: user2:0x90F7, tokenId: 3, price: 1.11, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:41.000Z)
-        + registryExchange:0x9fE4 -> 24.4 Bid(account: user2:0x90F7, tokenId: 4, price: 1.11, expiry: 2023-08-20T06:12:21.000Z, timestamp: 2023-08-20T05:12:41.000Z)
-      > tx11 - gasUsed: 90935 ~ ETH 0.0018187 ~ USD 3.6374 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + weth:0x5FbD -> 23.1 Transfer(from: user2:0x90F7, to: feeAccount:0x15d3, tokens: 0.0004305)
+        + weth:0x5FbD -> 23.2 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x9965, tokens: 0.0004305)
+        + registry:0xe7f1 -> 23.3 Transfer(from: user0:0x7099, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-20T05:20:41.000Z)
+        + registryExchange:0x9fE4 -> 23.4 Bought(account: user2:0x90F7, from: user0:0x7099, tokenId: 2, price: 1.23, timestamp: 2023-08-20T05:20:41.000Z)
+      > tx9 - gasUsed: 155593 ~ ETH 0.00311186 ~ USD 6.22372 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registryExchange:0x9fE4 -> 24.0 Bid(account: user2:0x90F7, tokenId: 0, price: 1.11, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:42.000Z)
+        + registryExchange:0x9fE4 -> 24.1 Bid(account: user2:0x90F7, tokenId: 1, price: 1.11, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:42.000Z)
+        + registryExchange:0x9fE4 -> 24.2 Bid(account: user2:0x90F7, tokenId: 2, price: 1.11, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:42.000Z)
+        + registryExchange:0x9fE4 -> 24.3 Bid(account: user2:0x90F7, tokenId: 3, price: 1.11, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:42.000Z)
+        + registryExchange:0x9fE4 -> 24.4 Bid(account: user2:0x90F7, tokenId: 4, price: 1.11, expiry: 2023-08-20T06:20:22.000Z, timestamp: 2023-08-20T05:20:42.000Z)
+      > tx11 - gasUsed: 90865 ~ ETH 0.0018173 ~ USD 3.6346 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 26.0 Transfer(from: user2:0x90F7, to: user0:0x7099, tokens: 1.109223)
-        + weth:0x5FbD -> 26.1 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x9965, tokens: 0.0003885)
-        + weth:0x5FbD -> 26.2 Transfer(from: user2:0x90F7, to: feeAccount:0x15d3, tokens: 0.0003885)
-        + registry:0xe7f1 -> 26.3 Transfer(from: user2:0x90F7, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-20T05:12:43.000Z)
-        + registryExchange:0x9fE4 -> 26.4 Sold(account: user0:0x7099, to: user2:0x90F7, tokenId: 2, price: 1.11, timestamp: 2023-08-20T05:12:43.000Z)
+        + weth:0x5FbD -> 26.1 Transfer(from: user2:0x90F7, to: feeAccount:0x15d3, tokens: 0.0003885)
+        + weth:0x5FbD -> 26.2 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x9965, tokens: 0.0003885)
+        + registry:0xe7f1 -> 26.3 Transfer(from: user2:0x90F7, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-20T05:20:44.000Z)
+        + registryExchange:0x9fE4 -> 26.4 Sold(account: user0:0x7099, to: user2:0x90F7, tokenId: 2, price: 1.11, timestamp: 2023-08-20T05:20:44.000Z)
 
       --- End ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.992731940652248294                 997000.0
-        1 user0:0x7099               9999.999223411148897475              1004.797132
-        2 user1:0x3C44               9999.999767054456923768                   997.54
-        3 user2:0x90F7               9999.999603028011673686                   997.66
+        0 deployer:0xf39F            9999.994510891844967941                 997000.0
+        1 user0:0x7099                9999.99922445437888871              1004.797132
+        2 user1:0x3C44               9999.999767410443591629                   997.54
+        3 user2:0x90F7               9999.999603686552796585                   997.66
         4 feeAccount:0x15d3                          10000.0                 0.001434
         5 uiFeeAccount:0x9965                        10000.0                 0.001434
         6 weth:0x5FbD                                    0.0                      0.0
@@ -59,13 +60,13 @@
 
        Id String:Hash          Owner                          Registered
       --- -------------------- ------------------------------ ------------------------
-        0 "user0string":0x5230 user0:0x7099                   2023-08-20T05:12:31.000Z
-        1 "user0string":0x54f8 user1:0x3C44                   2023-08-20T05:12:32.000Z
-        2 "user0string":0xcb3c user2:0x90F7                   2023-08-20T05:12:33.000Z
-        3 "user0string":0x4506 user1:0x3C44                   2023-08-20T05:12:34.000Z
-        4 "user0string":0x5c3a user0:0x7099                   2023-08-20T05:12:35.000Z
+        0 "user0string":0x5230 user0:0x7099                   2023-08-20T05:20:32.000Z
+        1 "user0string":0x54f8 user1:0x3C44                   2023-08-20T05:20:33.000Z
+        2 "user0string":0xcb3c user2:0x90F7                   2023-08-20T05:20:34.000Z
+        3 "user0string":0x4506 user1:0x3C44                   2023-08-20T05:20:35.000Z
+        4 "user0string":0x5c3a user0:0x7099                   2023-08-20T05:20:36.000Z
 
-      ✓ RegistryExchange - Update Fee & Withdraw #1
+      ✓ RegistryExchange - Update Fee #1
     RegistryExchange - Offer & Buy
       ✓ RegistryExchange - Offer & Buy #1
     RegistryExchange - Bid & Sell
@@ -86,19 +87,17 @@
 ·····················|·····················|·············|·············|·············|···············|··············
 |  [90mRegistry[39m          ·  transfer           ·      [36m33972[39m  ·      [31m36516[39m  ·      34662  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  acceptOwnership    ·          -  ·          -  ·      28428  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  acceptOwnership    ·          -  ·          -  ·      28406  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  bulkTransfer       ·          -  ·          -  ·      58592  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  bulkTransfer       ·          -  ·          -  ·      58511  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  execute            ·      [36m90935[39m  ·     [31m162033[39m  ·     120892  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  execute            ·      [36m90865[39m  ·     [31m161927[39m  ·     120771  ·           [90m10[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  transferOwnership  ·          -  ·          -  ·      46103  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  transferOwnership  ·          -  ·          -  ·      46081  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  updateFee          ·          -  ·          -  ·      30554  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  updateFee          ·          -  ·          -  ·      30510  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  updateFeeAccount   ·          -  ·          -  ·      31046  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
-·····················|·····················|·············|·············|·············|···············|··············
-|  [90mRegistryExchange[39m  ·  withdraw           ·      [36m24236[39m  ·      [31m35237[39m  ·      29737  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistryExchange[39m  ·  updateFeeAccount   ·          -  ·          -  ·      31002  ·            [90m1[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
 |  [90mToken[39m             ·  approve            ·          -  ·          -  ·      46179  ·            [90m3[39m  ·          [32m[90m-[32m[39m  │
 ·····················|·····················|·············|·············|·············|···············|··············
@@ -108,7 +107,7 @@
 ···········································|·············|·············|·············|···············|··············
 |  Registry                                ·          -  ·          -  ·     799704  ·        [90m2.7 %[39m  ·          [32m[90m-[32m[39m  │
 ···········································|·············|·············|·············|···············|··············
-|  RegistryExchange                        ·          -  ·          -  ·    2678885  ·        [90m8.9 %[39m  ·          [32m[90m-[32m[39m  │
+|  RegistryExchange                        ·          -  ·          -  ·    1619712  ·        [90m5.4 %[39m  ·          [32m[90m-[32m[39m  │
 ···········································|·············|·············|·············|···············|··············
 |  Token                                   ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·------------------------------------------|-------------|-------------|-------------|---------------|-------------·

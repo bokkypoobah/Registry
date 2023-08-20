@@ -322,21 +322,6 @@ describe("Registry", function () {
       expect(await data.registryExchange.owner()).to.equal(data.user2.address);
       expect(await data.registryExchange.newOwner()).to.equal(ZERO_ADDRESS);
 
-      // Withdraw ETH
-      await expect(
-        data.registryExchange.connect(data.user1).withdraw(ZERO_ADDRESS, 0)).to.be.revertedWithCustomError(
-        data.registryExchange,
-        "NotOwner"
-      );
-      const tx3 = await data.registryExchange.connect(data.user2).withdraw(ZERO_ADDRESS, 0);
-
-      // Withdraw WETH
-      await expect(
-        data.registryExchange.connect(data.user1).withdraw(data.weth.target, 0)).to.be.revertedWithCustomError(
-        data.registryExchange,
-        "NotOwner"
-      );
-      const tx4 = await data.registryExchange.connect(data.user2).withdraw(data.weth.target, 0);
       // await printState(data, "End");
     });
   });
@@ -386,8 +371,8 @@ describe("Registry", function () {
   });
 
 
-  describe("RegistryExchange - Update Fee & Withdraw", function () {
-    it("RegistryExchange - Update Fee & Withdraw #1", async function () {
+  describe("RegistryExchange - Update Fee", function () {
+    it("RegistryExchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -485,28 +470,6 @@ describe("Registry", function () {
 
       // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001221"));
       // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.001221"));
-      //
-      // // await printState(data, "Before Withdrawals");
-      //
-      // await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0.00000123"))).to.changeEtherBalances(
-      //   [data.deployer, data.registryExchange.target],
-      //   [ethers.parseEther("0.00000123"), -ethers.parseEther("0.00000123")]
-      // );
-      //
-      // const tx13 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0.00000123"));
-      // // await printTx(data, "tx13", await tx13.wait());
-      // expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.00000123"));
-      // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.00121977"));
-      //
-      // await expect(data.registryExchange.connect(data.deployer).withdraw(ZERO_ADDRESS, ethers.parseEther("0"))).to.changeEtherBalances(
-      //   [data.deployer, data.registryExchange.target],
-      //   [ethers.parseEther("0.00104427"), -ethers.parseEther("0.00104427")]
-      // );
-      //
-      // const tx14 = await data.registryExchange.connect(data.deployer).withdraw(data.weth.target, ethers.parseEther("0"));
-      // // await printTx(data, "tx14", await tx14.wait());
-      // expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.001221"));
-      // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0"));
       await printState(data, "End");
     });
   });
@@ -757,3 +720,16 @@ describe("Registry", function () {
   //   });
   // });
 });
+
+
+// 2^16 = 65,536
+// 2^32 = 4,294,967,296
+// 2^48 = 281,474,976,710,656
+// 2^60 = 1, 152,921,504, 606,846,976
+// 2^64 = 18, 446,744,073,709,551,616 <- expiry
+// 2^72 = 4,722,366,482,869,645,213,696
+// 2^80 = 1,208,925, 819,614,629, 174,706,176 <- ok for price max 1_000_000
+// 2^96 = 79,228,162,514, 264,337,593,543,950,336
+// 2^112 = 5192296858534827628530496329220096
+// 2^128 = 340, 282,366,920,938,463,463, 374,607,431,768,211,456
+// 2^256 = 115,792, 089,237,316,195,423,570, 985,008,687,907,853,269, 984,665,640,564,039,457, 584,007,913,129,639,936
