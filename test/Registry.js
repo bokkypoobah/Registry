@@ -17,7 +17,7 @@ const INPUT_SELL = 3;
 
 describe("Registry", function () {
   async function deployFixture() {
-    const [deployer, user0, user1, user2, uiFeeAccount] = await ethers.getSigners();
+    const [deployer, user0, user1, user2, feeAccount, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
     const Registry = await ethers.getContractFactory("Registry");
@@ -30,6 +30,7 @@ describe("Registry", function () {
     // console.log("      deployFixture - user0: " + user0.address);
     // console.log("      deployFixture - user1: " + user1.address);
     // console.log("      deployFixture - user2: " + user2.address);
+    // console.log("      deployFixture - feeAccount: " + feeAccount.address);
     // console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
     // console.log("      deployFixture - weth: " + weth.target);
     // console.log("      deployFixture - registry: " + registry.target);
@@ -37,19 +38,23 @@ describe("Registry", function () {
     // console.log("      deployFixture - registryExchange: " + registryExchange.target);
     // console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
     // console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, uiFeeAccount.address, weth.target, registry.target, registryReceiver, registryExchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, registryReceiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
     accountNames[user1.address.toLowerCase()] = "user1";
     accountNames[user2.address.toLowerCase()] = "user2";
+    accountNames[feeAccount.address.toLowerCase()] = "feeAccount";
     accountNames[uiFeeAccount.address.toLowerCase()] = "uiFeeAccount";
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
 
-    const data = { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, uiFeeAccount, accounts, accountNames, hashes: {} };
+    const data = { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
+
+    const updateFeeAccountTx = await registryExchange.updateFeeAccount(feeAccount);
+    // await printTx(data, "updateFeeAccountTx", await updateFeeAccountTx.wait());
 
     const amount0 = ethers.parseEther("1000");
     const txWethTransfer0 = await weth.connect(deployer).transfer(user0.address, amount0);
@@ -134,8 +139,10 @@ describe("Registry", function () {
         if (a.type == 'address') {
           result = result + getAccountName(data, logData.args[a.name].toString());
         } else if (a.type == 'uint256' || a.type == 'uint128' || a.type == 'uint64') {
-          if (a.name == 'timestamp') {
+          if (a.name == 'timestamp' || a.name == 'expiry') {
             result = result + new Date(parseInt(logData.args[a.name].toString()) * 1000).toISOString();
+          } else if (a.name == 'tokens' || a.name == 'price') {
+            result = result + ethers.formatEther(logData.args[a.name]);
           } else {
             result = result + logData.args[a.name].toString();
           }
@@ -423,29 +430,16 @@ describe("Registry", function () {
       const tx5 = await data.registryExchange.connect(data.user0).execute(offerData, data.uiFeeAccount);
       await printTx(data, "tx5", await tx5.wait());
 
-      // struct Input {
-      //     Action action;
-      //     address account; // Required for Buy And Sell
-      //     uint96 tokenId;
-      //     uint96 price;
-      //     uint64 expiry; // Required for Offer and Bid
-      // }
-
-
       const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.registryExchange.target, true);
       // await printTx(data, "tx6", await tx6.wait());
 
       const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.23"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("1.23"), 0]];
       const tx7 = await data.registryExchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
-      // await expect(data.registryExchange.connect(data.user1).execute(buyData1, data.uiFeeAccount)).to.changeEtherBalances(
-      //   [data.user1, data.uiFeeAccount, data.registryExchange.target],
-      //   [-ethers.parseEther("2.46"), ethers.parseEther("0.000615"), ethers.parseEther("0.000615")]
-      // );
-      expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.000615"));
-      expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
-      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000615"));
 
+      expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
+      expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.000615"));
+      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000615"));
 
       // Update fee to 7bp
       await expect(data.registryExchange.connect(data.deployer).updateFee(7))
@@ -453,45 +447,43 @@ describe("Registry", function () {
         .withArgs(5, 7, anyValue);
       expect(await data.registryExchange.fee()).to.equal(7);
 
-      await printState(data, "Debug");
-
       const buyData2 = [[INPUT_BUY, data.user0.address, 2, ethers.parseEther("1.23"), 0]];
       const tx8 = await data.registryExchange.connect(data.user2).execute(buyData2, data.uiFeeAccount);
       await printTx(data, "tx8", await tx8.wait());
 
-      // await expect(data.registryExchange.connect(data.user2).buy(buyData2, data.uiFeeAccount, { value: ethers.parseEther("110") })).to.changeEtherBalances(
-      //   [data.user2, data.uiFeeAccount, data.registryExchange.target],
-      //   [-ethers.parseEther("1.23"), ethers.parseEther("0.0004305"), ethers.parseEther("0.0004305")]
-      // );
-      expect(await data.weth.balanceOf(data.deployer)).to.equal(ethers.parseEther("997000.0010455"));
       expect(await data.weth.balanceOf(data.user2)).to.equal(ethers.parseEther("998.77"));
+      expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.0010455"));
       expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.0010455"));
 
-      // const bidData = [[0, ethers.parseEther("1.11"), expiry], [1, ethers.parseEther("1.11"), expiry], [2, ethers.parseEther("1.11"), expiry], [3, ethers.parseEther("1.11"), expiry], [4, ethers.parseEther("1.11"), expiry]];
-      // const tx7 = await data.registryExchange.connect(data.user2).bid(bidData);
-      // // await printTx(data, "tx7", await tx7.wait());
+      const bidData = [[INPUT_BID, ZERO_ADDRESS, 0, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 4, ethers.parseEther("1.11"), expiry]];
+      const tx9 = await data.registryExchange.connect(data.user2).execute(bidData, data.uiFeeAccount);
+      await printTx(data, "tx9", await tx9.wait());
+
+      const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
+
+      const sellData1 = [[INPUT_SELL, data.user2.address, 2, ethers.parseEther("1.11"), 0]];
+      const tx11 = await data.registryExchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
+      await printTx(data, "tx11", await tx11.wait());
+
+      expect(await data.weth.balanceOf(data.user0)).to.equal(ethers.parseEther("1004.797132"));
+      expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.001434"));
+      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001434"));
+
+      // Update fee to 4bp
+      await expect(data.registryExchange.connect(data.deployer).updateFee(4))
+        .to.emit(data.registryExchange, "FeeUpdated")
+        .withArgs(7, 4, anyValue);
+      expect(await data.registryExchange.fee()).to.equal(4);
+
+
+      // await printState(data, "Debug");
+
+      // const tx12 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
       //
-      // const tx8 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
-      //
-      // const sellData1 = [[data.user2.address, 0, ethers.parseEther("1.11")], [data.user2.address, 4, ethers.parseEther("1.11")]];
-      // const tx9 = await data.registryExchange.connect(data.user0).sell(sellData1, data.uiFeeAccount);
-      // // await printTx(data, "tx9", await tx9.wait());
-      //
-      // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000777"));
-      // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.000777"));
-      //
-      // // Update fee to 4bp
-      // await expect(data.registryExchange.connect(data.deployer).updateFee(4))
-      //   .to.emit(data.registryExchange, "FeeUpdated")
-      //   .withArgs(7, 4, anyValue);
-      // expect(await data.registryExchange.fee()).to.equal(4);
-      //
-      // const tx10 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
-      //
-      // const sellData2 = [[data.user2.address, 1, ethers.parseEther("1.11")], [data.user2.address, 3, ethers.parseEther("1.11")]];
-      // const tx11 = await data.registryExchange.connect(data.user1).sell(sellData2, data.uiFeeAccount);
-      // // await printTx(data, "tx11", await tx11.wait());
-      //
+      // const sellData2 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.11"), 0], [INPUT_SELL, data.user2.address, 3, ethers.parseEther("1.11"), 0]];
+      // const tx13 = await data.registryExchange.connect(data.user1).execute(sellData2, data.uiFeeAccount);
+      // await printTx(data, "tx13", await tx13.wait());
+
       // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001221"));
       // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.001221"));
       //

@@ -134,14 +134,16 @@ contract RegistryExchange is Owned, ReentrancyGuard {
 
     /// @dev Maximum price in orders
     uint public constant PRICE_MAX = 1_000_000 ether;
-    /// @dev Maximum fee in basis points (10 basis points = 0.1%)
+    /// @dev Maximum fee in basis points (10 bps = 0.1%)
     uint public constant MAX_FEE = 10;
 
     // WETH
     ERC20 public immutable weth;
     // Registry
     RegistryInterface public immutable registry;
-    // Fee
+    // Fee account
+    address public feeAccount;
+    // Fee in basis points (10 bps = 0.1%)
     uint public fee = MAX_FEE;
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => Record)) public offers;
@@ -165,6 +167,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     event Sold(address indexed account, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
+    /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
+    event FeeAccountUpdated(address indexed oldFeeAccount, address indexed newFeeAccount, uint timestamp);
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
     event FeeUpdated(uint indexed oldFee, uint indexed newFee, uint timestamp);
 
@@ -176,12 +180,14 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
+    error InvalidFeeAccount();
     error InvalidFee(uint fee, uint maxFee);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(ERC20 _weth, RegistryInterface _registry) {
         weth = _weth;
         registry = _registry;
+        feeAccount = msg.sender;
     }
 
 
@@ -229,9 +235,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(msg.sender, owner, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 20_000);
                     } else {
-                        weth.transferFrom(msg.sender, owner, (orderPrice * fee) / 10_000);
+                        weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 10_000);
                     }
                     registry.transfer(msg.sender, input.tokenId);
                     emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
@@ -244,9 +250,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(input.account, owner, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 20_000);
                     } else {
-                        weth.transferFrom(input.account, owner, (orderPrice * fee) / 10_000);
+                        weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 10_000);
                     }
                     registry.transfer(input.account, input.tokenId);
                     emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
@@ -369,6 +375,16 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             registry.transfer(to, tokenIds[i]);
         }
         emit BulkTransferred(msg.sender, to, tokenIds, block.timestamp);
+    }
+
+    /// @dev Update fee account to `newFeeAccount`. Only callable by {owner}
+    /// @param newFeeAccount New fee account
+    function updateFeeAccount(address newFeeAccount) public onlyOwner {
+        if (newFeeAccount == address(0)) {
+            revert InvalidFeeAccount();
+        }
+        emit FeeAccountUpdated(feeAccount, newFeeAccount, block.timestamp);
+        feeAccount = newFeeAccount;
     }
 
     /// @dev Update fee to `newFee`, with a limit of {MAX_FEE}. Only callable by {owner}

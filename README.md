@@ -28,6 +28,7 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [x] `transferOwnership(...)` can only be executed by `owner`
     * [x] `acceptOwnership()` can only be executed by `newOwner`
     * [x] `withdraw(...)` can only be called by `owner`
+    * [ ] `updateFeeAccount(...)`
   * [x] `bulkTransfer(...)`
     * [x] Can only `bulkTransfer(...)` own items
   * [x] `updateFee(...)` and `withdraw(...)`
