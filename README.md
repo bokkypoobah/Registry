@@ -27,17 +27,13 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
   * [x] Owned
     * [x] `transferOwnership(...)` can only be executed by `owner`
     * [x] `acceptOwnership()` can only be executed by `newOwner`
-    * [x] `withdraw(...)` can only be called by `owner`
-    * [ ] `updateFeeAccount(...)`
   * [x] `bulkTransfer(...)`
     * [x] Can only `bulkTransfer(...)` own items
-  * [x] `updateFee(...)` and `withdraw(...)`
+  * [ ] `updateFee(...)` and `updateFeeAccount(...)`
     * [x] `updateFee(...)` can only be called by owner
     * [x] Cannot `updateFee(...)` above `MAX_FEE`
-    * [x] `updateFee(...)` updated amount takes effect for ETH trades
-    * [x] `updateFee(...)` updated amount takes effect for WETH trades
-    * [x] `withdraw(...)` for partial ERC-20 and ETH withdrawals
-    * [x] `withdraw(...)` for full ERC-20 and ETH withdrawals
+    * [x] `updateFee(...)` updated amount takes effect for Buy and Sell trades
+    * [ ] `updateFeeAccount(...)`
   * [ ] `offer(...)` and `buy(...)`
     * [ ] Confirm valid order on tokens not owned cannot be executed
     * [ ] Confirm invalid orders cannot be executed
@@ -50,8 +46,6 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
     * [ ] Confirm expired orders cannot be executed
     * [ ] Confirm order is removed after trade
     * [ ] Confirm fees are correct for uiFeeAccount = null or not
-  * [ ] ReentrancyGuard
-    * [ ] Confirm `reentrancyGuard()` works
 * [ ] Happy Path
   * [ ] Register new items
   * [ ] Transfer new items
