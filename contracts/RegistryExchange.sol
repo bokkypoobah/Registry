@@ -118,8 +118,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     }
 
     struct Record {
-        uint208 price;
-        uint48 expiry;
+        uint192 price;
+        uint64 expiry;
     }
     struct Order {
         uint tokenId; // 96?
@@ -194,10 +194,10 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
                 if (input.action == Action.Offer) {
-                    offers[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                    offers[msg.sender][input.tokenId] = Record(uint192(input.price), uint64(input.expiry));
                     emit Offer(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 } else if (input.action == Action.Bid) {
-                    bids[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
+                    bids[msg.sender][input.tokenId] = Record(uint192(input.price), uint64(input.expiry));
                     emit Bid(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 }
             } else if (input.action == Action.Buy || input.action == Action.Sell) {
@@ -227,9 +227,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(msg.sender, address(this), (orderPrice * fee) / 20_000);
+                        weth.transferFrom(msg.sender, owner, (orderPrice * fee) / 20_000);
                     } else {
-                        weth.transferFrom(msg.sender, address(this), (orderPrice * fee) / 10_000);
+                        weth.transferFrom(msg.sender, owner, (orderPrice * fee) / 10_000);
                     }
                     registry.transfer(msg.sender, input.tokenId);
                     emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
@@ -242,9 +242,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(input.account, address(this), (orderPrice * fee) / 20_000);
+                        weth.transferFrom(input.account, owner, (orderPrice * fee) / 20_000);
                     } else {
-                        weth.transferFrom(input.account, address(this), (orderPrice * fee) / 10_000);
+                        weth.transferFrom(input.account, owner, (orderPrice * fee) / 10_000);
                     }
                     registry.transfer(input.account, input.tokenId);
                     emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
@@ -261,7 +261,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             if (o.price > PRICE_MAX) {
                 revert InvalidPrice(o.price, PRICE_MAX);
             }
-            offers[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
+            offers[msg.sender][o.tokenId] = Record(uint192(o.price), uint64(o.expiry));
         }
         emit Offer_old(msg.sender, _offers, block.timestamp);
     }
@@ -274,7 +274,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             if (o.price > PRICE_MAX) {
                 revert InvalidPrice(o.price, PRICE_MAX);
             }
-            bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
+            bids[msg.sender][o.tokenId] = Record(uint192(o.price), uint64(o.expiry));
         }
         emit Bid_old(msg.sender, _bids, block.timestamp);
     }
