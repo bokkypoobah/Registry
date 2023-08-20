@@ -100,7 +100,7 @@ describe("Registry", function () {
     return address.substring(0, 20);
   }
   function addHash(data, string) {
-    const hash = ethers.keccak256(ethers.toUtf8Bytes(string));
+    const hash = ethers.keccak256(ethers.toUtf8Bytes(string || ''));
     if (!(hash in data.hashes)) {
       data.hashes[hash] = string;
     }
@@ -108,7 +108,11 @@ describe("Registry", function () {
   function getHashData(data, hash, length = 20) {
     if (hash != null) {
       if (hash in data.hashes) {
-        return padRight('"' + data.hashes[hash].substring(0, length - 9) + '":' + hash.substring(0, 6), 20);
+        if (!data.hashes[hash]) {
+          return "(null)";
+        } else {
+          return padRight('"' + data.hashes[hash].substring(0, length - 9) + '":' + hash.substring(0, 6), 20);
+        }
       } else {
         return hash.substring(0, length);
       }
@@ -204,8 +208,11 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
+      addHash(data, null);
+      addHash(data, "Bleergh");
+
       // Revert if ETH sent
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.reverted;
 
       // Registration of null data is OK
       await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: null }))
@@ -219,12 +226,12 @@ describe("Registry", function () {
       ).withArgs(anyValue, data.user0.address, 0, anyValue);
 
       // Registration of a string is OK
-      addHash(data, "0x1234");
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" }))
+      addHash(data, ethers.hexlify(ethers.toUtf8Bytes("Bleergh")));
+      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
         .to.emit(data.registry, "Registered");
 
       // Registration of a duplicated string is not OK
-      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" })).to.be.revertedWithCustomError(
+      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.revertedWithCustomError(
         data.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 1, anyValue);
@@ -232,10 +239,10 @@ describe("Registry", function () {
       await expect(data.registry.connect(data.user0).transfer(ZERO_ADDRESS, 1))
         .to.emit(data.registry, "Transfer");
 
-      await expect(data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: "0x1234" }))
+      await expect(data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
         .to.emit(data.registry, "Registered");
 
-      // await printState(data, "End");
+      await printState(data, "End");
     });
   });
 
@@ -248,7 +255,7 @@ describe("Registry", function () {
       // Only RegistryReceiver can register
       await expect(data.registry.register(DUMMY_HASH, data.user0.address)).to.be.revertedWithCustomError(
         data.registry,
-        "OnlyRegistryReceiverCanRegister"
+        "InvalidCollection"
       );
 
       addHash(data, "user0string");
@@ -501,7 +508,7 @@ describe("Registry", function () {
       ).withArgs(anyValue, data.user0.address, 0, anyValue);
       await expect(data.registry.register(DUMMY_HASH, data.user0.address)).to.be.revertedWithCustomError(
         data.registry,
-        "OnlyRegistryReceiverCanRegister"
+        "InvalidCollection"
       );
       const tx0Regular = await data.user0.sendTransaction({ to: data.user0.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
       await printTx(data, "tx0Regular", await tx0Regular.wait());

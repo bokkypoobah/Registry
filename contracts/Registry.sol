@@ -5,7 +5,7 @@ pragma solidity ^0.8.19;
 //
 // Deployed to Sepolia
 // - Registry
-// - RegistryReceiver
+// - Receiver
 //
 // https://github.com/bokkypoobah/Registry
 //
@@ -18,7 +18,7 @@ pragma solidity ^0.8.19;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2023
 // ----------------------------------------------------------------------------
 
-interface RegistryReceiverInterface {
+interface ReceiverInterface {
     function registry() external view returns (RegistryInterface);
 }
 
@@ -28,7 +28,7 @@ interface RegistryInterface {
         address owner;
         uint created;
     }
-    function registryReceiver() external view returns (RegistryReceiverInterface);
+    function registryReceiver() external view returns (ReceiverInterface);
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
     function ownerOf(uint tokenId) external view returns (address);
     function length() external view returns (uint);
@@ -43,9 +43,9 @@ function onePlus(uint x) pure returns (uint) {
 }
 
 
-/// @title RegistryReceiver
+/// @title Receiver
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
-contract RegistryReceiver is RegistryReceiverInterface {
+contract Receiver is ReceiverInterface {
     RegistryInterface private immutable _registry;
 
     constructor() {
@@ -77,14 +77,15 @@ contract Registry is RegistryInterface {
         uint64 created;
     }
     struct Data {
+        address collection;
         address owner;
         uint56 tokenId;
         uint64 created;
     }
 
-    RegistryReceiver private immutable _registryReceiver;
+    Receiver private immutable _registryReceiver;
 
-    // Array of addresses to the RegistryReceivers for each collection
+    // Array of addresses to the Receivers for each collection
     address[] public collections;
     // receiver address => [name, description, owner, ...]
     mapping(address => Collection) collectionData;
@@ -96,35 +97,36 @@ contract Registry is RegistryInterface {
     // owner => operator => approved?
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    /// @dev New `hash` has been registered with `tokenId` by `owner` at `timestamp`
-    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
+    /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
+    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
     event Transfer(address indexed from, address indexed to, uint indexed tokenId, uint timestamp);
     /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
-    error OnlyRegistryReceiverCanRegister();
+    error InvalidCollection();
     error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, uint created);
     error CannotApproveSelf();
     error InvalidTokenId();
     error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
-        _registryReceiver = new RegistryReceiver();
+        _registryReceiver = new Receiver();
         collections.push(address(_registryReceiver));
-        collectionData[address(_registryReceiver)] = Collection("Default", "Default", address(this), uint64(block.timestamp));
+        collectionData[address(_registryReceiver)] = Collection("", "", address(this), uint64(block.timestamp));
     }
 
-    /// @dev RegistryReceiver address
-    function registryReceiver() external view returns (RegistryReceiverInterface) {
+    /// @dev Receiver address
+    function registryReceiver() external view returns (ReceiverInterface) {
         return _registryReceiver;
     }
 
     /// @dev Only {registryReceiver} can register `hash` on behalf of `msgSender`
     /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
-        if (msg.sender != address(_registryReceiver)) {
-            revert OnlyRegistryReceiverCanRegister();
+        Collection memory c = collectionData[msg.sender];
+        if (c.created == 0) {
+            revert InvalidCollection();
         }
         Data memory d = data[hash];
         bool burnt = false;
@@ -133,8 +135,8 @@ contract Registry is RegistryInterface {
         } else if (d.created != 0) {
             burnt = true;
         }
-        data[hash] = Data(msgSender, uint56(hashes.length), uint64(block.timestamp));
-        emit Registered(hashes.length, hash, msgSender, block.timestamp);
+        data[hash] = Data(msg.sender, msgSender, uint56(hashes.length), uint64(block.timestamp));
+        emit Registered(hashes.length, hash, msg.sender, msgSender, block.timestamp);
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
             hashes.push(hash);
