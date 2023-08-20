@@ -67,13 +67,28 @@ contract RegistryReceiver is RegistryReceiverInterface {
 /// @title Registry of hashes of data with sequential tokenIds with transferable ownership
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Registry is RegistryInterface {
+    struct Collection {
+        string name;
+        string description;
+        address owner;
+        // string tokenUriPrefix;
+        // string tokenUriPostfix;
+        // bool locked;
+        uint64 created;
+    }
     struct Data {
         address owner;
         uint56 tokenId;
-        uint40 created;
+        uint64 created;
     }
 
     RegistryReceiver private immutable _registryReceiver;
+
+    // Array of addresses to the RegistryReceivers for each collection
+    address[] public collections;
+    // receiver address => [name, description, owner, ...]
+    mapping(address => Collection) collectionData;
+
     // Array of unique data hashes
     bytes32[] public hashes;
     // data hash => [owner, tokenId, created]
@@ -96,6 +111,8 @@ contract Registry is RegistryInterface {
 
     constructor() {
         _registryReceiver = new RegistryReceiver();
+        collections.push(address(_registryReceiver));
+        collectionData[address(_registryReceiver)] = Collection("Default", "Default", address(this), uint64(block.timestamp));
     }
 
     /// @dev RegistryReceiver address
@@ -116,11 +133,11 @@ contract Registry is RegistryInterface {
         } else if (d.created != 0) {
             burnt = true;
         }
-        data[hash] = Data(msgSender, uint56(hashes.length), uint40(block.timestamp));
+        data[hash] = Data(msgSender, uint56(hashes.length), uint64(block.timestamp));
         emit Registered(hashes.length, hash, msgSender, block.timestamp);
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
-            hashes.push(hash);            
+            hashes.push(hash);
         }
     }
 
