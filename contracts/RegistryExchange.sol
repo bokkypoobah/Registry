@@ -147,6 +147,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     mapping(address => mapping(uint => Record)) public offers;
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => Record)) public bids;
+    // maker => tokenId => [price, expiry]
+    mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
 
     /// @dev `offers` from `account` to sell `tokenId` at `price`, at `timestamp`
@@ -193,11 +195,10 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
+                orders[msg.sender][input.tokenId][input.action] = Record(uint192(input.price), uint64(input.expiry));
                 if (input.action == Action.Offer) {
-                    offers[msg.sender][input.tokenId] = Record(uint192(input.price), uint64(input.expiry));
                     emit Offer(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 } else if (input.action == Action.Bid) {
-                    bids[msg.sender][input.tokenId] = Record(uint192(input.price), uint64(input.expiry));
                     emit Bid(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 }
             } else if (input.action == Action.Buy || input.action == Action.Sell) {
@@ -208,7 +209,8 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                 if (input.account != tokenOwner) {
                     revert IncorrectOwner(input.tokenId, tokenOwner, input.account);
                 }
-                Record memory order = input.action == Action.Buy ? offers[input.account][input.tokenId] : bids[input.account][input.tokenId];
+                Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
+                Record memory order = orders[input.account][input.tokenId][orderAction];
                 if (order.expiry == 0) {
                     revert OrderInvalid(input.tokenId, input.account);
                 } else if (order.expiry < block.timestamp) {
@@ -223,7 +225,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     if (available < orderPrice) {
                         revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
                     }
-                    delete offers[input.account][input.tokenId];
+                    delete orders[input.account][input.tokenId][orderAction];
                     weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
@@ -238,7 +240,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     if (available < orderPrice) {
                         revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
                     }
-                    delete bids[input.account][input.tokenId];
+                    delete orders[input.account][input.tokenId][orderAction];
                     weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
