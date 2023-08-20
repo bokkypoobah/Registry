@@ -104,8 +104,8 @@ contract Exchange is Owned {
     event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `account` sold `tokenId` to `to`, at `timestamp`
     event Sold(address indexed account, address indexed to, uint indexed tokenId, uint price, uint timestamp);
-    /// @dev Trade `from` `tokenId` to `to`, at `timestamp`
-    event Trade(Action action, address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev `account` trade with `with` `action` `tokenId` at `price`, at `timestamp`
+    event Trade(address indexed account, address indexed with, Action action, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
@@ -121,6 +121,7 @@ contract Exchange is Owned {
     error PriceMismatch(uint tokenId, uint orderPrice, uint purchasePrice);
     error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
+    error BuyerHasInsufficientWeth(address buyer, uint tokenId, uint required, uint available);
     error InvalidFeeAccount();
     error InvalidFee(uint fee, uint maxFee);
     error OnlyTokenOwnerCanTransfer();
@@ -168,10 +169,13 @@ contract Exchange is Owned {
                 }
                 (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
                 uint available = availableWeth(msg.sender);
+                if (available < orderPrice) {
+                    revert BuyerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
+                }
                 if (input.action == Action.Buy) {
-                    if (available < orderPrice) {
-                        revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
-                    }
+                    // if (available < orderPrice) {
+                    //     revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
+                    // }
                     // delete orders[input.account][input.tokenId][orderAction];
                     // weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
                     // if (uiFeeAccount != address(0)) {
@@ -183,9 +187,10 @@ contract Exchange is Owned {
                     // registry.transfer(msg.sender, input.tokenId);
                     emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 } else if (input.action == Action.Sell) {
-                    if (available < orderPrice) {
-                        revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
-                    }
+                    // if (available < orderPrice) {
+                    //     // revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
+                    //     revert BuyerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
+                    // }
                     // delete orders[input.account][input.tokenId][orderAction];
                     // weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
                     // if (uiFeeAccount != address(0)) {
@@ -208,7 +213,10 @@ contract Exchange is Owned {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
                 }
                 registry.transfer(buyer, input.tokenId);
+                // TODO: Fix bug here
+                emit Trade(msg.sender, input.account, input.action, input.tokenId, orderPrice, block.timestamp);
 
+                // event Trade(address indexed account, address indexed with, Action action, uint indexed tokenId, uint price, uint timestamp);
             }
         }
     }
