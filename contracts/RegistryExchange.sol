@@ -185,6 +185,9 @@ contract RegistryExchange is Owned, ReentrancyGuard {
     }
 
 
+    /// @dev Execute Offer, Bid, Buy and Sell orders
+    /// @param inputs [[action, account, tokenId, price, expiry]]
+    /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
     function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
@@ -218,7 +221,35 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                     revert PriceMismatch(input.tokenId, orderPrice, input.price);
                 }
                 if (input.action == Action.Buy) {
+                    uint available = availableWeth(msg.sender);
+                    if (available < orderPrice) {
+                        revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
+                    }
+                    delete offers[input.account][input.tokenId];
+                    weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
+                    if (uiFeeAccount != address(0)) {
+                        weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(msg.sender, address(this), (orderPrice * fee) / 20_000);
+                    } else {
+                        weth.transferFrom(msg.sender, address(this), (orderPrice * fee) / 10_000);
+                    }
+                    registry.transfer(msg.sender, input.tokenId);
+                    emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 } else if (input.action == Action.Sell) {
+                    uint available = availableWeth(input.account);
+                    if (available < orderPrice) {
+                        revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
+                    }
+                    delete bids[input.account][input.tokenId];
+                    weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
+                    if (uiFeeAccount != address(0)) {
+                        weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(input.account, address(this), (orderPrice * fee) / 20_000);
+                    } else {
+                        weth.transferFrom(input.account, address(this), (orderPrice * fee) / 10_000);
+                    }
+                    registry.transfer(input.account, input.tokenId);
+                    emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 }
             }
         }
