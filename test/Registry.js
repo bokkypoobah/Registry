@@ -143,6 +143,10 @@ describe("Registry", function () {
             result = result + new Date(parseInt(logData.args[a.name].toString()) * 1000).toISOString();
           } else if (a.name == 'tokens' || a.name == 'price') {
             result = result + ethers.formatEther(logData.args[a.name]);
+            if (a.name == 'tokens') {
+              const amount = logData.args[a.name] * ethUsd / ethers.parseUnits("1", 18);
+              result = result + " USD " + ethers.formatEther(amount);
+            }
           } else {
             result = result + logData.args[a.name].toString();
           }
