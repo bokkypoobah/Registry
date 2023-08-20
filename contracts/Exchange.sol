@@ -104,6 +104,8 @@ contract Exchange is Owned {
     event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `account` sold `tokenId` to `to`, at `timestamp`
     event Sold(address indexed account, address indexed to, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev Trade `from` `tokenId` to `to`, at `timestamp`
+    event Trade(Action action, address indexed from, address indexed to, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
@@ -164,37 +166,49 @@ contract Exchange is Owned {
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.tokenId, orderPrice, input.price);
                 }
+                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
+                uint available = availableWeth(msg.sender);
                 if (input.action == Action.Buy) {
-                    uint available = availableWeth(msg.sender);
                     if (available < orderPrice) {
                         revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
                     }
-                    delete orders[input.account][input.tokenId][orderAction];
-                    weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
-                    if (uiFeeAccount != address(0)) {
-                        weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
-                    } else {
-                        weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 10_000);
-                    }
-                    registry.transfer(msg.sender, input.tokenId);
+                    // delete orders[input.account][input.tokenId][orderAction];
+                    // weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
+                    // if (uiFeeAccount != address(0)) {
+                    //     weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 20_000);
+                    //     weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
+                    // } else {
+                    //     weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 10_000);
+                    // }
+                    // registry.transfer(msg.sender, input.tokenId);
                     emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 } else if (input.action == Action.Sell) {
-                    uint available = availableWeth(input.account);
                     if (available < orderPrice) {
                         revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
                     }
-                    delete orders[input.account][input.tokenId][orderAction];
-                    weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
-                    if (uiFeeAccount != address(0)) {
-                        weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
-                    } else {
-                        weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 10_000);
-                    }
-                    registry.transfer(input.account, input.tokenId);
+                    // delete orders[input.account][input.tokenId][orderAction];
+                    // weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
+                    // if (uiFeeAccount != address(0)) {
+                    //     weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 20_000);
+                    //     weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
+                    // } else {
+                    //     weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 10_000);
+                    // }
+                    // registry.transfer(input.account, input.tokenId);
                     emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
                 }
+
+                delete orders[input.account][input.tokenId][orderAction];
+
+                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
+                if (uiFeeAccount != address(0)) {
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
+                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
+                } else {
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
+                }
+                registry.transfer(buyer, input.tokenId);
+
             }
         }
     }
