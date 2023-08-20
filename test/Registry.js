@@ -451,29 +451,13 @@ describe("Registry", function () {
       const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.registryExchange.target, true);
 
       const sellData1 = [[INPUT_SELL, data.user2.address, 2, ethers.parseEther("1.11"), 0]];
-      const tx11 = await data.registryExchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
+      const tx11 = await data.registryExchange.connect(data.user0).execute(sellData1, ZERO_ADDRESS);
       await printTx(data, "tx11", await tx11.wait());
 
       expect(await data.weth.balanceOf(data.user0)).to.equal(ethers.parseEther("1004.797132"));
-      expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.001434"));
-      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001434"));
+      expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.0018225"));
+      expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.0010455"));
 
-      // // Update fee to 4bp
-      // await expect(data.registryExchange.connect(data.deployer).updateFee(4))
-      //   .to.emit(data.registryExchange, "FeeUpdated")
-      //   .withArgs(7, 4, anyValue);
-      // expect(await data.registryExchange.fee()).to.equal(4);
-
-      // await printState(data, "Debug");
-
-      // const tx12 = await data.registry.connect(data.user1).setApprovalForAll(data.registryExchange.target, true);
-      //
-      // const sellData2 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.11"), 0], [INPUT_SELL, data.user2.address, 3, ethers.parseEther("1.11"), 0]];
-      // const tx13 = await data.registryExchange.connect(data.user1).execute(sellData2, data.uiFeeAccount);
-      // await printTx(data, "tx13", await tx13.wait());
-
-      // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001221"));
-      // expect(await data.weth.balanceOf(data.registryExchange.target)).to.equal(ethers.parseEther("0.001221"));
       await printState(data, "End");
     });
   });
