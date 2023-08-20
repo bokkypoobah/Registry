@@ -457,6 +457,9 @@ describe("Registry", function () {
 
       const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.exchange.target, true);
 
+      // TODO: BUG here with user0 and user2 mixed up
+      await printState(data, "DEBUG");
+
       const sellData1 = [[INPUT_SELL, data.user2.address, 2, ethers.parseEther("1.11"), 0]];
       const tx11 = await data.exchange.connect(data.user0).execute(sellData1, ZERO_ADDRESS);
       await printTx(data, "tx11", await tx11.wait());
