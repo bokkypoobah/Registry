@@ -150,15 +150,13 @@ contract RegistryExchange is Owned, ReentrancyGuard {
 
 
     /// @dev `offers` from `account` to sell `tokenId` at `price`, at `timestamp`
-    event Offer_new(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
+    event Offer(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
     /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
-    event Bid_new(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
-
-
+    event Bid(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
     /// @dev `offers` from `account` to sell tokenIds, at `timestamp`
-    event Offer(address indexed account, Order[] offers, uint timestamp);
+    event Offer_old(address indexed account, Order[] offers, uint timestamp);
     /// @dev `bids` from `account` to buy tokenIds, at `timestamp`
-    event Bid(address indexed account, Order[] bids, uint timestamp);
+    event Bid_old(address indexed account, Order[] bids, uint timestamp);
     /// @dev `account` bought `tokenId` from `from`, at `timestamp`
     event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `account` sold `tokenId` to `to`, at `timestamp`
@@ -197,10 +195,10 @@ contract RegistryExchange is Owned, ReentrancyGuard {
                 }
                 if (input.action == Action.Offer) {
                     offers[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
-                    emit Offer_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+                    emit Offer(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 } else if (input.action == Action.Bid) {
                     bids[msg.sender][input.tokenId] = Record(uint208(input.price), uint48(input.expiry));
-                    emit Bid_new(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
+                    emit Bid(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 }
             } else if (input.action == Action.Buy || input.action == Action.Sell) {
                 if (input.account == msg.sender) {
@@ -265,7 +263,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             offers[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Offer(msg.sender, _offers, block.timestamp);
+        emit Offer_old(msg.sender, _offers, block.timestamp);
     }
 
     /// @dev Maker update `_bids` to buy tokens for WETH
@@ -278,7 +276,7 @@ contract RegistryExchange is Owned, ReentrancyGuard {
             }
             bids[msg.sender][o.tokenId] = Record(uint208(o.price), uint48(o.expiry));
         }
-        emit Bid(msg.sender, _bids, block.timestamp);
+        emit Bid_old(msg.sender, _bids, block.timestamp);
     }
 
     /// @dev Taker execute `trades` against {offers} to buy tokens for ETH. Executed {offers} are removed
