@@ -28,7 +28,7 @@ interface RegistryInterface {
         address owner;
         uint created;
     }
-    function registryReceiver() external view returns (ReceiverInterface);
+    function getReceiver(uint i) external view returns (ReceiverInterface);
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
     function ownerOf(uint tokenId) external view returns (address);
     function length() external view returns (uint);
@@ -83,12 +83,12 @@ contract Registry is RegistryInterface {
         uint64 created;
     }
 
-    Receiver private immutable _registryReceiver;
+    // Receiver private immutable _receiver;
 
     // Array of addresses to the Receivers for each collection
-    address[] public collections;
+    Receiver[] public collections;
     // receiver address => [name, description, owner, ...]
-    mapping(address => Collection) collectionData;
+    mapping(Receiver => Collection) collectionData;
 
     // Array of unique data hashes
     bytes32[] public hashes;
@@ -111,20 +111,20 @@ contract Registry is RegistryInterface {
     error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
-        _registryReceiver = new Receiver();
-        collections.push(address(_registryReceiver));
-        collectionData[address(_registryReceiver)] = Collection("", "", address(this), uint64(block.timestamp));
+        Receiver r = new Receiver();
+        collections.push(r);
+        collectionData[r] = Collection("", "", address(this), uint64(block.timestamp));
     }
 
     /// @dev Receiver address
-    function registryReceiver() external view returns (ReceiverInterface) {
-        return _registryReceiver;
+    function getReceiver(uint i) external view returns (ReceiverInterface) {
+        return collections[i];
     }
 
-    /// @dev Only {registryReceiver} can register `hash` on behalf of `msgSender`
+    /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
-        Collection memory c = collectionData[msg.sender];
+        Collection memory c = collectionData[Receiver(msg.sender)];
         if (c.created == 0) {
             revert InvalidCollection();
         }

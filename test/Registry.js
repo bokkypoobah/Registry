@@ -24,7 +24,7 @@ describe("Registry", function () {
     const registry = await Registry.deploy();
     const RegistryExchange = await ethers.getContractFactory("RegistryExchange");
     const registryExchange = await RegistryExchange.deploy(weth.target, registry.target);
-    const registryReceiver = await registry.registryReceiver();
+    const receiver = await registry.getReceiver(0);
     const registryExchangeOwner = await registryExchange.owner();
     // console.log("      deployFixture - deployer: " + deployer.address);
     // console.log("      deployFixture - user0: " + user0.address);
@@ -34,11 +34,11 @@ describe("Registry", function () {
     // console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
     // console.log("      deployFixture - weth: " + weth.target);
     // console.log("      deployFixture - registry: " + registry.target);
-    // console.log("      deployFixture - registryReceiver: " + registryReceiver);
+    // console.log("      deployFixture - receiver: " + receiver);
     // console.log("      deployFixture - registryExchange: " + registryExchange.target);
     // console.log("      deployFixture - registryExchange.owner: " + registryExchangeOwner);
     // console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, registryReceiver, registryExchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, registryExchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
@@ -48,10 +48,10 @@ describe("Registry", function () {
     accountNames[uiFeeAccount.address.toLowerCase()] = "uiFeeAccount";
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
-    accountNames[registryReceiver.toLowerCase()] = "registryReceiver";
+    accountNames[receiver.toLowerCase()] = "receiver";
     accountNames[registryExchange.target.toLowerCase()] = "registryExchange";
 
-    const data = { weth, registry, registryReceiver, registryExchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
+    const data = { weth, registry, receiver, registryExchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
 
     const updateFeeAccountTx = await registryExchange.updateFeeAccount(feeAccount);
     // await printTx(data, "updateFeeAccountTx", await updateFeeAccountTx.wait());
@@ -109,9 +109,9 @@ describe("Registry", function () {
     if (hash != null) {
       if (hash in data.hashes) {
         if (!data.hashes[hash]) {
-          return "(null)";
+          return padRight("(null)", length);
         } else {
-          return padRight('"' + data.hashes[hash].substring(0, length - 9) + '":' + hash.substring(0, 6), 20);
+          return padRight('"' + data.hashes[hash].substring(0, length - 9) + '":' + hash.substring(0, 6), length);
         }
       } else {
         return hash.substring(0, length);
@@ -180,7 +180,7 @@ describe("Registry", function () {
     }
     console.log();
 
-    const registryReceiver = await data.registry.registryReceiver();
+    const receiver = await data.registry.getReceiver(0);
     const items = await data.registry.getData(10, 0);
     let i = 0;
     console.log("       Id String:Hash          Owner                          Registered");
@@ -203,8 +203,8 @@ describe("Registry", function () {
   }
 
 
-  describe("RegistryReceiver", function () {
-    it("RegistryReceiver #1", async function () {
+  describe("Receiver", function () {
+    it("Receiver #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -212,26 +212,26 @@ describe("Registry", function () {
       addHash(data, "Bleergh");
 
       // Revert if ETH sent
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.reverted;
+      await expect(data.user0.sendTransaction({ to: data.receiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.reverted;
 
       // Registration of null data is OK
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: null }))
+      await expect(data.user0.sendTransaction({ to: data.receiver, value: 0, data: null }))
         .to.emit(data.registry, "Registered");
         // .withArgs(lockedAmount, anyValue); // We accept any value as `when` arg
 
       // Registration of duplicated null data is not OK
-      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: null })).to.be.revertedWithCustomError(
+      await expect(data.user1.sendTransaction({ to: data.receiver, value: 0, data: null })).to.be.revertedWithCustomError(
         data.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 0, anyValue);
 
       // Registration of a string is OK
       addHash(data, ethers.hexlify(ethers.toUtf8Bytes("Bleergh")));
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
+      await expect(data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
         .to.emit(data.registry, "Registered");
 
       // Registration of a duplicated string is not OK
-      await expect(data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.revertedWithCustomError(
+      await expect(data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) })).to.be.revertedWithCustomError(
         data.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 1, anyValue);
@@ -239,10 +239,10 @@ describe("Registry", function () {
       await expect(data.registry.connect(data.user0).transfer(ZERO_ADDRESS, 1))
         .to.emit(data.registry, "Transfer");
 
-      await expect(data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
+      await expect(data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("Bleergh")) }))
         .to.emit(data.registry, "Registered");
 
-      await printState(data, "End");
+      // await printState(data, "End");
     });
   });
 
@@ -252,7 +252,7 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
-      // Only RegistryReceiver can register
+      // Only Receiver can register
       await expect(data.registry.register(DUMMY_HASH, data.user0.address)).to.be.revertedWithCustomError(
         data.registry,
         "InvalidCollection"
@@ -263,9 +263,9 @@ describe("Registry", function () {
       addHash(data, "user2string");
 
       // Check owner
-      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string")) });
-      const tx1 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string")) });
-      const tx2 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string")) });
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string")) });
+      const tx1 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string")) });
+      const tx2 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string")) });
 
       // Check ownerOf
       expect(await data.registry.ownerOf(0)).to.equal(data.user0.address);
@@ -349,11 +349,11 @@ describe("Registry", function () {
       addHash(data, "user2string1");
       addHash(data, "user2string2");
 
-      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
-      const tx1 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string1")) });
-      const tx2 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string0")) });
-      const tx3 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string1")) });
-      const tx4 = await data.user2.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string2")) });
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string1")) });
+      const tx2 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string0")) });
+      const tx3 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string1")) });
+      const tx4 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string2")) });
 
       // Token owner cannot bulk transfer before approving
       await expect(
@@ -415,11 +415,11 @@ describe("Registry", function () {
       addHash(data, "user0string3");
       addHash(data, "user0string4");
 
-      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
-      const tx1 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
-      const tx2 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
-      const tx3 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
-      const tx4 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
       const offerData = [[INPUT_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.23"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("1.23"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("1.23"), expiry]];
@@ -495,14 +495,14 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
       await printState(data, "Empty");
 
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
+      await expect(data.user0.sendTransaction({ to: data.receiver, value: ethers.parseEther("0.1"), data: ethers.hexlify(ethers.toUtf8Bytes("123")) })).to.be.reverted;
 
       const string0 = "abcdef";
       addHash(data, string0);
       console.log("      string0.length: " + string0.length);
-      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) });
       await printTx(data, "tx0", await tx0.wait());
-      await expect(data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) })).to.be.revertedWithCustomError(
+      await expect(data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string0)) })).to.be.revertedWithCustomError(
         data.registry,
         "AlreadyRegistered"
       ).withArgs(anyValue, data.user0.address, 0, anyValue);
@@ -517,7 +517,7 @@ describe("Registry", function () {
       const string1 = "abcdefgh";
       addHash(data, string1);
       console.log("      string1.length: " + string1.length);
-      const tx1 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
       await printTx(data, "tx1", await tx1.wait());
       const tx1Regular = await data.user0.sendTransaction({ to: data.user0.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string1)) });
       await printTx(data, "tx1Regular", await tx1Regular.wait());
@@ -526,7 +526,7 @@ describe("Registry", function () {
       const string2 = "1".repeat(1000);
       addHash(data, string2);
       console.log("      string2.length: " + string2.length);
-      const tx2 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
+      const tx2 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
       await printTx(data, "tx2", await tx2.wait());
       const tx2Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string2)) });
       await printTx(data, "tx2Regular", await tx2Regular.wait());
@@ -545,7 +545,7 @@ describe("Registry", function () {
       const string4 = "22".repeat(10000);
       addHash(data, string4);
       console.log("      string4.length: " + string4.length);
-      const tx4 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
+      const tx4 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
       await printTx(data, "tx4", await tx4.wait());
       const tx4Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string4)) });
       await printTx(data, "tx4Regular", await tx4Regular.wait());
@@ -554,7 +554,7 @@ describe("Registry", function () {
       const string5 = "3".repeat(1000000);
       addHash(data, string5);
       console.log("      string5.length: " + string5.length);
-      const tx5 = await data.user1.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
+      const tx5 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
       await printTx(data, "tx5", await tx5.wait());
       const tx5Regular = await data.user1.sendTransaction({ to: data.user1.address, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes(string5)) });
       await printTx(data, "tx5Regular", await tx5Regular.wait());
@@ -593,11 +593,11 @@ describe("Registry", function () {
       addHash(data, "text2");
       addHash(data, "text3");
       addHash(data, "text4");
-      const tx0 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text0")) });
-      const tx1 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text1")) });
-      const tx2 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text2")) });
-      const tx3 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text3")) });
-      const tx4 = await data.user0.sendTransaction({ to: data.registryReceiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("text4")) });
       await printTx(data, "tx0", await tx0.wait());
 
       console.log("      user0 -> registry.setApprovalForAll(registryExchange, true)");
