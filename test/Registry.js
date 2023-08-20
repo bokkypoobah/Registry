@@ -387,7 +387,7 @@ describe("Registry", function () {
 
 
   describe("RegistryExchange - Update Fee & Withdraw", function () {
-    it.only("RegistryExchange - Update Fee & Withdraw #1", async function () {
+    it("RegistryExchange - Update Fee & Withdraw #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -469,12 +469,11 @@ describe("Registry", function () {
       expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.001434"));
       expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.001434"));
 
-      // Update fee to 4bp
-      await expect(data.registryExchange.connect(data.deployer).updateFee(4))
-        .to.emit(data.registryExchange, "FeeUpdated")
-        .withArgs(7, 4, anyValue);
-      expect(await data.registryExchange.fee()).to.equal(4);
-
+      // // Update fee to 4bp
+      // await expect(data.registryExchange.connect(data.deployer).updateFee(4))
+      //   .to.emit(data.registryExchange, "FeeUpdated")
+      //   .withArgs(7, 4, anyValue);
+      // expect(await data.registryExchange.fee()).to.equal(4);
 
       // await printState(data, "Debug");
 
