@@ -99,8 +99,11 @@ describe("Registry", function () {
     }
     return address.substring(0, 20);
   }
-  function addHash(data, string) {
-    const hash = ethers.keccak256(ethers.toUtf8Bytes(string || ''));
+  function addHash(collectionName, data, string) {
+    let hash = ethers.keccak256(ethers.toUtf8Bytes(string || ''));
+    if (collectionName != '') {
+      hash = ethers.solidityPackedKeccak256(["string", "bytes32"], [collectionName, hash]);
+    }
     if (!(hash in data.hashes)) {
       data.hashes[hash] = string;
     }
@@ -325,10 +328,10 @@ describe("Registry", function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
-      addHash(data, null);
-      addHash(data, "user0string");
-      addHash(data, "user1string");
-      addHash(data, "user2string");
+      addHash("", data, null);
+      addHash("", data, "user0string");
+      addHash("", data, "user1string");
+      addHash("", data, "user2string");
 
       // Check owner
       const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: null });
@@ -338,12 +341,12 @@ describe("Registry", function () {
 
       await printState(data, "DEBUG");
 
-      const tx4 = await data.registry.connect(data.user0).newCollection("name", "collection");
+      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1");
       await printTx(data, "tx4", await tx4.wait());
       // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
       await expect(
-        data.registry.connect(data.user0).newCollection("name", "collection")).to.be.revertedWithCustomError(
+        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1")).to.be.revertedWithCustomError(
         data.registry,
         "DuplicateCollectionName"
       );
@@ -351,9 +354,9 @@ describe("Registry", function () {
       const receiver1 = await data.registry.getReceiver(1);
       data.accountNames[receiver1.toLowerCase()] = "receiver#1";
 
-      addHash(data, "collection1user1string");
+      addHash("Name #1", data, "coll1u1str");
 
-      const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string")) });
+      const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("coll1u1str")) });
       await printTx(data, "tx5", await tx5.wait());
 
       // const collectionData = await data.registry.getCollections(10, 0);

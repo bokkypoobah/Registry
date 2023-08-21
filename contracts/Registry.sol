@@ -209,6 +209,9 @@ contract Registry is RegistryInterface, Utilities {
         if (c.created == 0) {
             revert InvalidCollection();
         }
+        if (c.collectionId > 0) {
+            hash = keccak256(abi.encodePacked(c.name, hash));
+        }
         Data memory d = data[hash];
         bool burnt = false;
         if (d.owner != address(0)) {
