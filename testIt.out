@@ -3,21 +3,21 @@ Compiled 2 Solidity files successfully
   Registry
     Registry - Collections
       > tx0 - gasUsed: 126349 ~ ETH 0.00252698 ~ USD 5.05396 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 11.0 Registered(tokenId: 0, hash: 0xc5d24601, collection: receiver:0xCafa, owner: user0:0x7099, timestamp: 2023-08-21T03:12:05)
+        + registry:0xe7f1 -> 11.0 Registered(tokenId: 0, hash: 0xc5d24601, collection: receiver:0xCafa, owner: user0:0x7099, timestamp: 2023-08-21T04:16:44)
       > tx1 - gasUsed: 109471 ~ ETH 0.00218942 ~ USD 4.37884 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 12.0 Registered(tokenId: 1, hash: 0x5c03f766, collection: receiver:0xCafa, owner: user0:0x7099, timestamp: 2023-08-21T03:12:06)
+        + registry:0xe7f1 -> 12.0 Registered(tokenId: 1, hash: 0x5c03f766, collection: receiver:0xCafa, owner: user0:0x7099, timestamp: 2023-08-21T04:16:45)
       > tx2 - gasUsed: 109471 ~ ETH 0.00218942 ~ USD 4.37884 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 13.0 Registered(tokenId: 2, hash: 0xe84e88b5, collection: receiver:0xCafa, owner: user1:0x3C44, timestamp: 2023-08-21T03:12:07)
+        + registry:0xe7f1 -> 13.0 Registered(tokenId: 2, hash: 0xe84e88b5, collection: receiver:0xCafa, owner: user1:0x3C44, timestamp: 2023-08-21T04:16:46)
       > tx3 - gasUsed: 109471 ~ ETH 0.00218942 ~ USD 4.37884 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 14.0 Registered(tokenId: 3, hash: 0xed3f08e2, collection: receiver:0xCafa, owner: user2:0x90F7, timestamp: 2023-08-21T03:12:08)
+        + registry:0xe7f1 -> 14.0 Registered(tokenId: 3, hash: 0xed3f08e2, collection: receiver:0xCafa, owner: user2:0x90F7, timestamp: 2023-08-21T04:16:47)
 
       --- DEBUG ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.992939089909706116                 997000.0
-        1 user0:0x7099               9999.999648281943383844                   1000.0
-        2 user1:0x3C44               9999.999809797456891375                   1000.0
-        3 user2:0x90F7               9999.999814092616521191                   1000.0
+        0 deployer:0xf39F            9999.992939047202361583                 997000.0
+        1 user0:0x7099               9999.999648281927721541                   1000.0
+        2 user1:0x3C44               9999.999809797449170534                   1000.0
+        3 user2:0x90F7               9999.999814092609717137                   1000.0
         4 feeAccount:0x15d3                          10000.0                      0.0
         5 uiFeeAccount:0x9965                        10000.0                      0.0
         6 weth:0x5FbD                                    0.0                      0.0
@@ -27,26 +27,26 @@ Compiled 2 Solidity files successfully
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T03:11:56.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T04:16:35.000Z
 
-       Id String:Hash          Collection Id Owner                          Registered
-      --- -------------------- ------------- ------------------------------ ------------------------
-        0 (null)                           0 user0:0x7099                   2023-08-21T03:12:05.000Z
-        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T03:12:06.000Z
-        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T03:12:07.000Z
-        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T03:12:08.000Z
+       Id String:Hash                    Collection Id Owner                          Registered
+      --- ------------------------------ ------------- ------------------------------ ------------------------
+        0 (null)                                     0 user0:0x7099                   2023-08-21T04:16:44.000Z
+        1 "user0string":0x5c03                       0 user0:0x7099                   2023-08-21T04:16:45.000Z
+        2 "user1string":0xe84e                       0 user1:0x3C44                   2023-08-21T04:16:46.000Z
+        3 "user2string":0xed3f                       0 user2:0x90F7                   2023-08-21T04:16:47.000Z
 
       > tx4 - gasUsed: 342247 ~ ETH 0.00684494 ~ USD 13.68988 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-      > tx5 - gasUsed: 111965 ~ ETH 0.0022393 ~ USD 4.4786 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x7ef6f362, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-21T03:12:11)
+      > tx5 - gasUsed: 112157 ~ ETH 0.00224314 ~ USD 4.48628 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0xf1dc80a4, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-21T04:16:50)
 
       --- End ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.992939089909706116                 997000.0
-        1 user0:0x7099               9999.999226200603783356                   1000.0
-        2 user1:0x3C44                9999.99968570246225164                   1000.0
-        3 user2:0x90F7               9999.999814092616521191                   1000.0
+        0 deployer:0xf39F            9999.992939047202361583                 997000.0
+        1 user0:0x7099               9999.999226200576382405                   1000.0
+        2 user1:0x3C44               9999.999685489651062263                   1000.0
+        3 user2:0x90F7               9999.999814092609717137                   1000.0
         4 feeAccount:0x15d3                          10000.0                      0.0
         5 uiFeeAccount:0x9965                        10000.0                      0.0
         6 weth:0x5FbD                                    0.0                      0.0
@@ -56,16 +56,16 @@ Compiled 2 Solidity files successfully
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T03:11:56.000Z
-        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 1 n      2023-08-21T03:12:09.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T04:16:35.000Z
+        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 1 n      2023-08-21T04:16:48.000Z
 
-       Id String:Hash          Collection Id Owner                          Registered
-      --- -------------------- ------------- ------------------------------ ------------------------
-        0 (null)                           0 user0:0x7099                   2023-08-21T03:12:05.000Z
-        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T03:12:06.000Z
-        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T03:12:07.000Z
-        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T03:12:08.000Z
-        4 "coll1u1str":0x7ef6              1 user1:0x3C44                   2023-08-21T03:12:11.000Z
+       Id String:Hash                    Collection Id Owner                          Registered
+      --- ------------------------------ ------------- ------------------------------ ------------------------
+        0 (null)                                     0 user0:0x7099                   2023-08-21T04:16:44.000Z
+        1 "user0string":0x5c03                       0 user0:0x7099                   2023-08-21T04:16:45.000Z
+        2 "user1string":0xe84e                       0 user1:0x3C44                   2023-08-21T04:16:46.000Z
+        3 "user2string":0xed3f                       0 user2:0x90F7                   2023-08-21T04:16:47.000Z
+        4 "collection1":0xf1dc                       1 user1:0x3C44                   2023-08-21T04:16:50.000Z
 
       ✓ Registry - Collections #1
 
@@ -88,10 +88,10 @@ Compiled 2 Solidity files successfully
 ··································|·············|·············|·············|···············|··············
 |  Exchange                       ·          -  ·          -  ·    1428907  ·        [90m4.8 %[39m  ·          [32m[90m-[32m[39m  │
 ··································|·············|·············|·············|···············|··············
-|  Registry                       ·          -  ·          -  ·    1917553  ·        [90m6.4 %[39m  ·          [32m[90m-[32m[39m  │
+|  Registry                       ·          -  ·          -  ·    1917577  ·        [90m6.4 %[39m  ·          [32m[90m-[32m[39m  │
 ··································|·············|·············|·············|···············|··············
 |  Token                          ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·---------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (930ms)
+  1 passing (902ms)
 

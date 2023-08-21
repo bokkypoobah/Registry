@@ -206,7 +206,7 @@ contract Registry is RegistryInterface, Utilities {
     /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
         Collection storage c = collectionData[Receiver(msg.sender)];
-        // ~ USD 1.00 to get here
+        // ~ USD 1.00 to get here. Note cost ~ USD 0.80 to write 256 bits
         if (c.created == 0) {
             revert InvalidCollection();
         }
@@ -229,9 +229,9 @@ contract Registry is RegistryInterface, Utilities {
         // ~USD 3.34 to get here
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
-            // ~USD 3.36 to get here
+            // 85,087 ~USD 3.36 to get here
             hashes.push(hash);
-            // ~USD 5.05 to get here
+            // 126,349 ~USD 5.05 to get here; 109,471 ~USD 4.37 for second item
         }
     }
 

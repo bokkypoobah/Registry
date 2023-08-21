@@ -202,14 +202,14 @@ describe("Registry", function () {
     const receiver = await data.registry.getReceiver(0);
     const items = await data.registry.getData(10, 0);
     i = 0;
-    console.log("       Id String:Hash          Collection Id Owner                          Registered");
-    console.log("      --- -------------------- ------------- ------------------------------ ------------------------");
+    console.log("       Id String:Hash                    Collection Id Owner                          Registered");
+    console.log("      --- ------------------------------ ------------- ------------------------------ ------------------------");
     for (const item of items) {
       const [hash, collectionId, owner, created] = item;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 3) + " " + getHashData(data, hash) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
+      console.log("      " + padLeft(i, 3) + " " + padRight(getHashData(data, hash).substring(0, 30), 30) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     // const length = await data.registry.length();
@@ -358,9 +358,9 @@ describe("Registry", function () {
       const receiver1 = await data.registry.getReceiver(1);
       data.accountNames[receiver1.toLowerCase()] = "receiver#1";
 
-      addHash("Name #1", data, "coll1u1str");
+      addHash("Name #1", data, "collection1user1string");
 
-      const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("coll1u1str")) });
+      const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string")) });
       await printTx(data, "tx5", await tx5.wait());
 
       // const collectionData = await data.registry.getCollections(10, 0);
