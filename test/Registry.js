@@ -180,17 +180,34 @@ describe("Registry", function () {
     }
     console.log();
 
+    const collectionData = await data.registry.getCollections(10, 0);
+    let i = 0;
+    console.log("       Id Receiver               Name                 Collection           Owner                    Items Locked Created");
+    console.log("      --- ---------------------- -------------------- -------------------- ---------------------- ------- ------ -------------------");
+    for (const _d of collectionData) {
+      const [name, description, owner, receiver, locked, items, created] = _d;
+      if (owner == ZERO_ADDRESS) {
+        break;
+      }
+      console.log("      " + padLeft(i, 3) + " " + padRight(getAccountName(data, receiver), 22) + " " +
+        padRight(name, 20) + " " + padRight(description, 20) + " " + padRight(getAccountName(data, owner), 22) + " " +
+        padLeft(items, 7) + " " + (locked ? "y     " : "n     ") + " " +
+        new Date(parseInt(created) * 1000).toISOString());
+      i++;
+    }
+    console.log();
+
     const receiver = await data.registry.getReceiver(0);
     const items = await data.registry.getData(10, 0);
-    let i = 0;
-    console.log("       Id String:Hash          Owner                          Registered");
-    console.log("      --- -------------------- ------------------------------ ------------------------");
+    i = 0;
+    console.log("       Id String:Hash          Collection Id Owner                          Registered");
+    console.log("      --- -------------------- ------------- ------------------------------ ------------------------");
     for (const item of items) {
-      const [hash, owner, created] = item;
+      const [hash, collectionId, owner, created] = item;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 3) + " " + getHashData(data, hash) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
+      console.log("      " + padLeft(i, 3) + " " + getHashData(data, hash) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     // const length = await data.registry.length();
@@ -300,6 +317,51 @@ describe("Registry", function () {
       expect(await data.registry.ownerOf(0)).to.equal(data.user2.address);
 
       // await printState(data, "End");
+    });
+  });
+
+
+  describe("Registry - Collections", function () {
+    it.only("Registry - Collections #1", async function () {
+      const data = await loadFixture(deployFixture);
+      // await printState(data, "Empty");
+
+      addHash(data, null);
+      addHash(data, "user0string");
+      addHash(data, "user1string");
+      addHash(data, "user2string");
+
+      // Check owner
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: null });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string")) });
+      const tx2 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string")) });
+      const tx3 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string")) });
+
+      await printState(data, "DEBUG");
+
+      const tx4 = await data.registry.connect(data.user0).newCollection("name", "collection");
+      await printTx(data, "tx4", await tx4.wait());
+      // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
+
+      await expect(
+        data.registry.connect(data.user0).newCollection("name", "collection")).to.be.revertedWithCustomError(
+        data.registry,
+        "DuplicateCollectionName"
+      );
+
+      const receiver1 = await data.registry.getReceiver(1);
+      data.accountNames[receiver1.toLowerCase()] = "receiver#1";
+
+      addHash(data, "collection1user1string");
+
+      const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string")) });
+      await printTx(data, "tx5", await tx5.wait());
+
+      // const collectionData = await data.registry.getCollections(10, 0);
+      // // console.log("collectionData: " + JSON.stringify(collectionData, null, 2));
+      // console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+
+      await printState(data, "End");
     });
   });
 
