@@ -100,12 +100,8 @@ contract Exchange is Owned {
     event Offer(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
     /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
     event Bid(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
-    /// @dev `account` bought `tokenId` from `from`, at `timestamp`
-    event Bought(address indexed account, address indexed from, uint indexed tokenId, uint price, uint timestamp);
-    /// @dev `account` sold `tokenId` to `to`, at `timestamp`
-    event Sold(address indexed account, address indexed to, uint indexed tokenId, uint price, uint timestamp);
-    /// @dev `account` trade with `with` `action` `tokenId` at `price`, at `timestamp`
-    event Trade(address indexed account, address indexed with, Action action, uint indexed tokenId, uint price, uint timestamp);
+    /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
+    event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
@@ -172,39 +168,7 @@ contract Exchange is Owned {
                 if (available < orderPrice) {
                     revert BuyerHasInsufficientWeth(buyer, input.tokenId, orderPrice, available);
                 }
-                if (input.action == Action.Buy) {
-                    // if (available < orderPrice) {
-                    //     revert TakerHasInsufficientEth(input.tokenId, orderPrice, available);
-                    // }
-                    // delete orders[input.account][input.tokenId][orderAction];
-                    // weth.transferFrom(msg.sender, input.account, (orderPrice * (10_000 - fee)) / 10_000);
-                    // if (uiFeeAccount != address(0)) {
-                    //     weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 20_000);
-                    //     weth.transferFrom(msg.sender, uiFeeAccount, (orderPrice * fee) / 20_000);
-                    // } else {
-                    //     weth.transferFrom(msg.sender, feeAccount, (orderPrice * fee) / 10_000);
-                    // }
-                    // registry.transfer(msg.sender, input.tokenId);
-                    emit Bought(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
-                } else if (input.action == Action.Sell) {
-                    // if (available < orderPrice) {
-                    //     // revert MakerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
-                    //     revert BuyerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
-                    // }
-                    // delete orders[input.account][input.tokenId][orderAction];
-                    // weth.transferFrom(input.account, msg.sender, (orderPrice * (10_000 - fee)) / 10_000);
-                    // if (uiFeeAccount != address(0)) {
-                    //     weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 20_000);
-                    //     weth.transferFrom(input.account, uiFeeAccount, (orderPrice * fee) / 20_000);
-                    // } else {
-                    //     weth.transferFrom(input.account, feeAccount, (orderPrice * fee) / 10_000);
-                    // }
-                    // registry.transfer(input.account, input.tokenId);
-                    emit Sold(msg.sender, input.account, input.tokenId, orderPrice, block.timestamp);
-                }
-
                 delete orders[input.account][input.tokenId][orderAction];
-
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                 if (uiFeeAccount != address(0)) {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
@@ -213,10 +177,7 @@ contract Exchange is Owned {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
                 }
                 registry.transfer(buyer, input.tokenId);
-                // TODO: Fix bug here
                 emit Trade(msg.sender, input.account, input.action, input.tokenId, orderPrice, block.timestamp);
-
-                // event Trade(address indexed account, address indexed with, Action action, uint indexed tokenId, uint price, uint timestamp);
             }
         }
     }

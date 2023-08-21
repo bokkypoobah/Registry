@@ -41,10 +41,11 @@ interface RegistryInterface {
     function getReceiver(uint i) external view returns (ReceiverInterface);
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
     function ownerOf(uint tokenId) external view returns (address);
-    function length() external view returns (uint);
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
+    function itemsLength() external view returns (uint);
+    function collectionsLength() external view returns (uint);
     function getData(uint count, uint offset) external view returns (Result[] memory results);
 }
 
@@ -240,11 +241,6 @@ contract Registry is RegistryInterface, Utilities {
         return data[hashes[tokenId]].owner;
     }
 
-    /// @dev Number of items
-    function length() external view returns (uint) {
-        return hashes.length;
-    }
-
     /// @dev Approve or remove `operator` to execute {transfer} on the caller's tokens
     function setApprovalForAll(address operator, bool approved) external {
         if (operator == msg.sender) {
@@ -279,6 +275,17 @@ contract Registry is RegistryInterface, Utilities {
         address from = data[hash].owner;
         data[hash].owner = to;
         emit Transfer(from, to, tokenId, block.timestamp);
+    }
+
+
+    /// @dev Number of collections
+    function collectionsLength() external view returns (uint) {
+        return receivers.length;
+    }
+
+    /// @dev Number of items
+    function itemsLength() external view returns (uint) {
+        return hashes.length;
     }
 
     function getCollections(uint count, uint offset) public view returns (CollectionResult[] memory results) {

@@ -212,7 +212,7 @@ describe("Registry", function () {
       console.log("      " + padLeft(i, 3) + " " + padRight(getHashData(data, hash).substring(0, 30), 30) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
-    // const length = await data.registry.length();
+    // const length = await data.registry.itemsLength();
     // for (let i = 0; i < length; i++) {
     //   const hash = await data.registry.hashes(i);
     //   const owner = await data.registry.ownerOf(i);
@@ -292,7 +292,7 @@ describe("Registry", function () {
       expect(await data.registry.ownerOf(2)).to.equal(data.user2.address);
 
       // Check length
-      expect(await data.registry.length()).to.equal(3);
+      expect(await data.registry.itemsLength()).to.equal(3);
 
       // Owner can transfer tokens
       const tx3 = await data.registry.connect(data.user0).transfer(data.user1.address, 0);
