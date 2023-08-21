@@ -28,7 +28,7 @@ interface RegistryInterface {
         string description;
         address owner;
         ReceiverInterface receiver;
-        bool locked;
+        bool locked; // ? LOCK_NAME, LOCK_DESCRIPTION, LOCK_ADDITEMS, ??LOCK_REMOVEITEMS
         uint64 items;
         uint64 created;
     }
