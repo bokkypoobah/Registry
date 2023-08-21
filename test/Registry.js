@@ -338,6 +338,10 @@ describe("Registry", function () {
       const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string")) });
       const tx2 = await data.user1.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user1string")) });
       const tx3 = await data.user2.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user2string")) });
+      await printTx(data, "tx0", await tx0.wait());
+      await printTx(data, "tx1", await tx1.wait());
+      await printTx(data, "tx2", await tx2.wait());
+      await printTx(data, "tx3", await tx3.wait());
 
       await printState(data, "DEBUG");
 
