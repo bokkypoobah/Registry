@@ -149,12 +149,13 @@ contract Exchange is Owned {
                     emit Bid(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
                 }
             } else if (input.action == Action.Buy || input.action == Action.Sell) {
-                if (input.account == msg.sender) {
+                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
+                if (buyer == seller) {
                     revert CannotSelfTrade(input.tokenId);
                 }
                 address tokenOwner = registry.ownerOf(input.tokenId);
-                if (input.account != tokenOwner) {
-                    revert IncorrectOwner(input.tokenId, tokenOwner, input.account);
+                if (seller != tokenOwner) {
+                    revert IncorrectOwner(input.tokenId, tokenOwner, seller);
                 }
                 Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
                 Record memory order = orders[input.account][input.tokenId][orderAction];
@@ -167,10 +168,9 @@ contract Exchange is Owned {
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.tokenId, orderPrice, input.price);
                 }
-                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
-                uint available = availableWeth(msg.sender);
+                uint available = availableWeth(buyer);
                 if (available < orderPrice) {
-                    revert BuyerHasInsufficientWeth(input.account, input.tokenId, orderPrice, available);
+                    revert BuyerHasInsufficientWeth(buyer, input.tokenId, orderPrice, available);
                 }
                 if (input.action == Action.Buy) {
                     // if (available < orderPrice) {
