@@ -16,20 +16,20 @@
         8 receiver:0xCafa                                0.0                      0.0
         9 exchange:0x9fE4                                0.0                      0.0
 
-       Id Receiver               Name                 Collection           Owner                    Items Locked Created
-      --- ---------------------- -------------------- -------------------- ---------------------- ------- ------ -------------------
-        0 receiver:0xCafa                                                  deployer:0xf39F              4 n      2023-08-21T02:25:00.000Z
+       Id Collection Name      Description          Receiver               Owner                    Items Locked Created
+      --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T02:28:35.000Z
 
        Id String:Hash          Collection Id Owner                          Registered
       --- -------------------- ------------- ------------------------------ ------------------------
-        0 (null)                           0 user0:0x7099                   2023-08-21T02:25:09.000Z
-        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T02:25:10.000Z
-        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T02:25:11.000Z
-        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T02:25:12.000Z
+        0 (null)                           0 user0:0x7099                   2023-08-21T02:28:44.000Z
+        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T02:28:45.000Z
+        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T02:28:46.000Z
+        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T02:28:47.000Z
 
       > tx4 - gasUsed: 341267 ~ ETH 0.00682534 ~ USD 13.65068 @ gasPrice 20.0 gwei, ETH/USD 2000.0
       > tx5 - gasUsed: 109486 ~ ETH 0.00218972 ~ USD 4.37944 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x6b701a51, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-21T02:25:15)
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 4, hash: 0x6b701a51, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-21T02:28:50)
 
       --- End ---
        Id Account                                        ETH                     WETH
@@ -45,18 +45,18 @@
         8 receiver:0xCafa                                0.0                      0.0
         9 exchange:0x9fE4                                0.0                      0.0
 
-       Id Receiver               Name                 Collection           Owner                    Items Locked Created
-      --- ---------------------- -------------------- -------------------- ---------------------- ------- ------ -------------------
-        0 receiver:0xCafa                                                  deployer:0xf39F              4 n      2023-08-21T02:25:00.000Z
-        1 receiver#1:0x9f1a      name                 collection           user0:0x7099                 1 n      2023-08-21T02:25:13.000Z
+       Id Collection Name      Description          Receiver               Owner                    Items Locked Created
+      --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              4 n      2023-08-21T02:28:35.000Z
+        1 name                 collection           receiver#1:0x9f1a      user0:0x7099                 1 n      2023-08-21T02:28:48.000Z
 
        Id String:Hash          Collection Id Owner                          Registered
       --- -------------------- ------------- ------------------------------ ------------------------
-        0 (null)                           0 user0:0x7099                   2023-08-21T02:25:09.000Z
-        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T02:25:10.000Z
-        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T02:25:11.000Z
-        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T02:25:12.000Z
-        4 "collection1":0x6b70             1 user1:0x3C44                   2023-08-21T02:25:15.000Z
+        0 (null)                           0 user0:0x7099                   2023-08-21T02:28:44.000Z
+        1 "user0string":0x5c03             0 user0:0x7099                   2023-08-21T02:28:45.000Z
+        2 "user1string":0xe84e             0 user1:0x3C44                   2023-08-21T02:28:46.000Z
+        3 "user2string":0xed3f             0 user2:0x90F7                   2023-08-21T02:28:47.000Z
+        4 "collection1":0x6b70             1 user1:0x3C44                   2023-08-21T02:28:50.000Z
 
       ✓ Registry - Collections #1
 
@@ -84,5 +84,5 @@
 |  Token                          ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·---------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (867ms)
+  1 passing (877ms)
 

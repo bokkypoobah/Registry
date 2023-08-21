@@ -182,17 +182,16 @@ describe("Registry", function () {
 
     const collectionData = await data.registry.getCollections(10, 0);
     let i = 0;
-    console.log("       Id Receiver               Name                 Collection           Owner                    Items Locked Created");
-    console.log("      --- ---------------------- -------------------- -------------------- ---------------------- ------- ------ -------------------");
+    console.log("       Id Collection Name      Description          Receiver               Owner                    Items Locked Created");
+    console.log("      --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------");
     for (const _d of collectionData) {
       const [name, description, owner, receiver, locked, items, created] = _d;
       if (owner == ZERO_ADDRESS) {
         break;
       }
-      console.log("      " + padLeft(i, 3) + " " + padRight(getAccountName(data, receiver), 22) + " " +
-        padRight(name, 20) + " " + padRight(description, 20) + " " + padRight(getAccountName(data, owner), 22) + " " +
-        padLeft(items, 7) + " " + (locked ? "y     " : "n     ") + " " +
-        new Date(parseInt(created) * 1000).toISOString());
+      console.log("      " + padLeft(i, 3) + " " + padRight(name || '(default)', 20) + " " + padRight(description || '(default)', 20) + " " +
+        padRight(getAccountName(data, receiver), 22) + " " + padRight(getAccountName(data, owner), 22) + " " +
+        padLeft(items, 7) + " " + (locked ? "y     " : "n     ") + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     console.log();
