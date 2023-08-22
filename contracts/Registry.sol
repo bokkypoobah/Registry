@@ -162,8 +162,8 @@ contract Registry is RegistryInterface, Utilities {
 
     uint64 private constant LOCK_NONE = 0x00;
     uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
-    uint64 private constant LOCK_OWNER_REMOVE_ITEM = 0x02;
-    uint64 private constant LOCK_USER_ADD_ITEM = 0x04;
+    uint64 private constant LOCK_OWNER_BURN_ITEM = 0x02;
+    uint64 private constant LOCK_USER_MINT_ITEM = 0x04;
     uint64 private constant LOCK_COLLECTION = 0x08;
     uint64 private constant LOCK_ROYALTIES = 0x10;
 
@@ -184,9 +184,9 @@ contract Registry is RegistryInterface, Utilities {
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     /// @dev Collection `collectionid` description updated to `to`
-    event OwnerUpdatedCollectionDescription(uint indexed collectionId, string description);
+    event CollectionOwnerUpdatedDescription(uint indexed collectionId, string description);
     /// @dev Collection `collectionid` minters updated with `minters`
-    event OwnerUpdatedCollectionMinterCounts(uint indexed collectionId, Minter[] minters);
+    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, Minter[] minters);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -226,7 +226,7 @@ contract Registry is RegistryInterface, Utilities {
         if (!isValidDescription(name)) {
             revert InvalidCollectionDescription();
         }
-        if ((lock & LOCK_USER_ADD_ITEM == LOCK_USER_ADD_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+        if ((lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
             revert InvalidLock();
         }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
@@ -237,7 +237,7 @@ contract Registry is RegistryInterface, Utilities {
         return _newCollection(name, description, lock);
     }
 
-    function ownerUpdateCollectionDescription(uint collectionId, string memory description) external {
+    function collectionOwnerUpdateDescription(uint collectionId, string memory description) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
@@ -246,13 +246,13 @@ contract Registry is RegistryInterface, Utilities {
             revert Locked();
         }
         c.description = description;
-        emit OwnerUpdatedCollectionDescription(collectionId, description);
+        emit CollectionOwnerUpdatedDescription(collectionId, description);
     }
 
     /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param minterCounts Array of [[account, count]]
-    function ownerUpdateCollectionMinterCounts(uint collectionId, Minter[] calldata minterCounts) external {
+    function collectionOwnerUpdateMinterCounts(uint collectionId, Minter[] calldata minterCounts) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
@@ -261,12 +261,27 @@ contract Registry is RegistryInterface, Utilities {
             Minter memory mc = minterCounts[i];
             collectionMinterCounts[c.collectionId][mc.account] = mc.count;
         }
-        emit OwnerUpdatedCollectionMinterCounts(collectionId, minterCounts);
+        emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts);
     }
 
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function lockCollection(uint collectionId, uint lock) external {
+    function collectionOwnerBurn(uint collectionId, uint tokenId) external {
+        // ReceiverInterface receiver = receivers[collectionId];
+        Collection storage c = collectionData[receivers[collectionId]];
+        if (c.owner != msg.sender) {
+            revert NotOwner();
+        }
+        if (c.lock == LOCK_COLLECTION) {
+            revert Locked();
+        }
+        // TODO
+        // c.lock = uint64(lock);
+    }
+
+
+    /// @dev Lock {collectionId}. Can only be executed by collection owner
+    function collectionOwnerLock(uint collectionId, uint lock) external {
         // ReceiverInterface receiver = receivers[collectionId];
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
@@ -281,8 +296,8 @@ contract Registry is RegistryInterface, Utilities {
 
     // uint64 private constant LOCK_NONE = 0x00;
     // TODO: uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
-    // TODO: uint64 private constant LOCK_OWNER_REMOVE_ITEM = 0x02;
-    // uint64 private constant LOCK_USER_ADD_ITEM = 0x04;
+    // TODO: uint64 private constant LOCK_OWNER_BURN_ITEM = 0x02;
+    // uint64 private constant LOCK_USER_MINT_ITEM = 0x04;
     // uint64 private constant LOCK_COLLECTION = 0x08;
     // TODO: uint64 private constant LOCK_ROYALTIES = 0x10;
 
@@ -296,7 +311,7 @@ contract Registry is RegistryInterface, Utilities {
         }
         if (c.collectionId > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
-            if ((c.lock & LOCK_USER_ADD_ITEM == LOCK_USER_ADD_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+            if ((c.lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
                 revert Locked();
             }
         }
