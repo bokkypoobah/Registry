@@ -157,7 +157,7 @@ contract Registry is RegistryInterface, Utilities {
     }
     struct Minter {
         address account;
-        bool permitted;
+        uint count;
     }
 
     uint64 private constant LOCK_NONE = 0x00;
@@ -174,7 +174,7 @@ contract Registry is RegistryInterface, Utilities {
     // collection name hash => true
     mapping(bytes32 => bool) collectionNameCheck;
     // collection id => users => true/false
-    mapping(uint => mapping(address => bool)) collectionMinters;
+    mapping(uint => mapping(address => uint)) collectionMinterCounts;
 
     // Array of unique data hashes
     bytes32[] public hashes;
@@ -186,7 +186,7 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Collection `collectionid` description updated to `to`
     event OwnerUpdatedCollectionDescription(uint indexed collectionId, string description);
     /// @dev Collection `collectionid` minters updated with `minters`
-    event OwnerUpdatedCollectionMinters(uint indexed collectionId, Minter[] minters);
+    event OwnerUpdatedCollectionMinterCounts(uint indexed collectionId, Minter[] minters);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -249,16 +249,19 @@ contract Registry is RegistryInterface, Utilities {
         emit OwnerUpdatedCollectionDescription(collectionId, description);
     }
 
-    function ownerUpdateCollectionMinters(uint collectionId, Minter[] calldata minters) external {
+    /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
+    /// @param collectionId Collection Id
+    /// @param minterCounts Array of [[account, count]]
+    function ownerUpdateCollectionMinterCounts(uint collectionId, Minter[] calldata minterCounts) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        for (uint i = 0; i < minters.length; i = onePlus(i)) {
-            Minter memory minter = minters[i];
-            collectionMinters[c.collectionId][minter.account] = minter.permitted;
+        for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
+            Minter memory mc = minterCounts[i];
+            collectionMinterCounts[c.collectionId][mc.account] = mc.count;
         }
-        emit OwnerUpdatedCollectionMinters(collectionId, minters);
+        emit OwnerUpdatedCollectionMinterCounts(collectionId, minterCounts);
     }
 
 
