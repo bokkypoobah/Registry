@@ -155,6 +155,10 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         uint64 created;
     }
+    struct Royalty {
+        address account;
+        uint64 royalty; // In basis points (10 bps = 0.1%)
+    }
     struct Minter {
         address account;
         uint count;
@@ -173,6 +177,10 @@ contract Registry is RegistryInterface, Utilities {
     mapping(ReceiverInterface => Collection) collectionData;
     // collection name hash => true
     mapping(bytes32 => bool) collectionNameCheck;
+    // TODO
+    // collection id => Royalty[]
+    mapping(uint => Royalty[]) collectionRoyalties;
+    // TODO
     // collection id => users => true/false
     mapping(uint => mapping(address => uint)) collectionMinterCounts;
 
