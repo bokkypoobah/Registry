@@ -76,7 +76,7 @@ contract Exchange is Owned {
         uint expiry; // ? Required for Offer and Bid
     }
     struct Record {
-        uint192 price;
+        uint96 price;
         uint64 expiry;
     }
 
@@ -148,13 +148,13 @@ contract Exchange is Owned {
                 collectionMode = true;
             }
 
-            if (input.action == Action.Offer || input.action == Action.Bid || input.action == Action.CollectionBid) {
+            if (inputAction == Action.Offer || inputAction == Action.Bid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
-                orders[msg.sender][input.id][input.action] = Record(uint192(input.price), uint64(input.expiry));
+                orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.expiry));
                 emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
-            } else if (input.action == Action.Buy || input.action == Action.Sell) {
+            } else if (inputAction == Action.Buy || inputAction == Action.Sell) {
                 (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
                 if (buyer == seller) {
                     revert CannotSelfTrade(input.id);

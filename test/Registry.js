@@ -9,6 +9,7 @@ const { BigNumber } = require("ethers");
 const ZERO_ADDRESS = "0x0000000000000000000000000000000000000000";
 const ZERO_HASH = "0x0000000000000000000000000000000000000000000000000000000000000000";
 const DUMMY_HASH = "0x0000000000000000000000000000000000000000000000000000000000000001";
+const ACTIONS = ["Offer", "Bid", "Buy", "Sell", "CollectionOffer", "CollectionBid", "CollectionBuy", "CollectionSell"];
 
 const INPUT_OFFER = 0;
 const INPUT_BID = 1;
@@ -141,6 +142,12 @@ describe("Registry", function () {
               const amount = logData.args[a.name] * ethUsd / ethers.parseUnits("1", 18);
               result = result + " $" + ethers.formatEther(amount);
             // }
+          } else {
+            result = result + logData.args[a.name].toString();
+          }
+        } else if (a.type == 'uint8') {
+          if (a.name == 'action') {
+            result = result + ACTIONS[logData.args[a.name]];
           } else {
             result = result + logData.args[a.name].toString();
           }
