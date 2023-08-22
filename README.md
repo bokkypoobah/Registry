@@ -10,29 +10,50 @@ See https://bokkypoobah.github.io/Registry/
 
 Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.sh](10_testIt.sh), with output in [testIt.out](testIt.out):
 
-* [x] [contracts/RegistryReceiver](contracts/Registry.sol)
-  * [x] Cannot send ETH to RegistryReceiver
-  * [x] Can send null data to RegistryReceiver
-  * [x] Cannot send duplicate to RegistryReceiver
-  * [x] Can burn and resubmit same data
-* [x] [contracts/Registry](contracts/Registry.sol)
-  * [x] Only RegistryReceiver can register
-  * [x] `ownerOf(tokenId)` works
-  * [x] `length()` works
-  * [x] Owner can transfer own tokens
-  * [x] Non-owner cannot transfer tokens
-  * [x] `setApprovalForAll(...)` works
-  * [x] `isApprovedForAll(...)` works
+* [ ] [contracts/Registry](contracts/Registry.sol)
+  * [ ] RegistryReceiver
+    * [ ] Only RegistryReceiver can register
+    * [ ] `ownerOf(tokenId)` works
+    * [ ] `length()` works
+    * [ ] Owner can transfer own tokens
+    * [ ] Non-owner cannot transfer tokens
+    * [ ] `setApprovalForAll(...)` works
+    * [ ] `isApprovedForAll(...)` works
+  * [ ] Default Collection
+    * [ ] Any user can create new items
+    * [ ] Any user can remove their items
+    * [ ] Cannot send ETH to RegistryReceiver
+    * [ ] Can send null data to RegistryReceiver
+    * [ ] Cannot send duplicate to RegistryReceiver
+    * [ ] Can burn and resubmit same data
+  * [ ] Named Collections
+    * [ ] Can create new items
+      * [ ] Check permissions
+        * [ ] Owner only
+        * [ ] TODO: Permissioned list
+        * [ ] Any user
+        * [ ] Locked
+    * [ ] Any user can remove their items
+      * [ ] TODO: ?Check permissions
+    * [ ] Cannot send ETH to RegistryReceiver
+    * [ ] Can send null data to RegistryReceiver
+    * [ ] Cannot send duplicate to RegistryReceiver
+    * [ ] Can burn and resubmit same data
+    * [ ] Owner
+      * [ ] TODO: Can update description
+      * [ ] TODO: Can update permissions
+      * [ ] TODO: Can remove items, as permissioned
+      * [ ] TODO: Can update royalties, as permissioned
 * [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
-  * [x] Owned
-    * [x] `transferOwnership(...)` can only be executed by `owner`
-    * [x] `acceptOwnership()` can only be executed by `newOwner`
-  * [x] `bulkTransfer(...)`
-    * [x] Can only `bulkTransfer(...)` own items
+  * [ ] Owned
+    * [ ] `transferOwnership(...)` can only be executed by `owner`
+    * [ ] `acceptOwnership()` can only be executed by `newOwner`
+  * [ ] `bulkTransfer(...)`
+    * [ ] Can only `bulkTransfer(...)` own items
   * [ ] `updateFee(...)` and `updateFeeAccount(...)`
-    * [x] `updateFee(...)` can only be called by owner
-    * [x] Cannot `updateFee(...)` above `MAX_FEE`
-    * [x] `updateFee(...)` updated amount takes effect for Buy and Sell trades
+    * [ ] `updateFee(...)` can only be called by owner
+    * [ ] Cannot `updateFee(...)` above `MAX_FEE`
+    * [ ] `updateFee(...)` updated amount takes effect for Buy and Sell trades
     * [ ] `updateFeeAccount(...)`
   * [ ] `offer(...)` and `buy(...)`
     * [ ] Confirm valid order on tokens not owned cannot be executed
