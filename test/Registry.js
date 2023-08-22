@@ -341,7 +341,13 @@ describe("Registry", function () {
       // uint64 private constant LOCK_COLLECTION = 0x08;
       // uint64 private constant LOCK_ROYALTIES = 0x10;
 
-      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, []);
+      const royalties = [
+        [ data.royalty0.address, "10" ],
+        [ data.royalty1.address, "20" ],
+        [ data.royalty2.address, "30" ],
+      ];
+
+      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, royalties);
       await printTx(data, "tx4", await tx4.wait());
       // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
