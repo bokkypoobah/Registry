@@ -193,6 +193,8 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Collection `collectionid` description updated to `to`
     event CollectionOwnerUpdatedDescription(uint indexed collectionId, string description);
+    /// @dev Collection `collectionid` royalties updated to `royalties`
+    event CollectionOwnerUpdatedDescription(uint indexed collectionId, Royalty[] royalties);
     /// @dev Collection `collectionid` minters updated with `minters`
     event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, Minter[] minters);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
@@ -257,6 +259,27 @@ contract Registry is RegistryInterface, Utilities {
         emit CollectionOwnerUpdatedDescription(collectionId, description);
     }
 
+    /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
+    function collectionOwnerUpdateRoyalties(uint collectionId, Royalty[] memory royalties) external {
+        // ReceiverInterface receiver = receivers[collectionId];
+        Collection storage c = collectionData[receivers[collectionId]];
+        if (c.owner != msg.sender) {
+            revert NotOwner();
+        }
+        if (c.lock == LOCK_COLLECTION) {
+            revert Locked();
+        }
+        if (collectionRoyalties[collectionId].length > 0) {
+            delete collectionRoyalties[collectionId];
+        }
+        for (uint i = 0; i < royalties.length; i = onePlus(i)) {
+            Royalty memory royalty = royalties[i];
+            collectionRoyalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
+        }
+        emit CollectionOwnerUpdatedDescription(collectionId, royalties);
+    }
+
+
     /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param minterCounts Array of [[account, count]]
@@ -283,8 +306,13 @@ contract Registry is RegistryInterface, Utilities {
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        // TODO
-        // c.lock = uint64(lock);
+        bytes32 hash = hashes[tokenId];
+        address from = data[hash].owner;
+        if (collectionId != data[hash].collectionId) {
+            revert NotOwner();
+        }
+        data[hash].owner = address(0x0);
+        emit Transfer(from, address(0x0), tokenId, block.timestamp);
     }
 
 
