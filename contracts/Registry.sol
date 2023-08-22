@@ -23,13 +23,10 @@ interface ReceiverInterface {
 }
 
 interface RegistryInterface {
-    // enum LockBits {
-    //     OwnerCannotSetDescription, // 0 = 2^0 = 1
-    //     OwnerCannotRemoveItem, // 1 = 2^1 = 2
-    //     UserCannotAddItem, // 2 = 2^2 = 4
-    //     All // 3 = 2^3 = 8
-    // }
-
+    struct Royalty {
+        address account;
+        uint64 royalty; // In basis points (10 bps = 0.1%)
+    }
     struct CollectionResult {
         string name;
         string description;
@@ -38,6 +35,7 @@ interface RegistryInterface {
         uint64 lock;
         uint64 count;
         uint64 created;
+        Royalty[] royalties;
     }
     struct ItemResult {
         bytes32 hash;
@@ -155,10 +153,6 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         uint64 created;
     }
-    struct Royalty {
-        address account;
-        uint64 royalty; // In basis points (10 bps = 0.1%)
-    }
     struct Minter {
         address account;
         uint count;
@@ -179,9 +173,8 @@ contract Registry is RegistryInterface, Utilities {
     mapping(bytes32 => bool) collectionNameCheck;
     // TODO
     // collection id => Royalty[]
-    mapping(uint => Royalty[]) collectionRoyalties;
-    // TODO
-    // collection id => users => true/false
+    mapping(uint => Royalty[]) private _collectionRoyalties;
+    // collection id => users => uint
     mapping(uint => mapping(address => uint)) collectionMinterCounts;
 
     // Array of unique data hashes
@@ -194,7 +187,7 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Collection `collectionid` description updated to `to`
     event CollectionOwnerUpdatedDescription(uint indexed collectionId, string description);
     /// @dev Collection `collectionid` royalties updated to `royalties`
-    event CollectionOwnerUpdatedDescription(uint indexed collectionId, Royalty[] royalties);
+    event CollectionOwnerUpdatedRoyalties(uint indexed collectionId, Royalty[] royalties);
     /// @dev Collection `collectionid` minters updated with `minters`
     event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, Minter[] minters);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
@@ -217,19 +210,24 @@ contract Registry is RegistryInterface, Utilities {
     error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
-        _newCollection("", "", LOCK_NONE);
+        _newCollection("", "", LOCK_NONE, new Royalty[](0));
     }
 
-    function _newCollection(string memory name, string memory description, uint lock) internal returns (uint _collectionId) {
+    function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (uint _collectionId) {
         Receiver receiver = new Receiver();
         collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, uint64(block.timestamp));
         receivers.push(receiver);
-        return receivers.length - 1;
+        _collectionId = receivers.length - 1;
+        for (uint i = 0; i < royalties.length; i = onePlus(i)) {
+            Royalty memory royalty = royalties[i];
+            _collectionRoyalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
+        }
+        emit CollectionOwnerUpdatedRoyalties(_collectionId, royalties);
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description, uint lock) external returns (uint _collectionId) {
+    function newCollection(string calldata name, string calldata description, uint lock, Royalty[] memory royalties) external returns (uint _collectionId) {
         if (!isValidName(name)) {
             revert InvalidCollectionName();
         }
@@ -244,7 +242,7 @@ contract Registry is RegistryInterface, Utilities {
             revert DuplicateCollectionName();
         }
         collectionNameCheck[nameHash] = true;
-        return _newCollection(name, description, lock);
+        return _newCollection(name, description, lock, royalties);
     }
 
     function collectionOwnerUpdateDescription(uint collectionId, string memory description) external {
@@ -269,14 +267,14 @@ contract Registry is RegistryInterface, Utilities {
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        if (collectionRoyalties[collectionId].length > 0) {
-            delete collectionRoyalties[collectionId];
+        if (_collectionRoyalties[collectionId].length > 0) {
+            delete _collectionRoyalties[collectionId];
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            collectionRoyalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
+            _collectionRoyalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
-        emit CollectionOwnerUpdatedDescription(collectionId, royalties);
+        emit CollectionOwnerUpdatedRoyalties(collectionId, royalties);
     }
 
 
@@ -330,18 +328,10 @@ contract Registry is RegistryInterface, Utilities {
     }
 
 
-    // uint64 private constant LOCK_NONE = 0x00;
-    // TODO: uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
-    // TODO: uint64 private constant LOCK_OWNER_BURN_ITEM = 0x02;
-    // uint64 private constant LOCK_USER_MINT_ITEM = 0x04;
-    // uint64 private constant LOCK_COLLECTION = 0x08;
-    // TODO: uint64 private constant LOCK_ROYALTIES = 0x10;
-
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
         Collection storage c = collectionData[Receiver(msg.sender)];
-        // ~ USD 1.00 to get here. Note cost ~ USD 0.80 to write 256 bits
         if (c.created == 0) {
             revert InvalidCollection();
         }
@@ -358,18 +348,12 @@ contract Registry is RegistryInterface, Utilities {
         } else if (d.created != 0) {
             burnt = true;
         }
-        // ~ USD 1.36 to get here
-        c.count++;
-        // ~USD 1.49 to get here
         data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), uint64(block.timestamp));
-        // ~USD 3.21 to get here
         emit Registered(hashes.length, hash, msg.sender, msgSender, block.timestamp);
-        // ~USD 3.34 to get here
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
-            // 85,087 ~USD 3.36 to get here
+            c.count++;
             hashes.push(hash);
-            // 126,349 ~USD 5.05 to get here; 109,471 ~USD 4.37 for second item
         }
     }
 
@@ -425,8 +409,16 @@ contract Registry is RegistryInterface, Utilities {
         return receivers[i];
     }
 
+    /// @dev Get royalties for `collectionId`
+    /// @param collectionId Collection Id
+    function getCollectionRoyalties(uint collectionId) external view returns (Royalty[] memory royalties) {
+        return _collectionRoyalties[collectionId];
+    }
+
     /// @dev Returns the owner of `tokenId`
-    function ownerOf(uint tokenId) external view returns (address) {
+    /// @param tokenId Token Id
+    /// @return owner Owner
+    function ownerOf(uint tokenId) external view returns (address owner) {
         return data[hashes[tokenId]].owner;
     }
 
@@ -439,7 +431,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _collectionRoyalties[i + offset]);
         }
     }
 

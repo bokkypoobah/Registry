@@ -17,45 +17,32 @@ const INPUT_SELL = 3;
 
 describe("Registry", function () {
   async function deployFixture() {
-    const [deployer, user0, user1, user2, feeAccount, uiFeeAccount] = await ethers.getSigners();
+    const [deployer, user0, user1, user2, royalty, feeAccount, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
-    const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("1000000"));
+    const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("3000"));
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const Exchange = await ethers.getContractFactory("Exchange");
     const exchange = await Exchange.deploy(weth.target, registry.target);
     const receiver = await registry.getReceiver(0);
     const exchangeOwner = await exchange.owner();
-    // console.log("      deployFixture - deployer: " + deployer.address);
-    // console.log("      deployFixture - user0: " + user0.address);
-    // console.log("      deployFixture - user1: " + user1.address);
-    // console.log("      deployFixture - user2: " + user2.address);
-    // console.log("      deployFixture - feeAccount: " + feeAccount.address);
-    // console.log("      deployFixture - uiFeeAccount: " + uiFeeAccount.address);
-    // console.log("      deployFixture - weth: " + weth.target);
-    // console.log("      deployFixture - registry: " + registry.target);
-    // console.log("      deployFixture - receiver: " + receiver);
-    // console.log("      deployFixture - exchange: " + exchange.target);
-    // console.log("      deployFixture - exchange.owner: " + exchangeOwner);
-    // console.log();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, exchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, royalty.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, exchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
     accountNames[user1.address.toLowerCase()] = "user1";
     accountNames[user2.address.toLowerCase()] = "user2";
+    accountNames[royalty.address.toLowerCase()] = "royalty";
     accountNames[feeAccount.address.toLowerCase()] = "feeAccount";
     accountNames[uiFeeAccount.address.toLowerCase()] = "uiFeeAccount";
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[receiver.toLowerCase()] = "receiver";
     accountNames[exchange.target.toLowerCase()] = "exchange";
-
-    const data = { weth, registry, receiver, exchange, deployer, user0, user1, user2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
+    const data = { weth, registry, receiver, exchange, deployer, user0, user1, user2, royalty, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
 
     const updateFeeAccountTx = await exchange.updateFeeAccount(feeAccount);
     // await printTx(data, "updateFeeAccountTx", await updateFeeAccountTx.wait());
-
     const amount0 = ethers.parseEther("1000");
     const txWethTransfer0 = await weth.connect(deployer).transfer(user0.address, amount0);
     const txWethTransfer1 = await weth.connect(deployer).transfer(user1.address, amount0);
@@ -63,7 +50,6 @@ describe("Registry", function () {
     // await printTx(data, "txWethTransfer0", await txWethTransfer0.wait());
     // await printTx(data, "txWethTransfer1", await txWethTransfer1.wait());
     // await printTx(data, "txWethTransfer2", await txWethTransfer2.wait());
-
     const approveAmount0 = ethers.parseEther("111.111111111");
     const txWethApprove0 = await weth.connect(user0).approve(exchange.target, approveAmount0);
     const txWethApprove1 = await weth.connect(user1).approve(exchange.target, approveAmount0);
@@ -71,7 +57,6 @@ describe("Registry", function () {
     // await printTx(data, "txWethApprove0", await txWethApprove0.wait());
     // await printTx(data, "txWethApprove1", await txWethApprove1.wait());
     // await printTx(data, "txWethApprove2", await txWethApprove2.wait());
-
     return data;
   }
 
@@ -184,6 +169,8 @@ describe("Registry", function () {
     console.log();
 
     const collectionData = await data.registry.getCollections(10, 0);
+    console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+
     let i = 0;
     console.log("       Id Collection Name      Description          Receiver               Owner                    Items Locked Created");
     console.log("      --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------");
@@ -352,12 +339,12 @@ describe("Registry", function () {
       // uint64 private constant LOCK_COLLECTION = 0x08;
       // uint64 private constant LOCK_ROYALTIES = 0x10;
 
-      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0);
+      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, []);
       await printTx(data, "tx4", await tx4.wait());
       // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
       await expect(
-        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0)).to.be.revertedWithCustomError(
+        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, [])).to.be.revertedWithCustomError(
         data.registry,
         "DuplicateCollectionName"
       );
