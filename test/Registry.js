@@ -17,7 +17,7 @@ const INPUT_SELL = 3;
 
 describe("Registry", function () {
   async function deployFixture() {
-    const [deployer, user0, user1, user2, royalty, feeAccount, uiFeeAccount] = await ethers.getSigners();
+    const [deployer, user0, user1, user2, royalty0, royalty1, royalty2, feeAccount, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("3000"));
     const Registry = await ethers.getContractFactory("Registry");
@@ -26,20 +26,22 @@ describe("Registry", function () {
     const exchange = await Exchange.deploy(weth.target, registry.target);
     const receiver = await registry.getReceiver(0);
     const exchangeOwner = await exchange.owner();
-    const accounts = [deployer.address, user0.address, user1.address, user2.address, royalty.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, exchange.target];
+    const accounts = [deployer.address, user0.address, user1.address, user2.address, royalty0.address, royalty1.address, royalty2.address, feeAccount.address, uiFeeAccount.address, weth.target, registry.target, receiver, exchange.target];
     const accountNames = {};
     accountNames[deployer.address.toLowerCase()] = "deployer";
     accountNames[user0.address.toLowerCase()] = "user0";
     accountNames[user1.address.toLowerCase()] = "user1";
     accountNames[user2.address.toLowerCase()] = "user2";
-    accountNames[royalty.address.toLowerCase()] = "royalty";
+    accountNames[royalty0.address.toLowerCase()] = "royalty0";
+    accountNames[royalty1.address.toLowerCase()] = "royalty1";
+    accountNames[royalty2.address.toLowerCase()] = "royalty2";
     accountNames[feeAccount.address.toLowerCase()] = "feeAccount";
     accountNames[uiFeeAccount.address.toLowerCase()] = "uiFeeAccount";
     accountNames[weth.target.toLowerCase()] = "weth";
     accountNames[registry.target.toLowerCase()] = "registry";
     accountNames[receiver.toLowerCase()] = "receiver";
     accountNames[exchange.target.toLowerCase()] = "exchange";
-    const data = { weth, registry, receiver, exchange, deployer, user0, user1, user2, royalty, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
+    const data = { weth, registry, receiver, exchange, deployer, user0, user1, user2, royalty0, royalty1, royalty2, feeAccount, uiFeeAccount, accounts, accountNames, hashes: {} };
 
     const updateFeeAccountTx = await exchange.updateFeeAccount(feeAccount);
     // await printTx(data, "updateFeeAccountTx", await updateFeeAccountTx.wait());
