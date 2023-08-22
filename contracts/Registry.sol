@@ -158,6 +158,8 @@ contract Registry is RegistryInterface, Utilities {
         uint count;
     }
 
+    uint private constant MAX_ROYALTY_RECORDS = 10;
+
     uint64 private constant LOCK_NONE = 0x00;
     uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
     uint64 private constant LOCK_OWNER_BURN_ITEM = 0x02;
@@ -197,6 +199,7 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
+    error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
     error InvalidCollectionName();
     error InvalidCollectionDescription();
     error DuplicateCollectionName();
@@ -218,6 +221,9 @@ contract Registry is RegistryInterface, Utilities {
         collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, uint64(block.timestamp));
         receivers.push(receiver);
         _collectionId = receivers.length - 1;
+        if (royalties.length >= MAX_ROYALTY_RECORDS) {
+            revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
+        }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
             _collectionRoyalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
@@ -259,7 +265,9 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
     function collectionOwnerUpdateRoyalties(uint collectionId, Royalty[] memory royalties) external {
-        // ReceiverInterface receiver = receivers[collectionId];
+        if (royalties.length >= MAX_ROYALTY_RECORDS) {
+            revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
+        }
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
