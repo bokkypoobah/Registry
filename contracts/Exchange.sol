@@ -66,14 +66,14 @@ contract Owned {
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Exchange is Owned {
 
-    enum Action { Offer, Bid, Buy, Sell, CollectionBid, CollectionSell }
+    enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
 
     struct Input {
         Action action;
-        address account; // Required for Buy And Sell
-        uint id; // tokenId for Offer, Bid, Buy, Sell and CollectionSell, collectionId for CollectionBid
+        address account; // ? Required for Buy And Sell
+        uint id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
         uint price;
-        uint expiry; // Required for Offer and Bid
+        uint expiry; // ? Required for Offer and Bid
     }
     struct Record {
         uint192 price;
@@ -126,12 +126,28 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
+    // Buy (maker, tokenId) from Offer (tokenId -> maker -> Offer)
+    // Sell (maker, tokenId) into Bid (tokenId -> maker -> Bid)
+    // CollectionBuy (maker, collectionId) from CollectionOffer (tokenId -> maker -> CollectionOffer)
+    // CollectionSell (maker, collectionId) into CollectionBid (tokenId -> maker -> CollectionBid)
+    // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
+
     /// @dev Execute Offer, Bid, Buy and Sell orders
     /// @param inputs [[action, account, tokenId, price, expiry]]
     /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
     function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
+
+            Action inputAction;
+            bool collectionMode;
+            if (uint(input.action) <= uint(Action.Sell)) {
+                inputAction = input.action;
+            } else {
+                inputAction = Action(uint(input.action) - uint(Action.Sell));
+                collectionMode = true;
+            }
+
             if (input.action == Action.Offer || input.action == Action.Bid || input.action == Action.CollectionBid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);

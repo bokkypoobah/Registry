@@ -1,41 +1,42 @@
+Compiled 1 Solidity file successfully
 
   Registry
     Exchange - Update Fee
-      > tx5 - gasUsed: 102933 ~ ETH 0.00205866 ~ USD 4.11732 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 19.0 Order(account: user0:0x7099, action: 0, id: 1, price: 1.23 $2460.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:15)
-        + exchange:0x9fE4 -> 19.1 Order(account: user0:0x7099, action: 0, id: 2, price: 1.23 $2460.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:15)
-        + exchange:0x9fE4 -> 19.2 Order(account: user0:0x7099, action: 0, id: 3, price: 1.23 $2460.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:15)
-      > tx7 - gasUsed: 162827 ~ ETH 0.00325654 ~ USD 6.51308 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+      > tx5 - gasUsed: 103254 ~ ETH 0.00206508 ~ USD 4.13016 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + exchange:0x9fE4 -> 19.0 Order(account: user0:0x7099, action: 0, id: 1, price: 1.23 $2460.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:26)
+        + exchange:0x9fE4 -> 19.1 Order(account: user0:0x7099, action: 0, id: 2, price: 1.23 $2460.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:26)
+        + exchange:0x9fE4 -> 19.2 Order(account: user0:0x7099, action: 0, id: 3, price: 1.23 $2460.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:26)
+      > tx7 - gasUsed: 163041 ~ ETH 0.00326082 ~ USD 6.52164 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 21.0 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.229385 $2458.77)
         + weth:0x5FbD -> 21.1 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.0003075 $0.615)
         + weth:0x5FbD -> 21.2 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.0003075 $0.615)
-        + registry:0xe7f1 -> 21.3 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-22T09:25:17)
-        + exchange:0x9fE4 -> 21.4 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: 2, tokenId: 1, price: 1.23 $2460.0, timestamp: 2023-08-22T09:25:17)
+        + registry:0xe7f1 -> 21.3 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-22T10:22:28)
+        + exchange:0x9fE4 -> 21.4 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: 2, tokenId: 1, price: 1.23 $2460.0, timestamp: 2023-08-22T10:22:28)
         + weth:0x5FbD -> 21.5 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.229385 $2458.77)
         + weth:0x5FbD -> 21.6 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.0003075 $0.615)
         + weth:0x5FbD -> 21.7 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.0003075 $0.615)
-        + registry:0xe7f1 -> 21.8 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-22T09:25:17)
-        + exchange:0x9fE4 -> 21.9 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: 2, tokenId: 3, price: 1.23 $2460.0, timestamp: 2023-08-22T09:25:17)
-      > tx8 - gasUsed: 93975 ~ ETH 0.0018795 ~ USD 3.759 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 21.8 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-22T10:22:28)
+        + exchange:0x9fE4 -> 21.9 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: 2, tokenId: 3, price: 1.23 $2460.0, timestamp: 2023-08-22T10:22:28)
+      > tx8 - gasUsed: 94082 ~ ETH 0.00188164 ~ USD 3.76328 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + weth:0x5FbD -> 23.0 Transfer(from: user2:0x90F7, to: user0:0x7099, tokens: 1.229139 $2458.278)
         + weth:0x5FbD -> 23.1 Transfer(from: user2:0x90F7, to: feeAccount:0x14dC, tokens: 0.0004305 $0.861)
         + weth:0x5FbD -> 23.2 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x2361, tokens: 0.0004305 $0.861)
-        + registry:0xe7f1 -> 23.3 Transfer(from: user0:0x7099, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-22T09:25:19)
-        + exchange:0x9fE4 -> 23.4 Trade(account: user2:0x90F7, counterparty: user0:0x7099, action: 2, tokenId: 2, price: 1.23 $2460.0, timestamp: 2023-08-22T09:25:19)
-      > tx9 - gasUsed: 156921 ~ ETH 0.00313842 ~ USD 6.27684 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 24.0 Order(account: user2:0x90F7, action: 1, id: 0, price: 1.11 $2220.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:20)
-        + exchange:0x9fE4 -> 24.1 Order(account: user2:0x90F7, action: 1, id: 1, price: 1.11 $2220.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:20)
-        + exchange:0x9fE4 -> 24.2 Order(account: user2:0x90F7, action: 1, id: 2, price: 1.11 $2220.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:20)
-        + exchange:0x9fE4 -> 24.3 Order(account: user2:0x90F7, action: 1, id: 3, price: 1.11 $2220.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:20)
-        + exchange:0x9fE4 -> 24.4 Order(account: user2:0x90F7, action: 1, id: 4, price: 1.11 $2220.0, expiry: 2023-08-22T10:25:03, timestamp: 2023-08-22T09:25:20)
+        + registry:0xe7f1 -> 23.3 Transfer(from: user0:0x7099, to: user2:0x90F7, tokenId: 2, timestamp: 2023-08-22T10:22:30)
+        + exchange:0x9fE4 -> 23.4 Trade(account: user2:0x90F7, counterparty: user0:0x7099, action: 2, tokenId: 2, price: 1.23 $2460.0, timestamp: 2023-08-22T10:22:30)
+      > tx9 - gasUsed: 157456 ~ ETH 0.00314912 ~ USD 6.29824 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + exchange:0x9fE4 -> 24.0 Order(account: user2:0x90F7, action: 1, id: 0, price: 1.11 $2220.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:31)
+        + exchange:0x9fE4 -> 24.1 Order(account: user2:0x90F7, action: 1, id: 1, price: 1.11 $2220.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:31)
+        + exchange:0x9fE4 -> 24.2 Order(account: user2:0x90F7, action: 1, id: 2, price: 1.11 $2220.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:31)
+        + exchange:0x9fE4 -> 24.3 Order(account: user2:0x90F7, action: 1, id: 3, price: 1.11 $2220.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:31)
+        + exchange:0x9fE4 -> 24.4 Order(account: user2:0x90F7, action: 1, id: 4, price: 1.11 $2220.0, expiry: 2023-08-22T11:22:13, timestamp: 2023-08-22T10:22:31)
 
       --- End ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.991622547062870933                      0.0
-        1 user0:0x7099               9999.999150775487409757              1003.687909
-        2 user1:0x3C44               9999.999766067073034038                   997.54
-        3 user2:0x90F7               9999.999601295077144347                   998.77
+        0 deployer:0xf39F            9999.991584547805344388                      0.0
+        1 user0:0x7099               9999.999150406784388301              1003.687909
+        2 user1:0x3C44               9999.999765834101906857                   997.54
+        3 user2:0x90F7               9999.999600618128634039                   998.77
         4 royalty0:0x15d3                            10000.0                      0.0
         5 royalty1:0x9965                            10000.0                      0.0
         6 royalty2:0x976E                            10000.0                      0.0
@@ -46,18 +47,18 @@
        11 receiver:0xCafa                                0.0                      0.0
        12 exchange:0x9fE4                                0.0                      0.0
 
-collectionData: [["","","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","0xCafac3dD18aC6c6e92c921884f9E4176737C052c","0","5","1692696298",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]]]
+collectionData: [["","","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","0xCafac3dD18aC6c6e92c921884f9E4176737C052c","0","5","1692699729",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]],["","","0x0000000000000000000000000000000000000000","0x0000000000000000000000000000000000000000","0","0","0",[]]]
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-22T09:24:58.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-22T10:22:09.000Z
 
        Id String:Hash                    Collection Id Owner                          Registered
       --- ------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string":0x5230                       0 user0:0x7099                   2023-08-22T09:25:10.000Z
-        1 "user0string":0x54f8                       0 user1:0x3C44                   2023-08-22T09:25:11.000Z
-        2 "user0string":0xcb3c                       0 user2:0x90F7                   2023-08-22T09:25:12.000Z
-        3 "user0string":0x4506                       0 user1:0x3C44                   2023-08-22T09:25:13.000Z
-        4 "user0string":0x5c3a                       0 user0:0x7099                   2023-08-22T09:25:14.000Z
+        0 "user0string":0x5230                       0 user0:0x7099                   2023-08-22T10:22:21.000Z
+        1 "user0string":0x54f8                       0 user1:0x3C44                   2023-08-22T10:22:22.000Z
+        2 "user0string":0xcb3c                       0 user2:0x90F7                   2023-08-22T10:22:23.000Z
+        3 "user0string":0x4506                       0 user1:0x3C44                   2023-08-22T10:22:24.000Z
+        4 "user0string":0x5c3a                       0 user0:0x7099                   2023-08-22T10:22:25.000Z
 
       ✓ Exchange - Update Fee #1
 
@@ -68,7 +69,7 @@ collectionData: [["","","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","0xCafac3dD
 ·············|·····················|·············|·············|·············|···············|··············
 |  [1mContract[22m  ·  [1mMethod[22m             ·  [32mMin[39m        ·  [32mMax[39m        ·  [32mAvg[39m        ·  [1m# calls[22m      ·  [1musd (avg)[22m  │
 ·············|·····················|·············|·············|·············|···············|··············
-|  [90mExchange[39m  ·  execute            ·      [36m93975[39m  ·     [31m162827[39m  ·     129164  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
+|  [90mExchange[39m  ·  execute            ·      [36m94082[39m  ·     [31m163041[39m  ·     129458  ·            [90m8[39m  ·          [32m[90m-[32m[39m  │
 ·············|·····················|·············|·············|·············|···············|··············
 |  [90mExchange[39m  ·  updateFee          ·          -  ·          -  ·      30510  ·            [90m4[39m  ·          [32m[90m-[32m[39m  │
 ·············|·····················|·············|·············|·············|···············|··············
@@ -82,12 +83,12 @@ collectionData: [["","","0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266","0xCafac3dD
 ·············|·····················|·············|·············|·············|···············|··············
 |  [32m[1mDeployments[22m[39m                     ·                                         ·  [1m% of limit[22m   ·             │
 ···································|·············|·············|·············|···············|··············
-|  Exchange                        ·          -  ·          -  ·    1351669  ·        [90m4.5 %[39m  ·          [32m[90m-[32m[39m  │
+|  Exchange                        ·          -  ·          -  ·    1374135  ·        [90m4.6 %[39m  ·          [32m[90m-[32m[39m  │
 ···································|·············|·············|·············|···············|··············
 |  Registry                        ·          -  ·          -  ·    2680030  ·        [90m8.9 %[39m  ·          [32m[90m-[32m[39m  │
 ···································|·············|·············|·············|···············|··············
 |  Token                           ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·----------------------------------|-------------|-------------|-------------|---------------|-------------·
 
-  1 passing (963ms)
+  1 passing (922ms)
 
