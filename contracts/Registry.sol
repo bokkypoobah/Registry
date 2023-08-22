@@ -51,6 +51,8 @@ interface RegistryInterface {
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
 
+    // TODO
+
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
     function getReceiver(uint i) external view returns (ReceiverInterface);
@@ -153,6 +155,10 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         uint64 created;
     }
+    struct Minter {
+        address account;
+        bool permitted;
+    }
 
     uint64 private constant LOCK_NONE = 0x00;
     uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
@@ -167,6 +173,8 @@ contract Registry is RegistryInterface, Utilities {
     mapping(ReceiverInterface => Collection) collectionData;
     // collection name hash => true
     mapping(bytes32 => bool) collectionNameCheck;
+    // collection id => users => true/false
+    mapping(uint => mapping(address => bool)) collectionMinters;
 
     // Array of unique data hashes
     bytes32[] public hashes;
@@ -175,6 +183,10 @@ contract Registry is RegistryInterface, Utilities {
     // owner => operator => approved?
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
+    /// @dev Collection `collectionid` description updated to `to`
+    event OwnerUpdatedCollectionDescription(uint indexed collectionId, string description);
+    /// @dev Collection `collectionid` minters updated with `minters`
+    event OwnerUpdatedCollectionMinters(uint indexed collectionId, Minter[] minters);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -198,7 +210,7 @@ contract Registry is RegistryInterface, Utilities {
         _newCollection("", "", LOCK_NONE);
     }
 
-    function _newCollection(string memory name, string memory description, uint lock) internal returns (uint) {
+    function _newCollection(string memory name, string memory description, uint lock) internal returns (uint _collectionId) {
         Receiver receiver = new Receiver();
         collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, uint64(block.timestamp));
         receivers.push(receiver);
@@ -207,7 +219,7 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description, uint lock) external returns (uint /*_collectionId*/) {
+    function newCollection(string calldata name, string calldata description, uint lock) external returns (uint _collectionId) {
         if (!isValidName(name)) {
             revert InvalidCollectionName();
         }
@@ -224,6 +236,31 @@ contract Registry is RegistryInterface, Utilities {
         collectionNameCheck[nameHash] = true;
         return _newCollection(name, description, lock);
     }
+
+    function ownerUpdateCollectionDescription(uint collectionId, string memory description) external {
+        Collection storage c = collectionData[receivers[collectionId]];
+        if (c.owner != msg.sender) {
+            revert NotOwner();
+        }
+        if (c.lock == LOCK_COLLECTION) {
+            revert Locked();
+        }
+        c.description = description;
+        emit OwnerUpdatedCollectionDescription(collectionId, description);
+    }
+
+    function ownerUpdateCollectionMinters(uint collectionId, Minter[] calldata minters) external {
+        Collection storage c = collectionData[receivers[collectionId]];
+        if (c.owner != msg.sender) {
+            revert NotOwner();
+        }
+        for (uint i = 0; i < minters.length; i = onePlus(i)) {
+            Minter memory minter = minters[i];
+            collectionMinters[c.collectionId][minter.account] = minter.permitted;
+        }
+        emit OwnerUpdatedCollectionMinters(collectionId, minters);
+    }
+
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
     function lockCollection(uint collectionId, uint lock) external {
