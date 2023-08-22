@@ -200,7 +200,7 @@ describe("Registry", function () {
     console.log();
 
     const receiver = await data.registry.getReceiver(0);
-    const items = await data.registry.getData(10, 0);
+    const items = await data.registry.getItems(10, 0);
     i = 0;
     console.log("       Id String:Hash                    Collection Id Owner                          Registered");
     console.log("      --- ------------------------------ ------------- ------------------------------ ------------------------");
@@ -292,7 +292,7 @@ describe("Registry", function () {
       expect(await data.registry.ownerOf(2)).to.equal(data.user2.address);
 
       // Check length
-      expect(await data.registry.itemsLength()).to.equal(3);
+      expect(await data.registry.itemsCount()).to.equal(3);
 
       // Owner can transfer tokens
       const tx3 = await data.registry.connect(data.user0).transfer(data.user1.address, 0);
@@ -345,12 +345,19 @@ describe("Registry", function () {
 
       await printState(data, "DEBUG");
 
-      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1");
+      // uint64 private constant LOCK_NONE = 0x00;
+      // uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
+      // uint64 private constant LOCK_OWNER_REMOVE_ITEM = 0x02;
+      // uint64 private constant LOCK_USER_ADD_ITEM = 0x04;
+      // uint64 private constant LOCK_COLLECTION = 0x08;
+      // uint64 private constant LOCK_ROYALTIES = 0x10;
+
+      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0);
       await printTx(data, "tx4", await tx4.wait());
       // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
       await expect(
-        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1")).to.be.revertedWithCustomError(
+        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0)).to.be.revertedWithCustomError(
         data.registry,
         "DuplicateCollectionName"
       );

@@ -23,30 +23,40 @@ interface ReceiverInterface {
 }
 
 interface RegistryInterface {
+    // enum LockBits {
+    //     OwnerCannotSetDescription, // 0 = 2^0 = 1
+    //     OwnerCannotRemoveItem, // 1 = 2^1 = 2
+    //     UserCannotAddItem, // 2 = 2^2 = 4
+    //     All // 3 = 2^3 = 8
+    // }
+
     struct CollectionResult {
         string name;
         string description;
         address owner;
         ReceiverInterface receiver;
-        bool locked; // ? LOCK_NAME, LOCK_DESCRIPTION, LOCK_ADDITEMS, ??LOCK_REMOVEITEMS
-        uint64 items;
+        uint64 lock;
+        uint64 count;
         uint64 created;
     }
-    struct Result {
+    struct ItemResult {
         bytes32 hash;
         uint collectionId;
         address owner;
         uint created;
     }
-    function getReceiver(uint i) external view returns (ReceiverInterface);
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
-    function ownerOf(uint tokenId) external view returns (address);
+
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
-    function itemsLength() external view returns (uint);
-    function collectionsLength() external view returns (uint);
-    function getData(uint count, uint offset) external view returns (Result[] memory results);
+
+    function collectionsCount() external view returns (uint);
+    function itemsCount() external view returns (uint);
+    function getReceiver(uint i) external view returns (ReceiverInterface);
+    function ownerOf(uint tokenId) external view returns (address);
+    function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
+    function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
 }
 
 function onePlus(uint x) pure returns (uint) {
@@ -76,16 +86,17 @@ contract Receiver is ReceiverInterface {
 
 
 contract Utilities {
-    uint private constant MAXNAMELENGTH = 48;
+    uint private constant MAX_NAME_LENGTH = 64;
+    uint private constant MAX_DESCRIPTION_LENGTH = 128;
     bytes1 private constant SPACE = 0x20;
     bytes1 private constant TILDE = 0x7e;
 
-    /// @dev Is name valid? Length between 1 and `MAXNAMELENGTH`. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
+    /// @dev Is name valid? Length between 1 and `MAX_NAME_LENGTH`. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
     /// @param str Name to check
     /// @return True if valid
     function isValidName(string memory str) public pure returns (bool) {
         bytes memory b = bytes(str);
-        if (b.length < 1 || b.length > MAXNAMELENGTH) {
+        if (b.length < 1 || b.length > MAX_NAME_LENGTH) {
             return false;
         }
         if (b[0] == SPACE || b[b.length-1] == SPACE) {
@@ -104,6 +115,20 @@ contract Utilities {
         }
         return true;
     }
+
+    /// @dev Is description valid? Length between 1 and `MAX_DESCRIPTION_LENGTH`. No leading or trailing SPACEs
+    /// @param str Description to check
+    /// @return True if valid
+    function isValidDescription(string memory str) public pure returns (bool) {
+        bytes memory b = bytes(str);
+        if (b.length < 1 || b.length > MAX_DESCRIPTION_LENGTH) {
+            return false;
+        }
+        if (b[0] == SPACE || b[b.length-1] == SPACE) {
+            return false;
+        }
+        return true;
+    }
 }
 
 
@@ -117,9 +142,9 @@ contract Registry is RegistryInterface, Utilities {
         ReceiverInterface receiver;
         // string tokenUriPrefix;
         // string tokenUriPostfix;
-        bool locked;
+        uint64 lock;
         uint64 collectionId;
-        uint64 items;
+        uint64 count;
         uint64 created;
     }
     struct Data {
@@ -128,6 +153,13 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         uint64 created;
     }
+
+    uint64 private constant LOCK_NONE = 0x00;
+    uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
+    uint64 private constant LOCK_OWNER_REMOVE_ITEM = 0x02;
+    uint64 private constant LOCK_USER_ADD_ITEM = 0x04;
+    uint64 private constant LOCK_COLLECTION = 0x08;
+    uint64 private constant LOCK_ROYALTIES = 0x10;
 
     // Array of collection receivers
     ReceiverInterface[] public receivers;
@@ -151,8 +183,10 @@ contract Registry is RegistryInterface, Utilities {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
 
     error InvalidCollectionName();
+    error InvalidCollectionDescription();
     error DuplicateCollectionName();
     error NotOwner();
+    error InvalidLock();
     error Locked();
     error InvalidCollection();
     error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, uint created);
@@ -161,47 +195,56 @@ contract Registry is RegistryInterface, Utilities {
     error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
-        _newCollection("", "", false);
+        _newCollection("", "", LOCK_NONE);
     }
 
-    /// @dev Receiver address
-    function getReceiver(uint i) external view returns (ReceiverInterface) {
-        return receivers[i];
-    }
-
-    function _newCollection(string memory name, string memory description, bool locked) internal returns (uint) {
+    function _newCollection(string memory name, string memory description, uint lock) internal returns (uint) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, locked, uint64(receivers.length), 0, uint64(block.timestamp));
+        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, uint64(block.timestamp));
         receivers.push(receiver);
         return receivers.length - 1;
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description) external returns (uint /*_collectionId*/) {
+    function newCollection(string calldata name, string calldata description, uint lock) external returns (uint /*_collectionId*/) {
         if (!isValidName(name)) {
             revert InvalidCollectionName();
+        }
+        if (!isValidDescription(name)) {
+            revert InvalidCollectionDescription();
+        }
+        if ((lock & LOCK_USER_ADD_ITEM == LOCK_USER_ADD_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+            revert InvalidLock();
         }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
         if (collectionNameCheck[nameHash]) {
             revert DuplicateCollectionName();
         }
         collectionNameCheck[nameHash] = true;
-        return _newCollection(name, description, false);
+        return _newCollection(name, description, lock);
     }
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function lockCollection(uint collectionId) external {
+    function lockCollection(uint collectionId, uint lock) external {
         // ReceiverInterface receiver = receivers[collectionId];
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        if (!c.locked) {
+        if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        c.locked = true;
+        c.lock = uint64(lock);
     }
+
+
+    // uint64 private constant LOCK_NONE = 0x00;
+    // TODO: uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
+    // TODO: uint64 private constant LOCK_OWNER_REMOVE_ITEM = 0x02;
+    // uint64 private constant LOCK_USER_ADD_ITEM = 0x04;
+    // uint64 private constant LOCK_COLLECTION = 0x08;
+    // TODO: uint64 private constant LOCK_ROYALTIES = 0x10;
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return output Token Id encoded as bytes
@@ -213,6 +256,9 @@ contract Registry is RegistryInterface, Utilities {
         }
         if (c.collectionId > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
+            if ((c.lock & LOCK_USER_ADD_ITEM == LOCK_USER_ADD_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+                revert Locked();
+            }
         }
         Data memory d = data[hash];
         bool burnt = false;
@@ -222,7 +268,7 @@ contract Registry is RegistryInterface, Utilities {
             burnt = true;
         }
         // ~ USD 1.36 to get here
-        c.items++;
+        c.count++;
         // ~USD 1.49 to get here
         data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), uint64(block.timestamp));
         // ~USD 3.21 to get here
@@ -234,11 +280,6 @@ contract Registry is RegistryInterface, Utilities {
             hashes.push(hash);
             // 126,349 ~USD 5.05 to get here; 109,471 ~USD 4.37 for second item
         }
-    }
-
-    /// @dev Returns the owner of `tokenId`
-    function ownerOf(uint tokenId) external view returns (address) {
-        return data[hashes[tokenId]].owner;
     }
 
     /// @dev Approve or remove `operator` to execute {transfer} on the caller's tokens
@@ -279,35 +320,48 @@ contract Registry is RegistryInterface, Utilities {
 
 
     /// @dev Number of collections
-    function collectionsLength() external view returns (uint) {
+    function collectionsCount() external view returns (uint) {
         return receivers.length;
     }
 
     /// @dev Number of items
-    function itemsLength() external view returns (uint) {
+    function itemsCount() external view returns (uint) {
         return hashes.length;
     }
 
+    /// @dev Receiver address
+    function getReceiver(uint i) external view returns (ReceiverInterface) {
+        return receivers[i];
+    }
+
+    /// @dev Returns the owner of `tokenId`
+    function ownerOf(uint tokenId) external view returns (address) {
+        return data[hashes[tokenId]].owner;
+    }
+
+    /// @dev Get `count` rows of data beginning at `offset`
+    /// @param count Number of results
+    /// @param offset Offset
+    /// @return results
     function getCollections(uint count, uint offset) public view returns (CollectionResult[] memory results) {
         results = new CollectionResult[](count);
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.locked, c.items, c.created);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created);
         }
     }
-
 
     /// @dev Get `count` rows of data beginning at `offset`
     /// @param count Number of results
     /// @param offset Offset
     /// @return results [[hash, owner, created]]
-    function getData(uint count, uint offset) public view returns (Result[] memory results) {
-        results = new Result[](count);
+    function getItems(uint count, uint offset) public view returns (ItemResult[] memory results) {
+        results = new ItemResult[](count);
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
             Data memory d = data[hash];
-            results[i] = Result(hash, d.collectionId, d.owner, uint(d.created));
+            results[i] = ItemResult(hash, d.collectionId, d.owner, uint(d.created));
         }
     }
 }
