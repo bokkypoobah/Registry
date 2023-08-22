@@ -66,12 +66,12 @@ contract Owned {
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Exchange is Owned {
 
-    enum Action { Offer, Bid, Buy, Sell }
+    enum Action { Offer, Bid, Buy, Sell, CollectionBid, CollectionSell }
 
     struct Input {
         Action action;
         address account; // Required for Buy And Sell
-        uint tokenId;
+        uint id; // tokenId for Offer, Bid, Buy, Sell and CollectionSell, collectionId for CollectionBid
         uint price;
         uint expiry; // Required for Offer and Bid
     }
@@ -96,10 +96,8 @@ contract Exchange is Owned {
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
-    /// @dev `offers` from `account` to sell `tokenId` at `price`, at `timestamp`
-    event Offer(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
-    /// @dev `bids` from `account` to buy `tokenId` at `price`, at `timestamp`
-    event Bid(address indexed account, uint indexed tokenId, uint indexed price, uint expiry, uint timestamp);
+    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    event Order(address indexed account, Action action, uint indexed id, uint indexed price, uint expiry, uint timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
     event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
@@ -134,41 +132,37 @@ contract Exchange is Owned {
     function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
-            if (input.action == Action.Offer || input.action == Action.Bid) {
+            if (input.action == Action.Offer || input.action == Action.Bid || input.action == Action.CollectionBid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
-                orders[msg.sender][input.tokenId][input.action] = Record(uint192(input.price), uint64(input.expiry));
-                if (input.action == Action.Offer) {
-                    emit Offer(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
-                } else if (input.action == Action.Bid) {
-                    emit Bid(msg.sender, input.tokenId, input.price, input.expiry, block.timestamp);
-                }
+                orders[msg.sender][input.id][input.action] = Record(uint192(input.price), uint64(input.expiry));
+                emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
             } else if (input.action == Action.Buy || input.action == Action.Sell) {
                 (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
                 if (buyer == seller) {
-                    revert CannotSelfTrade(input.tokenId);
+                    revert CannotSelfTrade(input.id);
                 }
-                address tokenOwner = registry.ownerOf(input.tokenId);
+                address tokenOwner = registry.ownerOf(input.id);
                 if (seller != tokenOwner) {
-                    revert IncorrectOwner(input.tokenId, tokenOwner, seller);
+                    revert IncorrectOwner(input.id, tokenOwner, seller);
                 }
                 Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
-                Record memory order = orders[input.account][input.tokenId][orderAction];
+                Record memory order = orders[input.account][input.id][orderAction];
                 if (order.expiry == 0) {
-                    revert OrderInvalid(input.tokenId, input.account);
+                    revert OrderInvalid(input.id, input.account);
                 } else if (order.expiry < block.timestamp) {
-                    revert OrderExpired(input.tokenId, order.expiry);
+                    revert OrderExpired(input.id, order.expiry);
                 }
                 uint orderPrice = uint(order.price);
                 if (orderPrice != input.price) {
-                    revert PriceMismatch(input.tokenId, orderPrice, input.price);
+                    revert PriceMismatch(input.id, orderPrice, input.price);
                 }
                 uint available = availableWeth(buyer);
                 if (available < orderPrice) {
-                    revert BuyerHasInsufficientWeth(buyer, input.tokenId, orderPrice, available);
+                    revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                 }
-                delete orders[input.account][input.tokenId][orderAction];
+                delete orders[input.account][input.id][orderAction];
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                 if (uiFeeAccount != address(0)) {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
@@ -176,8 +170,8 @@ contract Exchange is Owned {
                 } else {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
                 }
-                registry.transfer(buyer, input.tokenId);
-                emit Trade(msg.sender, input.account, input.action, input.tokenId, orderPrice, block.timestamp);
+                registry.transfer(buyer, input.id);
+                emit Trade(msg.sender, input.account, input.action, input.id, orderPrice, block.timestamp);
             }
         }
     }

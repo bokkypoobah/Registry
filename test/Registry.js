@@ -170,7 +170,7 @@ describe("Registry", function () {
     }
     console.log();
 
-    const collectionData = await data.registry.getCollections(10, 0);
+    const collectionData = await data.registry.getCollections(5, 0);
     console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
 
     let i = 0;
@@ -189,7 +189,7 @@ describe("Registry", function () {
     console.log();
 
     const receiver = await data.registry.getReceiver(0);
-    const items = await data.registry.getItems(10, 0);
+    const items = await data.registry.getItems(5, 0);
     i = 0;
     console.log("       Id String:Hash                    Collection Id Owner                          Registered");
     console.log("      --- ------------------------------ ------------- ------------------------------ ------------------------");
