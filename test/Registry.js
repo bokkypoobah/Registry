@@ -15,6 +15,21 @@ const INPUT_OFFER = 0;
 const INPUT_BID = 1;
 const INPUT_BUY = 2;
 const INPUT_SELL = 3;
+const INPUT_COLLECTION_OFFER = 4;
+const INPUT_COLLECTION_BID = 5;
+const INPUT_COLLECTION_BUY = 6;
+const INPUT_COLLECTION_SELL = 7;
+
+const INPUT = {
+  "OFFER": 0,
+  "BID": 1,
+  "BUY": 2,
+  "SELL": 3,
+  "COLLECTION_OFFER": 4,
+  "COLLECTION_BID": 5,
+  "COLLECTION_BUY": 6,
+  "COLLECTION_SELL": 7,
+};
 
 describe("Registry", function () {
   async function deployFixture() {
@@ -216,6 +231,68 @@ describe("Registry", function () {
     // }
     console.log();
   }
+
+
+  describe("Exchange Order Types", function () {
+    it.only("Exchange Order Types #1", async function () {
+      const data = await loadFixture(deployFixture);
+
+      addHash("", data, "user0string0");
+      addHash("", data, "user0string1");
+      addHash("", data, "user0string2");
+      addHash("", data, "user0string3");
+      addHash("", data, "user0string4");
+
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
+
+      const expiry = parseInt(new Date() / 1000) + 60 * 60;
+      const offerData = [[INPUT_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const tx5 = await data.exchange.connect(data.user0).execute(offerData, data.uiFeeAccount);
+      await printTx(data, "tx5", await tx5.wait());
+
+      const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
+      // await printTx(data, "tx6", await tx6.wait());
+
+      await printState(data, "DEBUG");
+
+      const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.1"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("3.3"), 0]];
+      const tx7 = await data.exchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
+      await printTx(data, "tx7", await tx7.wait());
+
+      // expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
+      // expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.000615"));
+      // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.000615"));
+      //
+      // // Update fee to 7bp
+      // await expect(data.exchange.connect(data.deployer).updateFee(7))
+      //   .to.emit(data.exchange, "FeeUpdated")
+      //   .withArgs(5, 7, anyValue);
+      // expect(await data.exchange.fee()).to.equal(7);
+      //
+      // const buyData2 = [[INPUT_BUY, data.user0.address, 2, ethers.parseEther("1.23"), 0]];
+      // const tx8 = await data.exchange.connect(data.user2).execute(buyData2, data.uiFeeAccount);
+      // await printTx(data, "tx8", await tx8.wait());
+      //
+      // expect(await data.weth.balanceOf(data.user2)).to.equal(ethers.parseEther("998.77"));
+      // expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.0010455"));
+      // expect(await data.weth.balanceOf(data.uiFeeAccount)).to.equal(ethers.parseEther("0.0010455"));
+      //
+      // const bidData = [[INPUT_BID, ZERO_ADDRESS, 0, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("1.11"), expiry], [INPUT_BID, ZERO_ADDRESS, 4, ethers.parseEther("1.11"), expiry]];
+      // const tx9 = await data.exchange.connect(data.user2).execute(bidData, data.uiFeeAccount);
+      // await printTx(data, "tx9", await tx9.wait());
+      //
+      // const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.exchange.target, true);
+
+
+
+
+      await printState(data, "End");
+    });
+  });
 
 
   describe("Receiver", function () {
@@ -461,7 +538,7 @@ describe("Registry", function () {
 
   // TODO: Fix bug
   describe("Exchange - Update Fee", function () {
-    it.only("Exchange - Update Fee #1", async function () {
+    it("Exchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
