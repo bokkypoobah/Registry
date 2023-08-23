@@ -45,6 +45,8 @@ Testing script [test/Registry.js](test/Registry.js), executed using [10_testIt.s
       * [ ] TODO: Can remove items, as permissioned
       * [ ] TODO: Can update royalties, as permissioned
 * [ ] [contracts/RegistryExchange](contracts/RegistryExchange.sol)
+  * [ ] TODO
+    * [ ] Check Action cannot be set out of range
   * [ ] Owned
     * [ ] `transferOwnership(...)` can only be executed by `owner`
     * [ ] `acceptOwnership()` can only be executed by `newOwner`

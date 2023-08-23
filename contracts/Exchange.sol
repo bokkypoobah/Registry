@@ -129,7 +129,7 @@ contract Exchange is Owned {
     // Buy (maker, tokenId) from Offer (tokenId -> maker -> Offer) - don't need account as can only buy from the owner
     // Sell (maker, tokenId) into Bid (tokenId -> maker -> Bid)
     // CollectionBuy (maker, tokenId) from CollectionOffer (tokenId -> collectionId -> maker -> CollectionOffer)
-    // CollectionSell (maker, collectionId) into CollectionBid (tokenId -> maker -> CollectionBid)
+    // CollectionSell (maker, tokenId) into CollectionBid (tokenId -> collectionId -> maker -> CollectionBid)
     // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
 
     /// @dev Execute Offer, Bid, Buy and Sell orders
@@ -139,58 +139,82 @@ contract Exchange is Owned {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
 
-            Action action;
+            Action baseAction;
             bool collectionMode;
             if (uint(input.action) <= uint(Action.Sell)) {
-                action = input.action;
+                baseAction = input.action;
             } else {
-                action = Action(uint(input.action) - uint(Action.Sell));
+                baseAction = Action(uint(input.action) - uint(Action.Sell));
                 collectionMode = true;
             }
 
             // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
             // action maps { CollectionOffer, CollectionBid, CollectionBuy, CollectionSell } to { Offer, Bid, Buy, Sell } & collectionMode = true
 
-            if (action == Action.Offer || action == Action.Bid) {
+            // Offer, Bid, CollectionOffer & CollectionBid
+            if (baseAction == Action.Offer || baseAction == Action.Bid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
                 orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.expiry));
                 emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
-            } else if (action == Action.Buy || action == Action.Sell) {
-                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
-                if (buyer == seller) {
-                    revert CannotSelfTrade(input.id);
-                }
-                address tokenOwner = registry.ownerOf(input.id);
-                if (seller != tokenOwner) {
-                    revert IncorrectOwner(input.id, tokenOwner, seller);
-                }
-                Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
-                Record memory order = orders[input.account][input.id][orderAction];
-                if (order.expiry == 0) {
-                    revert OrderInvalid(input.id, input.account);
-                } else if (order.expiry < block.timestamp) {
-                    revert OrderExpired(input.id, order.expiry);
-                }
-                uint orderPrice = uint(order.price);
-                if (orderPrice != input.price) {
-                    revert PriceMismatch(input.id, orderPrice, input.price);
-                }
-                uint available = availableWeth(buyer);
-                if (available < orderPrice) {
-                    revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
-                }
-                delete orders[input.account][input.id][orderAction];
-                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
-                if (uiFeeAccount != address(0)) {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
-                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
+            } else {
+
+                // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
+                Action matchingAction = Action(uint(input.action) - 2);
+
+                address buyer;
+                address seller;
+                Record memory order;
+
+                if (baseAction == Action.Buy) {
+                    // Buy and CollectionBuy
+                    buyer = msg.sender;
+                    seller = registry.ownerOf(input.id);
+                    // if (seller != tokenOwner) {
+                    //     revert IncorrectOwner(input.id, tokenOwner, seller);
+                    // }
                 } else {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
+                    // Sell & Collection Sell
+                    seller = msg.sender;
+                    buyer = input.account; //registry.ownerOf(input.id);
                 }
-                registry.transfer(buyer, input.id);
-                emit Trade(msg.sender, input.account, input.action, input.id, orderPrice, block.timestamp);
+
+                if (baseAction == Action.Buy || baseAction == Action.Sell) {
+                    // (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
+                    if (buyer == seller) {
+                        revert CannotSelfTrade(input.id);
+                    }
+                    address tokenOwner = registry.ownerOf(input.id);
+                    if (seller != tokenOwner) {
+                        revert IncorrectOwner(input.id, tokenOwner, seller);
+                    }
+                    Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
+                    order = orders[input.account][input.id][orderAction];
+                    if (order.expiry == 0) {
+                        revert OrderInvalid(input.id, input.account);
+                    } else if (order.expiry < block.timestamp) {
+                        revert OrderExpired(input.id, order.expiry);
+                    }
+                    uint orderPrice = uint(order.price);
+                    if (orderPrice != input.price) {
+                        revert PriceMismatch(input.id, orderPrice, input.price);
+                    }
+                    uint available = availableWeth(buyer);
+                    if (available < orderPrice) {
+                        revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
+                    }
+                    delete orders[input.account][input.id][orderAction];
+                    weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
+                    if (uiFeeAccount != address(0)) {
+                        weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
+                        weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
+                    } else {
+                        weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
+                    }
+                    registry.transfer(buyer, input.id);
+                    emit Trade(msg.sender, input.account, input.action, input.id, orderPrice, block.timestamp);
+                }
             }
         }
     }
