@@ -126,9 +126,9 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
-    // Buy (maker, tokenId) from Offer (tokenId -> maker -> Offer)
+    // Buy (maker, tokenId) from Offer (tokenId -> maker -> Offer) - don't need account as can only buy from the owner
     // Sell (maker, tokenId) into Bid (tokenId -> maker -> Bid)
-    // CollectionBuy (maker, collectionId) from CollectionOffer (tokenId -> maker -> CollectionOffer)
+    // CollectionBuy (maker, tokenId) from CollectionOffer (tokenId -> collectionId -> maker -> CollectionOffer)
     // CollectionSell (maker, collectionId) into CollectionBid (tokenId -> maker -> CollectionBid)
     // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
 
@@ -139,22 +139,25 @@ contract Exchange is Owned {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
 
-            Action inputAction;
+            Action action;
             bool collectionMode;
             if (uint(input.action) <= uint(Action.Sell)) {
-                inputAction = input.action;
+                action = input.action;
             } else {
-                inputAction = Action(uint(input.action) - uint(Action.Sell));
+                action = Action(uint(input.action) - uint(Action.Sell));
                 collectionMode = true;
             }
 
-            if (inputAction == Action.Offer || inputAction == Action.Bid) {
+            // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
+            // action maps { CollectionOffer, CollectionBid, CollectionBuy, CollectionSell } to { Offer, Bid, Buy, Sell } & collectionMode = true
+
+            if (action == Action.Offer || action == Action.Bid) {
                 if (input.price > PRICE_MAX) {
                     revert InvalidPrice(input.price, PRICE_MAX);
                 }
                 orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.expiry));
                 emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
-            } else if (inputAction == Action.Buy || inputAction == Action.Sell) {
+            } else if (action == Action.Buy || action == Action.Sell) {
                 (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
                 if (buyer == seller) {
                     revert CannotSelfTrade(input.id);
