@@ -132,6 +132,9 @@ contract Exchange is Owned {
     // CollectionSell (maker, tokenId) into CollectionBid (tokenId -> collectionId -> maker -> CollectionBid)
     // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
 
+    event DebugUint(string topic, uint u);
+    event DebugAddress(string topic, address a);
+
     /// @dev Execute Offer, Bid, Buy and Sell orders
     /// @param inputs [[action, account, tokenId, price, expiry]]
     /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
@@ -144,7 +147,7 @@ contract Exchange is Owned {
             if (uint(input.action) <= uint(Action.Sell)) {
                 baseAction = input.action;
             } else {
-                baseAction = Action(uint(input.action) - uint(Action.Sell));
+                baseAction = Action(uint(input.action) - 4);
                 collectionMode = true;
             }
 
@@ -188,9 +191,15 @@ contract Exchange is Owned {
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.id, orderPrice, input.price);
                 }
-                // Check tokenOwner
-                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
+                emit DebugUint("input.action", uint(input.action));
+                emit DebugUint("baseAction", uint(baseAction));
+                emit DebugAddress("msg.sender: ", msg.sender);
+                emit DebugAddress("input.counterparty: ", input.counterparty);
+                (address buyer, address seller) = baseAction == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
                 address tokenOwner = registry.ownerOf(input.id);
+                emit DebugUint("tokenId", input.id);
+                emit DebugAddress("tokenOwner: ", tokenOwner);
+                emit DebugAddress("seller: ", seller);
                 if (seller != tokenOwner) {
                     revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
                 }

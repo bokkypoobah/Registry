@@ -343,14 +343,14 @@ describe("Registry", function () {
       const tx9 = await data.exchange.connect(data.user1).execute(collectionOfferData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
-      const tx10 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
+      const tx10 = await data.registry.connect(data.user1).setApprovalForAll(data.exchange.target, true);
       // await printTx(data, "tx10", await tx10.wait());
 
       await printState(data, "DEBUG");
 
-      // const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0]];
-      // const tx7 = await data.exchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
-      // await printTx(data, "tx7", await tx7.wait());
+      const sellData1 = [[INPUT_COLLECTION_BUY, data.user1.address, 6, ethers.parseEther("1.1"), 0]];
+      const tx11 = await data.exchange.connect(data.user2).execute(sellData1, data.uiFeeAccount);
+      await printTx(data, "tx11", await tx11.wait());
 
       // expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
       // expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.000615"));
