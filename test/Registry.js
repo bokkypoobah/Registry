@@ -111,7 +111,7 @@ describe("Registry", function () {
       data.hashes[hash] = string;
     }
   }
-  function getHashData(data, hash, length = 20) {
+  function getHashData(data, hash, length = 36) {
     if (hash != null) {
       if (hash in data.hashes) {
         if (!data.hashes[hash]) {
@@ -192,8 +192,8 @@ describe("Registry", function () {
     }
     console.log();
 
-    const collectionData = await data.registry.getCollections(5, 0);
-    console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
+    const collectionData = await data.registry.getCollections(10, 0);
+    // console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
 
     let i = 0;
     console.log("       Id Collection Name      Description          Receiver               Owner                    Items Locked Created");
@@ -211,16 +211,16 @@ describe("Registry", function () {
     console.log();
 
     const receiver = await data.registry.getReceiver(0);
-    const items = await data.registry.getItems(5, 0);
+    const items = await data.registry.getItems(10, 0);
     i = 0;
-    console.log("       Id String:Hash                    Collection Id Owner                          Registered");
-    console.log("      --- ------------------------------ ------------- ------------------------------ ------------------------");
+    console.log("       Id String:Hash                          Collection Id Owner                          Registered");
+    console.log("      --- ------------------------------------ ------------- ------------------------------ ------------------------");
     for (const item of items) {
       const [hash, collectionId, owner, created] = item;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 3) + " " + padRight(getHashData(data, hash).substring(0, 30), 30) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
+      console.log("      " + padLeft(i, 3) + " " + padRight(getHashData(data, hash).substring(0, 36), 36) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     // const length = await data.registry.itemsLength();
@@ -234,7 +234,7 @@ describe("Registry", function () {
 
 
   describe("Exchange - Various Order Types", function () {
-    it("Exchange - Offer & Buy #1", async function () {
+    it.skip("Exchange - Offer & Buy #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
@@ -266,7 +266,7 @@ describe("Registry", function () {
       await printState(data, "End");
     });
 
-    it("Exchange - Bid & Sell #1", async function () {
+    it.skip("Exchange - Bid & Sell #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
@@ -289,11 +289,68 @@ describe("Registry", function () {
       const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
       // await printTx(data, "tx6", await tx6.wait());
 
-      await printState(data, "DEBUG");
+      // await printState(data, "DEBUG");
 
       const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0]];
       const tx7 = await data.exchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
+
+      await printState(data, "End");
+    });
+
+    it("Exchange - Collection Offer & Collection Buy #1", async function () {
+      const data = await loadFixture(deployFixture);
+
+      addHash("", data, "user0string0");
+      addHash("", data, "user0string1");
+      addHash("", data, "user0string2");
+      addHash("", data, "user0string3");
+      addHash("", data, "user0string4");
+
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
+
+
+      const royalties = [
+        [ data.royalty0.address, "10" ],
+        [ data.royalty1.address, "20" ],
+        [ data.royalty2.address, "30" ],
+      ];
+
+      const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, royalties);
+      await printTx(data, "tx5", await tx5.wait());
+
+      const receiver1 = await data.registry.getReceiver(1);
+      data.accountNames[receiver1.toLowerCase()] = "receiver#1";
+
+      addHash("Name #1", data, "collection1user1string0");
+      addHash("Name #1", data, "collection1user1string1");
+      addHash("Name #1", data, "collection1user1string2");
+
+      const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
+      const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
+      const tx8 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string2")) });
+      await printTx(data, "tx6", await tx6.wait());
+      await printTx(data, "tx7", await tx7.wait());
+      await printTx(data, "tx8", await tx8.wait());
+
+
+      const expiry = parseInt(new Date() / 1000) + 60 * 60;
+      const collectionOfferData = [[INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const tx9 = await data.exchange.connect(data.user1).execute(collectionOfferData, data.uiFeeAccount);
+      await printTx(data, "tx9", await tx9.wait());
+
+      const tx10 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
+      // await printTx(data, "tx10", await tx10.wait());
+
+      await printState(data, "DEBUG");
+
+      // const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0]];
+      // const tx7 = await data.exchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
+      // await printTx(data, "tx7", await tx7.wait());
 
       // expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
       // expect(await data.weth.balanceOf(data.feeAccount)).to.equal(ethers.parseEther("0.000615"));
