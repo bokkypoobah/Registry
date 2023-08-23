@@ -53,7 +53,8 @@ interface RegistryInterface {
 
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
-    function getReceiver(uint i) external view returns (ReceiverInterface);
+    function getCollectionId(uint tokenId) external view returns (uint collectionId);
+    function getReceiver(uint i) external view returns (ReceiverInterface receiver);
     function ownerOf(uint tokenId) external view returns (address);
     function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
     function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
@@ -78,7 +79,7 @@ contract Receiver is ReceiverInterface {
 
     /// @dev Fallback function so tx.data = payload
     /// @param input tx.data payload
-    /// @return output TokenId, sequential from 0
+    /// @return output Token Id, sequential from 0
     fallback(bytes calldata input) external returns (bytes memory output) {
         return _registry.register(keccak256(abi.encodePacked(input)), msg.sender);
     }
@@ -415,6 +416,13 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Receiver address
     function getReceiver(uint i) external view returns (ReceiverInterface) {
         return receivers[i];
+    }
+
+    /// @dev Returns the `collectionId` of `tokenId`
+    /// @param tokenId Token Id
+    /// @return collectionId Collection Id
+    function getCollectionId(uint tokenId) external view returns (uint collectionId) {
+        return data[hashes[tokenId]].collectionId;
     }
 
     /// @dev Get royalties for `collectionId`

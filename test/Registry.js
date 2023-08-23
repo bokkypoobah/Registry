@@ -507,6 +507,8 @@ describe("Registry", function () {
       const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
       // await printTx(data, "tx6", await tx6.wait());
 
+      await printState(data, "DEBUG");
+
       const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.23"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("1.23"), 0]];
       const tx7 = await data.exchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());

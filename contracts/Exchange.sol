@@ -70,7 +70,7 @@ contract Exchange is Owned {
 
     struct Input {
         Action action;
-        address account; // ? Required for Buy And Sell
+        address counterparty; // ? Required for Buy And Sell
         uint id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
         uint price;
         uint expiry; // ? Required for Offer and Bid
@@ -108,7 +108,7 @@ contract Exchange is Owned {
     event FeeUpdated(uint indexed oldFee, uint indexed newFee, uint timestamp);
 
     error InvalidPrice(uint price, uint maxPrice);
-    error IncorrectOwner(uint tokenId, address tokenOwner, address orderOwner);
+    error SellerDoesNotOwnToken(uint tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(uint tokenId, uint expiry);
     error OrderInvalid(uint tokenId, address account);
     error CannotSelfTrade(uint tokenId);
@@ -158,55 +158,51 @@ contract Exchange is Owned {
                 }
                 orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.expiry));
                 emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
+            // Buy, Sell, CollectionBuy, CollectionSell
             } else {
-
+                if (msg.sender == input.counterparty) {
+                    revert CannotSelfTrade(input.id);
+                }
                 // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
                 Action matchingAction = Action(uint(input.action) - 2);
-
-                address buyer;
-                address seller;
                 Record memory order;
-
-                if (baseAction == Action.Buy) {
-                    // Buy and CollectionBuy
-                    buyer = msg.sender;
-                    seller = registry.ownerOf(input.id);
-                    order = orders[input.account][input.id][matchingAction];
-                    // if (seller != tokenOwner) {
-                    //     revert IncorrectOwner(input.id, tokenOwner, seller);
-                    // }
-                } else {
-                    // Sell & Collection Sell
-                    seller = msg.sender;
-                    buyer = input.account; //registry.ownerOf(input.id);
-                    order = orders[input.account][input.id][matchingAction];
-                }
-
-                if (baseAction == Action.Buy || baseAction == Action.Sell) {
-                    // (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.account) : (input.account, msg.sender);
-                    if (buyer == seller) {
-                        revert CannotSelfTrade(input.id);
-                    }
-                    address tokenOwner = registry.ownerOf(input.id);
-                    if (seller != tokenOwner) {
-                        revert IncorrectOwner(input.id, tokenOwner, seller);
-                    }
-                    Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
-                    // order = orders[input.account][input.id][orderAction];
+                // Buy & Sell
+                if (input.action == Action.Buy || input.action == Action.Sell) {
+                    order = orders[input.counterparty][input.id][matchingAction];
                     if (order.expiry == 0) {
-                        revert OrderInvalid(input.id, input.account);
+                        revert OrderInvalid(input.id, input.counterparty);
                     } else if (order.expiry < block.timestamp) {
                         revert OrderExpired(input.id, order.expiry);
                     }
-                    uint orderPrice = uint(order.price);
-                    if (orderPrice != input.price) {
-                        revert PriceMismatch(input.id, orderPrice, input.price);
+                // CollectionBuy & CollectionSell
+                } else {
+                    uint collectionId = registry.getCollectionId(input.id);
+                    order = orders[input.counterparty][collectionId][matchingAction];
+                    if (order.expiry == 0) {
+                        revert OrderInvalid(collectionId, input.counterparty);
+                    } else if (order.expiry < block.timestamp) {
+                        revert OrderExpired(collectionId, order.expiry);
                     }
+                }
+                uint orderPrice = uint(order.price);
+                if (orderPrice != input.price) {
+                    revert PriceMismatch(input.id, orderPrice, input.price);
+                }
+                // Check tokenOwner
+                (address buyer, address seller) = input.action == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
+                address tokenOwner = registry.ownerOf(input.id);
+                if (seller != tokenOwner) {
+                    revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
+                }
+
+                if (baseAction == Action.Buy || baseAction == Action.Sell) {
+                    Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
+                    // order = orders[input.account][input.id][orderAction];
                     uint available = availableWeth(buyer);
                     if (available < orderPrice) {
                         revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                     }
-                    delete orders[input.account][input.id][orderAction];
+                    delete orders[input.counterparty][input.id][orderAction];
                     weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                     if (uiFeeAccount != address(0)) {
                         weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
@@ -215,7 +211,7 @@ contract Exchange is Owned {
                         weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
                     }
                     registry.transfer(buyer, input.id);
-                    emit Trade(msg.sender, input.account, input.action, input.id, orderPrice, block.timestamp);
+                    emit Trade(msg.sender, input.counterparty, input.action, input.id, orderPrice, block.timestamp);
                 }
             }
         }
