@@ -171,6 +171,7 @@ contract Exchange is Owned {
                     // Buy and CollectionBuy
                     buyer = msg.sender;
                     seller = registry.ownerOf(input.id);
+                    order = orders[input.account][input.id][matchingAction];
                     // if (seller != tokenOwner) {
                     //     revert IncorrectOwner(input.id, tokenOwner, seller);
                     // }
@@ -178,6 +179,7 @@ contract Exchange is Owned {
                     // Sell & Collection Sell
                     seller = msg.sender;
                     buyer = input.account; //registry.ownerOf(input.id);
+                    order = orders[input.account][input.id][matchingAction];
                 }
 
                 if (baseAction == Action.Buy || baseAction == Action.Sell) {
@@ -190,7 +192,7 @@ contract Exchange is Owned {
                         revert IncorrectOwner(input.id, tokenOwner, seller);
                     }
                     Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
-                    order = orders[input.account][input.id][orderAction];
+                    // order = orders[input.account][input.id][orderAction];
                     if (order.expiry == 0) {
                         revert OrderInvalid(input.id, input.account);
                     } else if (order.expiry < block.timestamp) {
