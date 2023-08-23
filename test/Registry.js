@@ -233,8 +233,8 @@ describe("Registry", function () {
   }
 
 
-  describe("Exchange Order Types", function () {
-    it.only("Exchange Order Types #1", async function () {
+  describe("Exchange - Various Order Types", function () {
+    it("Exchange - Offer & Buy #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
@@ -257,10 +257,42 @@ describe("Registry", function () {
       const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
       // await printTx(data, "tx6", await tx6.wait());
 
-      await printState(data, "DEBUG");
+      // await printState(data, "DEBUG");
 
       const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.1"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("3.3"), 0]];
       const tx7 = await data.exchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
+      await printTx(data, "tx7", await tx7.wait());
+
+      await printState(data, "End");
+    });
+
+    it("Exchange - Bid & Sell #1", async function () {
+      const data = await loadFixture(deployFixture);
+
+      addHash("", data, "user0string0");
+      addHash("", data, "user0string1");
+      addHash("", data, "user0string2");
+      addHash("", data, "user0string3");
+      addHash("", data, "user0string4");
+
+      const tx0 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string0")) });
+      const tx1 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string1")) });
+      const tx2 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string2")) });
+      const tx3 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string3")) });
+      const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
+
+      const expiry = parseInt(new Date() / 1000) + 60 * 60;
+      const bidData = [[INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const tx5 = await data.exchange.connect(data.user1).execute(bidData, data.uiFeeAccount);
+      await printTx(data, "tx5", await tx5.wait());
+
+      const tx6 = await data.registry.connect(data.user0).setApprovalForAll(data.exchange.target, true);
+      // await printTx(data, "tx6", await tx6.wait());
+
+      await printState(data, "DEBUG");
+
+      const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0]];
+      const tx7 = await data.exchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
 
       // expect(await data.weth.balanceOf(data.user1)).to.equal(ethers.parseEther("997.54"));
@@ -287,16 +319,13 @@ describe("Registry", function () {
       //
       // const tx10 = await data.registry.connect(data.user2).setApprovalForAll(data.exchange.target, true);
 
-
-
-
       await printState(data, "End");
     });
   });
 
 
   describe("Receiver", function () {
-    it("Receiver #1", async function () {
+    it.skip("Receiver #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -340,7 +369,7 @@ describe("Registry", function () {
 
 
   describe("Registry", function () {
-    it("Registry #1", async function () {
+    it.skip("Registry #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -397,7 +426,7 @@ describe("Registry", function () {
 
 
   describe("Registry - Collections", function () {
-    it("Registry - Collections #1", async function () {
+    it.skip("Registry - Collections #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -459,7 +488,7 @@ describe("Registry", function () {
 
 
   describe("Exchange - Owned", function () {
-    it("Exchange - Owned #1", async function () {
+    it.skip("Exchange - Owned #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -493,7 +522,7 @@ describe("Registry", function () {
 
 
   describe("Exchange - Bulk Transfer", function () {
-    it("Exchange - Bulk Transfer #1", async function () {
+    it.skip("Exchange - Bulk Transfer #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -538,7 +567,7 @@ describe("Registry", function () {
 
   // TODO: Fix bug
   describe("Exchange - Update Fee", function () {
-    it("Exchange - Update Fee #1", async function () {
+    it.skip("Exchange - Update Fee #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -631,7 +660,7 @@ describe("Registry", function () {
 
 
   describe("Exchange - Offer & Buy", function () {
-    it("Exchange - Offer & Buy #1", async function () {
+    it.skip("Exchange - Offer & Buy #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -641,7 +670,7 @@ describe("Registry", function () {
 
 
   describe("Exchange - Bid & Sell", function () {
-    it("Exchange - Bid & Sell #1", async function () {
+    it.skip("Exchange - Bid & Sell #1", async function () {
       const data = await loadFixture(deployFixture);
       // await printState(data, "Empty");
 
@@ -811,7 +840,7 @@ describe("Registry", function () {
 
   // describe("Withdrawals", function () {
   //   describe("Validations", function () {
-  //     it("Should revert with the right error if called too soon", async function () {
+  //     it.skip("Should revert with the right error if called too soon", async function () {
   //       const { lock } = await loadFixture(deployOneYearLockFixture);
   //
   //       await expect(lock.withdraw()).to.be.revertedWith(
@@ -819,7 +848,7 @@ describe("Registry", function () {
   //       );
   //     });
   //
-  //     it("Should revert with the right error if called from another account", async function () {
+  //     it.skip("Should revert with the right error if called from another account", async function () {
   //       const { lock, unlockTime, otherAccount } = await loadFixture(
   //         deployOneYearLockFixture
   //       );
@@ -833,7 +862,7 @@ describe("Registry", function () {
   //       );
   //     });
   //
-  //     it("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
+  //     it.skip("Shouldn't fail if the unlockTime has arrived and the owner calls it", async function () {
   //       const { lock, unlockTime } = await loadFixture(
   //         deployOneYearLockFixture
   //       );
@@ -846,7 +875,7 @@ describe("Registry", function () {
   //   });
   //
   //   describe("Events", function () {
-  //     it("Should emit an event on withdrawals", async function () {
+  //     it.skip("Should emit an event on withdrawals", async function () {
   //       const { lock, unlockTime, lockedAmount } = await loadFixture(
   //         deployOneYearLockFixture
   //       );
@@ -860,7 +889,7 @@ describe("Registry", function () {
   //   });
   //
   //   describe("Transfers", function () {
-  //     it("Should transfer the funds to the owner", async function () {
+  //     it.skip("Should transfer the funds to the owner", async function () {
   //       const { lock, unlockTime, lockedAmount, owner } = await loadFixture(
   //         deployOneYearLockFixture
   //       );
