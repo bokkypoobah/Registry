@@ -168,60 +168,48 @@ contract Exchange is Owned {
                 }
                 // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
                 Action matchingAction = Action(uint(input.action) - 2);
-                Record memory order;
-                // Buy & Sell
+                uint matchingId;
                 if (input.action == Action.Buy || input.action == Action.Sell) {
-                    order = orders[input.counterparty][input.id][matchingAction];
-                    if (order.expiry == 0) {
-                        revert OrderInvalid(input.id, input.counterparty);
-                    } else if (order.expiry < block.timestamp) {
-                        revert OrderExpired(input.id, order.expiry);
-                    }
-                // CollectionBuy & CollectionSell
+                    matchingId = input.id;
                 } else {
-                    uint collectionId = registry.getCollectionId(input.id);
-                    order = orders[input.counterparty][collectionId][matchingAction];
-                    if (order.expiry == 0) {
-                        revert OrderInvalid(collectionId, input.counterparty);
-                    } else if (order.expiry < block.timestamp) {
-                        revert OrderExpired(collectionId, order.expiry);
-                    }
+                    matchingId = registry.getCollectionId(input.id);
+                }
+                Record memory order = orders[input.counterparty][matchingId][matchingAction];
+                if (order.expiry == 0) {
+                    revert OrderInvalid(matchingId, input.counterparty);
+                } else if (order.expiry < block.timestamp) {
+                    revert OrderExpired(matchingId, order.expiry);
                 }
                 uint orderPrice = uint(order.price);
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.id, orderPrice, input.price);
                 }
-                emit DebugUint("input.action", uint(input.action));
-                emit DebugUint("baseAction", uint(baseAction));
-                emit DebugAddress("msg.sender: ", msg.sender);
-                emit DebugAddress("input.counterparty: ", input.counterparty);
+                // emit DebugUint("input.action", uint(input.action));
+                // emit DebugUint("baseAction", uint(baseAction));
+                // emit DebugAddress("msg.sender: ", msg.sender);
+                // emit DebugAddress("input.counterparty: ", input.counterparty);
                 (address buyer, address seller) = baseAction == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
                 address tokenOwner = registry.ownerOf(input.id);
-                emit DebugUint("tokenId", input.id);
-                emit DebugAddress("tokenOwner: ", tokenOwner);
-                emit DebugAddress("seller: ", seller);
+                // emit DebugUint("tokenId", input.id);
+                // emit DebugAddress("tokenOwner: ", tokenOwner);
+                // emit DebugAddress("seller: ", seller);
                 if (seller != tokenOwner) {
                     revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
                 }
-
-                if (baseAction == Action.Buy || baseAction == Action.Sell) {
-                    Action orderAction = input.action == Action.Buy ? Action.Offer : Action.Bid;
-                    // order = orders[input.account][input.id][orderAction];
-                    uint available = availableWeth(buyer);
-                    if (available < orderPrice) {
-                        revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
-                    }
-                    delete orders[input.counterparty][input.id][orderAction];
-                    weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
-                    if (uiFeeAccount != address(0)) {
-                        weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
-                        weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
-                    } else {
-                        weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
-                    }
-                    registry.transfer(buyer, input.id);
-                    emit Trade(msg.sender, input.counterparty, input.action, input.id, orderPrice, block.timestamp);
+                uint available = availableWeth(buyer);
+                if (available < orderPrice) {
+                    revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                 }
+                delete orders[input.counterparty][matchingId][matchingAction];
+                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
+                if (uiFeeAccount != address(0)) {
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
+                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
+                } else {
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
+                }
+                registry.transfer(buyer, input.id);
+                emit Trade(msg.sender, input.counterparty, input.action, input.id, orderPrice, block.timestamp);
             }
         }
     }
