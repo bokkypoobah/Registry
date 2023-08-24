@@ -99,7 +99,7 @@ contract Exchange is Owned {
     /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
     event Order(address indexed account, Action action, uint indexed id, uint indexed price, uint expiry, uint timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
-    event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint price, uint timestamp);
+    event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint collectionId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
     event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, uint timestamp);
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
@@ -143,12 +143,12 @@ contract Exchange is Owned {
             Input memory input = inputs[i];
 
             Action baseAction;
-            bool collectionMode;
+            // bool collectionMode;
             if (uint(input.action) <= uint(Action.Sell)) {
                 baseAction = input.action;
             } else {
                 baseAction = Action(uint(input.action) - 4);
-                collectionMode = true;
+                // collectionMode = true;
             }
 
             // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
@@ -168,12 +168,8 @@ contract Exchange is Owned {
                 }
                 // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
                 Action matchingAction = Action(uint(input.action) - 2);
-                uint matchingId;
-                if (input.action == Action.Buy || input.action == Action.Sell) {
-                    matchingId = input.id;
-                } else {
-                    matchingId = registry.getCollectionId(input.id);
-                }
+                uint collectionId = registry.getCollectionId(input.id);
+                uint matchingId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
                 Record memory order = orders[input.counterparty][matchingId][matchingAction];
                 if (order.expiry == 0) {
                     revert OrderInvalid(matchingId, input.counterparty);
@@ -209,7 +205,7 @@ contract Exchange is Owned {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
                 }
                 registry.transfer(buyer, input.id);
-                emit Trade(msg.sender, input.counterparty, input.action, input.id, orderPrice, block.timestamp);
+                emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, orderPrice, block.timestamp);
             }
         }
     }
