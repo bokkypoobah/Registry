@@ -18,6 +18,10 @@ pragma solidity ^0.8.19;
 // Enjoy. (c) BokkyPooBah / Bok Consulting Pty Ltd 2023
 // ----------------------------------------------------------------------------
 
+// type Account is address;
+type BasisPoint is uint64; // 10 bps = 0.1%
+type Unixtime is uint64;
+
 interface ReceiverInterface {
     function registry() external view returns (RegistryInterface);
 }
@@ -25,7 +29,7 @@ interface ReceiverInterface {
 interface RegistryInterface {
     struct Royalty {
         address account;
-        uint64 royalty; // In basis points (10 bps = 0.1%)
+        BasisPoint royalty;
     }
     struct CollectionResult {
         string name;
@@ -34,14 +38,14 @@ interface RegistryInterface {
         ReceiverInterface receiver;
         uint64 lock;
         uint64 count;
-        uint64 created;
+        Unixtime created;
         Royalty[] royalties;
     }
     struct ItemResult {
         bytes32 hash;
         uint collectionId;
         address owner;
-        uint created;
+        Unixtime created;
     }
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
 
@@ -146,13 +150,13 @@ contract Registry is RegistryInterface, Utilities {
         uint64 lock;
         uint64 collectionId;
         uint64 count;
-        uint64 created;
+        Unixtime created;
     }
     struct Data {
         address owner;
         uint64 collectionId;
         uint64 tokenId;
-        uint64 created;
+        Unixtime created;
     }
     struct MinterCount {
         address account;
@@ -208,7 +212,7 @@ contract Registry is RegistryInterface, Utilities {
     error InvalidLock();
     error Locked();
     error InvalidCollection();
-    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, uint created);
+    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, Unixtime created);
     error CannotApproveSelf();
     error InvalidTokenId();
     error NotOwnerNorApproved(address owner, uint tokenId);
@@ -219,7 +223,7 @@ contract Registry is RegistryInterface, Utilities {
 
     function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (uint _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, uint64(block.timestamp));
+        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
         _collectionId = receivers.length - 1;
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
@@ -269,7 +273,7 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
     /// @param collectionId Collection Id
-    /// @param royalties Royalties 
+    /// @param royalties Royalties
     function updateCollectionRoyalties(uint collectionId, Royalty[] memory royalties) external {
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
             revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
@@ -345,7 +349,7 @@ contract Registry is RegistryInterface, Utilities {
     /// @return output Token Id encoded as bytes
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
         Collection storage c = collectionData[Receiver(msg.sender)];
-        if (c.created == 0) {
+        if (Unixtime.unwrap(c.created) == 0) {
             revert InvalidCollection();
         }
         if (c.collectionId > 0) {
@@ -358,10 +362,10 @@ contract Registry is RegistryInterface, Utilities {
         bool burnt = false;
         if (d.owner != address(0)) {
             revert AlreadyRegistered(hash, d.owner, d.tokenId, d.created);
-        } else if (d.created != 0) {
+        } else if (Unixtime.unwrap(d.created) != 0) {
             burnt = true;
         }
-        data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), uint64(block.timestamp));
+        data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), Unixtime.wrap(uint64(block.timestamp)));
         emit Registered(hashes.length, hash, msg.sender, msgSender, block.timestamp);
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
@@ -464,7 +468,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
             Data memory d = data[hash];
-            results[i] = ItemResult(hash, d.collectionId, d.owner, uint(d.created));
+            results[i] = ItemResult(hash, d.collectionId, d.owner, d.created);
         }
     }
 }
