@@ -20,6 +20,7 @@ pragma solidity ^0.8.19;
 
 // type Account is address;
 type BasisPoint is uint64; // 10 bps = 0.1%
+type Counter is uint64;
 type Id is uint64;
 type Unixtime is uint64;
 
@@ -34,7 +35,7 @@ interface RegistryInterface {
     }
     struct MinterCount {
         address account;
-        uint count;
+        Counter count;
     }
     struct CollectionResult {
         string name;
@@ -42,7 +43,7 @@ interface RegistryInterface {
         address owner;
         ReceiverInterface receiver;
         uint64 lock;
-        uint64 count;
+        Counter count;
         Unixtime created;
         Royalty[] royalties;
     }
@@ -69,11 +70,11 @@ interface RegistryInterface {
     function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
 
     /// @dev Collection `collectionid` description updated to `to` at `timestamp`
-    event CollectionDescriptionUpdated(uint indexed collectionId, string description, Unixtime timestamp);
+    event CollectionDescriptionUpdated(Id indexed collectionId, string description, Unixtime timestamp);
     /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
-    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties, Unixtime timestamp);
+    event CollectionRoyaltiesUpdated(Id indexed collectionId, Royalty[] royalties, Unixtime timestamp);
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
-    event CollectionMinterCountsUpdated(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
+    event CollectionMinterCountsUpdated(Id indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(Id indexed tokenId, Id indexed collectionId, bytes32 indexed hash, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -181,7 +182,7 @@ contract Registry is RegistryInterface, Utilities {
         // string tokenUriPostfix;
         uint64 lock;
         Id collectionId;
-        uint64 count;
+        Counter count;
         Unixtime created;
     }
     struct Data {
@@ -224,24 +225,24 @@ contract Registry is RegistryInterface, Utilities {
         _newCollection("", "", LOCK_NONE, new Royalty[](0));
     }
 
-    function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (uint _collectionId) {
+    function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (Id _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), Id.wrap(uint64(receivers.length)), 0, Unixtime.wrap(uint64(block.timestamp)));
+        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
-        _collectionId = receivers.length - 1;
+        _collectionId = Id.wrap(uint64(receivers.length - 1));
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
             revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _royalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[Id.unwrap(_collectionId)].push(Royalty(royalty.account, royalty.royalty));
         }
         emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description, uint lock, Royalty[] memory royalties) external returns (uint _collectionId) {
+    function newCollection(string calldata name, string calldata description, uint lock, Royalty[] memory royalties) external returns (Id _collectionId) {
         if (!isValidName(name)) {
             revert InvalidCollectionName();
         }
@@ -262,8 +263,8 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Set description for {collectionId}. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param description Description
-    function updateCollectionDescription(uint collectionId, string memory description) external {
-        Collection storage c = collectionData[receivers[collectionId]];
+    function updateCollectionDescription(Id collectionId, string memory description) external {
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
@@ -277,23 +278,23 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param royalties Royalties
-    function updateCollectionRoyalties(uint collectionId, Royalty[] memory royalties) external {
+    function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external {
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
             revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
         }
-        Collection storage c = collectionData[receivers[collectionId]];
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        if (_royalties[collectionId].length > 0) {
-            delete _royalties[collectionId];
+        if (_royalties[Id.unwrap(collectionId)].length > 0) {
+            delete _royalties[Id.unwrap(collectionId)];
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _royalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[Id.unwrap(collectionId)].push(Royalty(royalty.account, royalty.royalty));
         }
         emit CollectionRoyaltiesUpdated(collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -302,14 +303,14 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param minterCounts Array of [[account, count]]
-    function updateCollectionMinterCounts(uint collectionId, MinterCount[] calldata minterCounts) external {
-        Collection storage c = collectionData[receivers[collectionId]];
+    function updateCollectionMinterCounts(Id collectionId, MinterCount[] calldata minterCounts) external {
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
         for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
             MinterCount memory mc = minterCounts[i];
-            collectionMinterCounts[Id.unwrap(c.collectionId)][mc.account] = mc.count;
+            collectionMinterCounts[Id.unwrap(c.collectionId)][mc.account] = Counter.unwrap(mc.count);
         }
         emit CollectionMinterCountsUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -373,7 +374,7 @@ contract Registry is RegistryInterface, Utilities {
         emit Registered(Id.wrap(uint64(hashes.length)), c.collectionId, hash, msgSender, Unixtime.wrap(uint64(block.timestamp)));
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
-            c.count++;
+            c.count = Counter.wrap(Counter.unwrap(c.count) + 1);
             hashes.push(hash);
         }
     }
