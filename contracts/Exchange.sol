@@ -136,6 +136,19 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
+
+    function doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
+        RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
+        weth.transferFrom(buyer, seller, (Price.unwrap(price) * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
+        if (uiFeeAccount != address(0)) {
+            weth.transferFrom(buyer, feeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 20_000);
+            weth.transferFrom(buyer, uiFeeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 20_000);
+        } else {
+            weth.transferFrom(buyer, feeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 10_000);
+        }
+        registry.transfer(buyer, tokenId);
+    }
+
     /// @dev Execute Offer, Bid, Buy and Sell orders
     /// @param inputs [[action, account, tokenId, price, count, expiry]]
     /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
@@ -175,19 +188,21 @@ contract Exchange is Owned {
                 } else if (Unixtime.unwrap(order.expiry) < block.timestamp) {
                     revert OrderExpired(matchingOrderId, order.expiry);
                 }
-                // Want to allow price to be 0
-                uint orderPrice = Price.unwrap(order.price);
-                if (orderPrice != Price.unwrap(input.price)) {
-                    revert PriceMismatch(input.id, Price.wrap(uint96(orderPrice)), input.price);
-                }
                 (address buyer, address seller) = baseAction == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
-                address tokenOwner = registry.ownerOf(input.id);
-                if (seller != tokenOwner) {
-                    revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
-                }
-                uint available = availableWeth(buyer);
-                if (available < orderPrice) {
-                    revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
+                {
+                    // TODO: Want to allow price to be 0. Do check on count
+                    uint orderPrice = Price.unwrap(order.price);
+                    if (orderPrice != Price.unwrap(input.price)) {
+                        revert PriceMismatch(input.id, Price.wrap(uint96(orderPrice)), input.price);
+                    }
+                    address tokenOwner = registry.ownerOf(input.id);
+                    if (seller != tokenOwner) {
+                        revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
+                    }
+                    uint available = availableWeth(buyer);
+                    if (available < orderPrice) {
+                        revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
+                    }
                 }
                 if (Counter.unwrap(order.count) > 1) {
                     order.count = Counter.wrap(Counter.unwrap(order.count) - 1);
@@ -196,14 +211,7 @@ contract Exchange is Owned {
                     delete orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
                     emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, order.price, Unixtime.wrap(uint64(block.timestamp)));
                 }
-                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
-                if (uiFeeAccount != address(0)) {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 20_000);
-                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 20_000);
-                } else {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 10_000);
-                }
-                registry.transfer(buyer, input.id);
+                doTransfers(buyer, seller, input.id, collectionId, order.price, uiFeeAccount);
                 emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, order.price, Unixtime.wrap(uint64(block.timestamp)));
             }
         }
