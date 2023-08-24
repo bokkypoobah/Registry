@@ -136,20 +136,26 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
-    event DebugRoyalties(RegistryInterface.Royalty[] royalties);
     function doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
         RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
-        emit DebugRoyalties(royalties);
+        uint remaining = Price.unwrap(price);
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
-
+            RegistryInterface.Royalty memory royalty = royalties[i];
+            uint amount = BasisPoint.unwrap(royalty.royalty) * Price.unwrap(price) / 10_000;
+            weth.transferFrom(buyer, royalty.account, amount);
+            remaining -= amount;
         }
-        weth.transferFrom(buyer, seller, (Price.unwrap(price) * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
         if (uiFeeAccount != address(0)) {
-            weth.transferFrom(buyer, feeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 20_000);
-            weth.transferFrom(buyer, uiFeeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 20_000);
+            uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 20_000;
+            weth.transferFrom(buyer, feeAccount, amount);
+            weth.transferFrom(buyer, uiFeeAccount, amount);
+            remaining -= 2 * amount;
         } else {
-            weth.transferFrom(buyer, feeAccount, (Price.unwrap(price) * BasisPoint.unwrap(fee)) / 10_000);
+            uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 10_000;
+            weth.transferFrom(buyer, feeAccount, amount);
+            remaining -= amount;
         }
+        weth.transferFrom(buyer, seller, remaining);
         registry.transfer(buyer, tokenId);
     }
 
