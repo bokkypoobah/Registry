@@ -33,7 +33,7 @@ interface RegistryInterface {
         address account;
         BasisPoint royalty;
     }
-    struct MinterCount {
+    struct Minter {
         address account;
         Counter count;
     }
@@ -75,7 +75,7 @@ interface RegistryInterface {
     /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
     event CollectionRoyaltiesUpdated(Id indexed collectionId, Royalty[] royalties, Unixtime timestamp);
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
-    event CollectionMinterCountsUpdated(Id indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
+    event CollectionMintersUpdated(Id indexed collectionId, Minter[] minterCounts, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(Id indexed tokenId, Id indexed collectionId, bytes32 indexed hash, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -171,7 +171,7 @@ contract Utilities {
 }
 
 
-/// @title Registry of hashes of data with sequential tokenIds with transferable ownership
+/// @title Registry of unique hashes of data assigned sequential tokenIds with transferable ownership
 /// @author BokkyPooBah, Bok Consulting Pty Ltd
 contract Registry is RegistryInterface, Utilities {
     struct Collection {
@@ -179,8 +179,6 @@ contract Registry is RegistryInterface, Utilities {
         string description;
         address owner;
         ReceiverInterface receiver;
-        // string tokenUriPrefix;
-        // string tokenUriPostfix;
         uint64 lock;
         Id collectionId;
         Counter count;
@@ -212,7 +210,7 @@ contract Registry is RegistryInterface, Utilities {
     // collection id => Royalty[]
     mapping(Id => Royalty[]) private _royalties;
     // collection id => users => uint
-    mapping(Id => mapping(address => uint)) collectionMinterCounts;
+    mapping(Id => mapping(address => uint)) collectionMinters;
 
     // Array of unique data hashes
     bytes32[] public hashes;
@@ -304,16 +302,16 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param minterCounts Array of [[account, count]]
-    function updateCollectionMinterCounts(Id collectionId, MinterCount[] calldata minterCounts) external {
+    function updateCollectionMinters(Id collectionId, Minter[] calldata minterCounts) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
         for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
-            MinterCount memory mc = minterCounts[i];
-            collectionMinterCounts[c.collectionId][mc.account] = Counter.unwrap(mc.count);
+            Minter memory mc = minterCounts[i];
+            collectionMinters[c.collectionId][mc.account] = Counter.unwrap(mc.count);
         }
-        emit CollectionMinterCountsUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
+        emit CollectionMintersUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
