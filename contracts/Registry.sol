@@ -47,8 +47,8 @@ interface RegistryInterface {
         Royalty[] royalties;
     }
     struct ItemResult {
-        bytes32 hash;
         Id collectionId;
+        bytes32 hash;
         address owner;
         Unixtime created;
     }
@@ -472,7 +472,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < hashes.length); i = onePlus(i)) {
             bytes32 hash = hashes[i + offset];
             Data memory d = data[hash];
-            results[i] = ItemResult(hash, d.collectionId, d.owner, d.created);
+            results[i] = ItemResult(d.collectionId, hash, d.owner, d.created);
         }
     }
 }

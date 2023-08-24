@@ -213,14 +213,14 @@ describe("Registry", function () {
     const receiver = await data.registry.getReceiver(0);
     const items = await data.registry.getItems(10, 0);
     i = 0;
-    console.log("       Id String:Hash                          Collection Id Owner                          Registered");
-    console.log("      --- ------------------------------------ ------------- ------------------------------ ------------------------");
+    console.log("       Id Collection Id String:Hash                          Owner                          Registered");
+    console.log("      --- ------------- ------------------------------------ ------------------------------ ------------------------");
     for (const item of items) {
-      const [hash, collectionId, owner, created] = item;
+      const [collectionId, hash, owner, created] = item;
       if (hash == ZERO_HASH) {
         break;
       }
-      console.log("      " + padLeft(i, 3) + " " + padRight(getHashData(data, hash).substring(0, 36), 36) + " " + padLeft(collectionId, 13) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
+      console.log("      " + padLeft(i, 3) + " " + padLeft(collectionId, 13) + " " + padRight(getHashData(data, hash).substring(0, 36), 36) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     // const length = await data.registry.itemsLength();
