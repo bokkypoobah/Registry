@@ -154,7 +154,7 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         uint64 created;
     }
-    struct Minter {
+    struct MinterCount {
         address account;
         uint count;
     }
@@ -176,7 +176,7 @@ contract Registry is RegistryInterface, Utilities {
     mapping(bytes32 => bool) collectionNameCheck;
     // TODO
     // collection id => Royalty[]
-    mapping(uint => Royalty[]) private _collectionRoyalties;
+    mapping(uint => Royalty[]) private _royalties;
     // collection id => users => uint
     mapping(uint => mapping(address => uint)) collectionMinterCounts;
 
@@ -188,11 +188,11 @@ contract Registry is RegistryInterface, Utilities {
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
     /// @dev Collection `collectionid` description updated to `to`
-    event CollectionOwnerUpdatedDescription(uint indexed collectionId, string description);
+    event CollectionDescriptionUpdated(uint indexed collectionId, string description);
     /// @dev Collection `collectionid` royalties updated to `royalties`
-    event CollectionOwnerUpdatedRoyalties(uint indexed collectionId, Royalty[] royalties);
+    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties);
     /// @dev Collection `collectionid` minters updated with `minters`
-    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, Minter[] minters);
+    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -227,9 +227,9 @@ contract Registry is RegistryInterface, Utilities {
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _collectionRoyalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
-        emit CollectionOwnerUpdatedRoyalties(_collectionId, royalties);
+        emit CollectionRoyaltiesUpdated(_collectionId, royalties);
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
@@ -252,7 +252,10 @@ contract Registry is RegistryInterface, Utilities {
         return _newCollection(name, description, lock, royalties);
     }
 
-    function collectionOwnerUpdateDescription(uint collectionId, string memory description) external {
+    /// @dev Set description for {collectionId}. Can only be executed by collection owner
+    /// @param collectionId Collection Id
+    /// @param description Description
+    function updateCollectionDescription(uint collectionId, string memory description) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
@@ -261,11 +264,13 @@ contract Registry is RegistryInterface, Utilities {
             revert Locked();
         }
         c.description = description;
-        emit CollectionOwnerUpdatedDescription(collectionId, description);
+        emit CollectionDescriptionUpdated(collectionId, description);
     }
 
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
-    function collectionOwnerUpdateRoyalties(uint collectionId, Royalty[] memory royalties) external {
+    /// @param collectionId Collection Id
+    /// @param royalties Royalties 
+    function updateCollectionRoyalties(uint collectionId, Royalty[] memory royalties) external {
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
             revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
         }
@@ -276,27 +281,27 @@ contract Registry is RegistryInterface, Utilities {
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        if (_collectionRoyalties[collectionId].length > 0) {
-            delete _collectionRoyalties[collectionId];
+        if (_royalties[collectionId].length > 0) {
+            delete _royalties[collectionId];
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _collectionRoyalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
-        emit CollectionOwnerUpdatedRoyalties(collectionId, royalties);
+        emit CollectionRoyaltiesUpdated(collectionId, royalties);
     }
 
 
     /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param minterCounts Array of [[account, count]]
-    function collectionOwnerUpdateMinterCounts(uint collectionId, Minter[] calldata minterCounts) external {
+    function updateCollectionMinterCounts(uint collectionId, MinterCount[] calldata minterCounts) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
         for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
-            Minter memory mc = minterCounts[i];
+            MinterCount memory mc = minterCounts[i];
             collectionMinterCounts[c.collectionId][mc.account] = mc.count;
         }
         emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts);
@@ -304,8 +309,7 @@ contract Registry is RegistryInterface, Utilities {
 
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function collectionOwnerBurn(uint collectionId, uint tokenId) external {
-        // ReceiverInterface receiver = receivers[collectionId];
+    function burnCollectionToken(uint collectionId, uint tokenId) external {
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
@@ -427,8 +431,8 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Get royalties for `collectionId`
     /// @param collectionId Collection Id
-    function getCollectionRoyalties(uint collectionId) external view returns (Royalty[] memory royalties) {
-        return _collectionRoyalties[collectionId];
+    function getRoyalties(uint collectionId) external view returns (Royalty[] memory royalties) {
+        return _royalties[collectionId];
     }
 
     /// @dev Returns the owner of `tokenId`
@@ -447,7 +451,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _collectionRoyalties[i + offset]);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _royalties[i + offset]);
         }
     }
 
