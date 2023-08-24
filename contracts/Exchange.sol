@@ -191,10 +191,10 @@ contract Exchange is Owned {
                 }
                 if (Counter.unwrap(order.count) > 1) {
                     order.count = Counter.wrap(Counter.unwrap(order.count) - 1);
-                    emit OrderUpdated(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), order.count, order.expiry, Unixtime.wrap(uint64(block.timestamp)));
+                    emit OrderUpdated(input.counterparty, matchingOrderAction, matchingOrderId, order.price, order.count, order.expiry, Unixtime.wrap(uint64(block.timestamp)));
                 } else {
                     delete orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
-                    emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), Unixtime.wrap(uint64(block.timestamp)));
+                    emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, order.price, Unixtime.wrap(uint64(block.timestamp)));
                 }
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
                 if (uiFeeAccount != address(0)) {
@@ -204,7 +204,7 @@ contract Exchange is Owned {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 10_000);
                 }
                 registry.transfer(buyer, input.id);
-                emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, Price.wrap(uint96(orderPrice)), Unixtime.wrap(uint64(block.timestamp)));
+                emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, order.price, Unixtime.wrap(uint64(block.timestamp)));
             }
         }
     }
