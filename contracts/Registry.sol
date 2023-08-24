@@ -20,6 +20,7 @@ pragma solidity ^0.8.19;
 
 // type Account is address;
 type BasisPoint is uint64; // 10 bps = 0.1%
+type Id is uint64;
 type Unixtime is uint64;
 
 interface ReceiverInterface {
@@ -47,7 +48,7 @@ interface RegistryInterface {
     }
     struct ItemResult {
         bytes32 hash;
-        uint collectionId;
+        Id collectionId;
         address owner;
         Unixtime created;
     }
@@ -55,15 +56,15 @@ interface RegistryInterface {
 
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
-    function transfer(address to, uint tokenId) external;
+    function transfer(address to, Id tokenId) external;
 
     // TODO - check list of functions completed
 
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
-    function getCollectionId(uint tokenId) external view returns (uint collectionId);
+    function getCollectionId(Id tokenId) external view returns (Id collectionId);
     function getReceiver(uint i) external view returns (ReceiverInterface receiver);
-    function ownerOf(uint tokenId) external view returns (address);
+    function ownerOf(Id tokenId) external view returns (address);
     function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
     function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
 
@@ -74,9 +75,9 @@ interface RegistryInterface {
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
     event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
-    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
+    event Registered(Id indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
-    event Transfer(address indexed from, address indexed to, uint indexed tokenId, Unixtime timestamp);
+    event Transfer(address indexed from, address indexed to, Id indexed tokenId, Unixtime timestamp);
     /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, Unixtime timestamp);
 
@@ -88,10 +89,10 @@ interface RegistryInterface {
     error InvalidLock();
     error Locked();
     error InvalidCollection();
-    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, Unixtime created);
+    error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
     error CannotApproveSelf();
     error InvalidTokenId();
-    error NotOwnerNorApproved(address owner, uint tokenId);
+    error NotOwnerNorApproved(address owner, Id tokenId);
 }
 
 
@@ -179,14 +180,14 @@ contract Registry is RegistryInterface, Utilities {
         // string tokenUriPrefix;
         // string tokenUriPostfix;
         uint64 lock;
-        uint64 collectionId;
+        Id collectionId;
         uint64 count;
         Unixtime created;
     }
     struct Data {
         address owner;
-        uint64 collectionId;
-        uint64 tokenId;
+        Id collectionId;
+        Id tokenId;
         Unixtime created;
     }
 
@@ -225,7 +226,7 @@ contract Registry is RegistryInterface, Utilities {
 
     function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (uint _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), uint64(receivers.length), 0, Unixtime.wrap(uint64(block.timestamp)));
+        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), Id.wrap(uint64(receivers.length)), 0, Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
         _collectionId = receivers.length - 1;
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
@@ -308,24 +309,25 @@ contract Registry is RegistryInterface, Utilities {
         }
         for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
             MinterCount memory mc = minterCounts[i];
-            collectionMinterCounts[c.collectionId][mc.account] = mc.count;
+            collectionMinterCounts[Id.unwrap(c.collectionId)][mc.account] = mc.count;
         }
         emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
+    // TODO: Wrong below
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function burnCollectionToken(uint collectionId, uint tokenId) external {
-        Collection storage c = collectionData[receivers[collectionId]];
+    function burnCollectionToken(Id collectionId, Id tokenId) external {
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        bytes32 hash = hashes[tokenId];
+        bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
-        if (collectionId != data[hash].collectionId) {
+        if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
             revert NotOwner();
         }
         data[hash].owner = address(0x0);
@@ -354,7 +356,7 @@ contract Registry is RegistryInterface, Utilities {
         if (Unixtime.unwrap(c.created) == 0) {
             revert InvalidCollection();
         }
-        if (c.collectionId > 0) {
+        if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
             if ((c.lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
                 revert Locked();
@@ -367,8 +369,8 @@ contract Registry is RegistryInterface, Utilities {
         } else if (Unixtime.unwrap(d.created) != 0) {
             burnt = true;
         }
-        data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), Unixtime.wrap(uint64(block.timestamp)));
-        emit Registered(hashes.length, hash, msg.sender, msgSender, Unixtime.wrap(uint64(block.timestamp)));
+        data[hash] = Data(msgSender, c.collectionId, Id.wrap(uint64(hashes.length)), Unixtime.wrap(uint64(block.timestamp)));
+        emit Registered(Id.wrap(uint64(hashes.length)), hash, msg.sender, msgSender, Unixtime.wrap(uint64(block.timestamp)));
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
             c.count++;
@@ -391,8 +393,8 @@ contract Registry is RegistryInterface, Utilities {
     }
 
     /// @dev Is `spender` is allowed to manage `tokenId`?
-    function _isApprovedOrOwner(address spender, uint tokenId) internal view returns (bool) {
-        address owner = data[hashes[tokenId]].owner;
+    function _isApprovedOrOwner(address spender, Id tokenId) internal view returns (bool) {
+        address owner = data[hashes[Id.unwrap(tokenId)]].owner;
         if (owner == address(0)) {
             revert InvalidTokenId();
         }
@@ -402,11 +404,11 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Transfer `tokenId` to `to`
     /// @param to New owner
     /// @param tokenId Token Id
-    function transfer(address to, uint tokenId) public {
+    function transfer(address to, Id tokenId) public {
         if (!_isApprovedOrOwner(msg.sender, tokenId)) {
             revert NotOwnerNorApproved(msg.sender, tokenId);
         }
-        bytes32 hash = hashes[tokenId];
+        bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
         data[hash].owner = to;
         emit Transfer(from, to, tokenId, Unixtime.wrap(uint64(block.timestamp)));
@@ -431,8 +433,8 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Returns the `collectionId` of `tokenId`
     /// @param tokenId Token Id
     /// @return collectionId Collection Id
-    function getCollectionId(uint tokenId) external view returns (uint collectionId) {
-        return data[hashes[tokenId]].collectionId;
+    function getCollectionId(Id tokenId) external view returns (Id collectionId) {
+        return data[hashes[Id.unwrap(tokenId)]].collectionId;
     }
 
     /// @dev Get royalties for `collectionId`
@@ -444,8 +446,8 @@ contract Registry is RegistryInterface, Utilities {
     /// @dev Returns the owner of `tokenId`
     /// @param tokenId Token Id
     /// @return owner Owner
-    function ownerOf(uint tokenId) external view returns (address owner) {
-        return data[hashes[tokenId]].owner;
+    function ownerOf(Id tokenId) external view returns (address owner) {
+        return data[hashes[Id.unwrap(tokenId)]].owner;
     }
 
     /// @dev Get `count` rows of data beginning at `offset`

@@ -72,7 +72,7 @@ contract Exchange is Owned {
     struct Input {
         Action action;
         address counterparty; // ? Required for Buy And Sell
-        uint64 id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
+        Id id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
         Price price;
         uint64 count;
         Unixtime expiry; // ? Required for Offer and Bid
@@ -102,15 +102,15 @@ contract Exchange is Owned {
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
     /// @dev Order added by `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event Order(address indexed account, Action action, uint indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
+    event Order(address indexed account, Action action, Id indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
     /// @dev Order updated for `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event OrderUpdated(address indexed account, Action action, uint indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
+    event OrderUpdated(address indexed account, Action action, Id indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
     /// @dev Order deleted for `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event OrderDeleted(address indexed account, Action action, uint indexed id, Price indexed price, Unixtime timestamp);
+    event OrderDeleted(address indexed account, Action action, Id indexed id, Price indexed price, Unixtime timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
-    event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint collectionId, uint price, Unixtime timestamp);
+    event Trade(address indexed account, address indexed counterparty, Action action, Id indexed tokenId, Id collectionId, Price price, Unixtime timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
-    event BulkTransferred(address indexed from, address indexed to, uint[] tokenIds, Unixtime timestamp);
+    event BulkTransferred(address indexed from, address indexed to, Id[] tokenIds, Unixtime timestamp);
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
     event FeeAccountUpdated(address indexed oldFeeAccount, address indexed newFeeAccount, Unixtime timestamp);
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
@@ -118,14 +118,14 @@ contract Exchange is Owned {
 
     error InvalidOrderCount(uint index, uint count, uint maxCount);
     error InvalidOrderPrice(uint index, Price price, Price maxPrice);
-    error SellerDoesNotOwnToken(uint tokenId, address tokenOwner, address orderOwner);
-    error OrderExpired(uint tokenId, Unixtime expiry);
-    error OrderInvalid(uint tokenId, address account);
-    error CannotSelfTrade(uint tokenId);
-    error PriceMismatch(uint tokenId, Price orderPrice, Price tradePrice);
-    error TakerHasInsufficientEth(uint tokenId, uint required, uint available);
-    error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
-    error BuyerHasInsufficientWeth(address buyer, uint tokenId, uint required, uint available);
+    error SellerDoesNotOwnToken(Id tokenId, address tokenOwner, address orderOwner);
+    error OrderExpired(Id tokenId, Unixtime expiry);
+    error OrderInvalid(Id tokenId, address account);
+    error CannotSelfTrade(Id tokenId);
+    error PriceMismatch(Id tokenId, Price orderPrice, Price tradePrice);
+    error TakerHasInsufficientEth(Id tokenId, uint required, uint available);
+    error MakerHasInsufficientWeth(address bidder, Id tokenId, uint required, uint available);
+    error BuyerHasInsufficientWeth(address buyer, Id tokenId, uint required, uint available);
     error InvalidFeeAccount();
     error InvalidFee(BasisPoint fee, BasisPoint maxFee);
     error OnlyTokenOwnerCanTransfer();
@@ -157,18 +157,18 @@ contract Exchange is Owned {
                         revert InvalidOrderCount(i, input.count, MAX_ORDER_COUNT);
                     }
                 }
-                orders[msg.sender][input.id][input.action] = Record(input.price, uint64(input.count), input.expiry);
+                orders[msg.sender][Id.unwrap(input.id)][input.action] = Record(input.price, uint64(input.count), input.expiry);
                 emit Order(msg.sender, input.action, input.id, input.price, input.count, input.expiry, Unixtime.wrap(uint64(block.timestamp)));
             // Buy, Sell, CollectionBuy, CollectionSell
             } else {
                 if (msg.sender == input.counterparty) {
                     revert CannotSelfTrade(input.id);
                 }
-                uint collectionId = registry.getCollectionId(input.id);
+                Id collectionId = registry.getCollectionId(input.id);
                 // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
                 Action matchingOrderAction = Action(uint(input.action) - 2);
-                uint matchingOrderId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
-                Record storage order = orders[input.counterparty][matchingOrderId][matchingOrderAction];
+                Id matchingOrderId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
+                Record storage order = orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
                 // TODO: Want to allow expiry to be zero. Use count as the indicator?
                 if (Unixtime.unwrap(order.expiry) == 0) {
                     revert OrderInvalid(matchingOrderId, input.counterparty);
@@ -193,7 +193,7 @@ contract Exchange is Owned {
                     order.count--;
                     emit OrderUpdated(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), order.count, order.expiry, Unixtime.wrap(uint64(block.timestamp)));
                 } else {
-                    delete orders[input.counterparty][matchingOrderId][matchingOrderAction];
+                    delete orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
                     emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), Unixtime.wrap(uint64(block.timestamp)));
                 }
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
@@ -204,7 +204,7 @@ contract Exchange is Owned {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 10_000);
                 }
                 registry.transfer(buyer, input.id);
-                emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, orderPrice, Unixtime.wrap(uint64(block.timestamp)));
+                emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, Price.wrap(uint96(orderPrice)), Unixtime.wrap(uint64(block.timestamp)));
             }
         }
     }
@@ -212,7 +212,7 @@ contract Exchange is Owned {
     /// @dev Transfer `tokenIds` to `to`. Requires owner to have executed setApprovalForAll(registryExchange, true)
     /// @param to New owner
     /// @param tokenIds Token Ids
-    function bulkTransfer(address to, uint[] memory tokenIds) public {
+    function bulkTransfer(address to, Id[] memory tokenIds) public {
         for (uint i = 0; i < tokenIds.length; i = onePlus(i)) {
             if (msg.sender != registry.ownerOf(tokenIds[i])) {
                 revert OnlyTokenOwnerCanTransfer();
