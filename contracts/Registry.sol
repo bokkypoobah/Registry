@@ -73,9 +73,9 @@ interface RegistryInterface {
     /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
     event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties, Unixtime timestamp);
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
-    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
+    event CollectionMinterCountsUpdated(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
-    event Registered(Id indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
+    event Registered(Id indexed tokenId, Id indexed collectionId, bytes32 indexed hash, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
     event Transfer(address indexed from, address indexed to, Id indexed tokenId, Unixtime timestamp);
     /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
@@ -311,7 +311,7 @@ contract Registry is RegistryInterface, Utilities {
             MinterCount memory mc = minterCounts[i];
             collectionMinterCounts[Id.unwrap(c.collectionId)][mc.account] = mc.count;
         }
-        emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
+        emit CollectionMinterCountsUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
@@ -370,7 +370,7 @@ contract Registry is RegistryInterface, Utilities {
             burnt = true;
         }
         data[hash] = Data(msgSender, c.collectionId, Id.wrap(uint64(hashes.length)), Unixtime.wrap(uint64(block.timestamp)));
-        emit Registered(Id.wrap(uint64(hashes.length)), hash, msg.sender, msgSender, Unixtime.wrap(uint64(block.timestamp)));
+        emit Registered(Id.wrap(uint64(hashes.length)), c.collectionId, hash, msgSender, Unixtime.wrap(uint64(block.timestamp)));
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
             c.count++;
