@@ -43,7 +43,7 @@ interface RegistryInterface {
         string description;
         address owner;
         ReceiverInterface receiver;
-        Fuse fuse;
+        Fuse fuses;
         Counter count;
         Unixtime created;
         Royalty[] royalties;
@@ -180,7 +180,7 @@ contract Registry is RegistryInterface, Utilities {
         string description;
         address owner;
         ReceiverInterface receiver;
-        Fuse fuse;
+        Fuse fuses;
         Id collectionId;
         Counter count;
         Unixtime created;
@@ -473,7 +473,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.fuse, c.count, c.created, _royalties[c.collectionId]);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.fuses, c.count, c.created, _royalties[c.collectionId]);
         }
     }
 
