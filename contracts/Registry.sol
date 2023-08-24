@@ -31,6 +31,10 @@ interface RegistryInterface {
         address account;
         BasisPoint royalty;
     }
+    struct MinterCount {
+        address account;
+        uint count;
+    }
     struct CollectionResult {
         string name;
         string description;
@@ -53,7 +57,7 @@ interface RegistryInterface {
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, uint tokenId) external;
 
-    // TODO
+    // TODO - check list of functions completed
 
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
@@ -62,7 +66,34 @@ interface RegistryInterface {
     function ownerOf(uint tokenId) external view returns (address);
     function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
     function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
+
+    /// @dev Collection `collectionid` description updated to `to` at `timestamp`
+    event CollectionDescriptionUpdated(uint indexed collectionId, string description, Unixtime timestamp);
+    /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
+    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties, Unixtime timestamp);
+    /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
+    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
+    /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
+    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
+    /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
+    event Transfer(address indexed from, address indexed to, uint indexed tokenId, Unixtime timestamp);
+    /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved, Unixtime timestamp);
+
+    error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
+    error InvalidCollectionName();
+    error InvalidCollectionDescription();
+    error DuplicateCollectionName();
+    error NotOwner();
+    error InvalidLock();
+    error Locked();
+    error InvalidCollection();
+    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, Unixtime created);
+    error CannotApproveSelf();
+    error InvalidTokenId();
+    error NotOwnerNorApproved(address owner, uint tokenId);
 }
+
 
 function onePlus(uint x) pure returns (uint) {
     unchecked { return 1 + x; }
@@ -158,10 +189,6 @@ contract Registry is RegistryInterface, Utilities {
         uint64 tokenId;
         Unixtime created;
     }
-    struct MinterCount {
-        address account;
-        uint count;
-    }
 
     uint private constant MAX_ROYALTY_RECORDS = 10;
 
@@ -191,31 +218,6 @@ contract Registry is RegistryInterface, Utilities {
     // owner => operator => approved?
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    /// @dev Collection `collectionid` description updated to `to` at `timestamp`
-    event CollectionDescriptionUpdated(uint indexed collectionId, string description, Unixtime timestamp);
-    /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
-    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties, Unixtime timestamp);
-    /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
-    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
-    /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
-    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
-    /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
-    event Transfer(address indexed from, address indexed to, uint indexed tokenId, Unixtime timestamp);
-    /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved, Unixtime timestamp);
-
-    error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
-    error InvalidCollectionName();
-    error InvalidCollectionDescription();
-    error DuplicateCollectionName();
-    error NotOwner();
-    error InvalidLock();
-    error Locked();
-    error InvalidCollection();
-    error AlreadyRegistered(bytes32 hash, address owner, uint tokenId, Unixtime created);
-    error CannotApproveSelf();
-    error InvalidTokenId();
-    error NotOwnerNorApproved(address owner, uint tokenId);
 
     constructor() {
         _newCollection("", "", LOCK_NONE, new Royalty[](0));
