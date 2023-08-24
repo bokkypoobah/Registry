@@ -93,9 +93,9 @@ interface RegistryInterface {
     error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
     error InvalidCollectionName();
     error InvalidCollectionDescription();
+    error InvalidFuses();
     error DuplicateCollectionName();
     error NotOwner();
-    error InvalidLock();
     error Locked();
     error InvalidCollection();
     error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
@@ -140,7 +140,7 @@ contract Utilities {
     /// @dev Is name valid? Length between 1 and `MAX_NAME_LENGTH`. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
     /// @param str Name to check
     /// @return True if valid
-    function isValidName(string memory str) public pure returns (bool) {
+    function isValidName(string memory str) internal pure returns (bool) {
         bytes memory b = bytes(str);
         if (b.length < 1 || b.length > MAX_NAME_LENGTH) {
             return false;
@@ -162,12 +162,12 @@ contract Utilities {
         return true;
     }
 
-    /// @dev Is description valid? Length between 1 and `MAX_DESCRIPTION_LENGTH`. No leading or trailing SPACEs
+    /// @dev Is description valid? Length between 0 and `MAX_DESCRIPTION_LENGTH`. No leading or trailing SPACEs
     /// @param str Description to check
     /// @return True if valid
-    function isValidDescription(string memory str) public pure returns (bool) {
+    function isValidDescription(string memory str) internal pure returns (bool) {
         bytes memory b = bytes(str);
-        if (b.length < 1 || b.length > MAX_DESCRIPTION_LENGTH) {
+        if (b.length > MAX_DESCRIPTION_LENGTH) {
             return false;
         }
         if (b[0] == SPACE || b[b.length-1] == SPACE) {
@@ -264,7 +264,7 @@ contract Registry is RegistryInterface, Utilities {
         }
         // TODO
         // if ((lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
-        //     revert InvalidLock();
+        //     revert InvalidFuses();
         // }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
         if (collectionNameCheck[nameHash]) {
