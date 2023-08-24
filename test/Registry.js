@@ -250,7 +250,7 @@ describe("Registry", function () {
       const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
-      const offerData = [[INPUT_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const offerData = [[INPUT_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 1, expiry], [INPUT_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 1, expiry], [INPUT_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 1, expiry]];
       const tx5 = await data.exchange.connect(data.user0).execute(offerData, data.uiFeeAccount);
       await printTx(data, "tx5", await tx5.wait());
 
@@ -259,7 +259,7 @@ describe("Registry", function () {
 
       // await printState(data, "DEBUG");
 
-      const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.1"), 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("3.3"), 0]];
+      const buyData1 = [[INPUT_BUY, data.user0.address, 1, ethers.parseEther("1.1"), 0, 0], [INPUT_BUY, data.user0.address, 3, ethers.parseEther("3.3"), 0, 0]];
       const tx7 = await data.exchange.connect(data.user1).execute(buyData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
 
@@ -282,7 +282,7 @@ describe("Registry", function () {
       const tx4 = await data.user0.sendTransaction({ to: data.receiver, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("user0string4")) });
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
-      const bidData = [[INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const bidData = [[INPUT_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 1, expiry], [INPUT_BID, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 1, expiry], [INPUT_BID, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 1, expiry]];
       const tx5 = await data.exchange.connect(data.user1).execute(bidData, data.uiFeeAccount);
       await printTx(data, "tx5", await tx5.wait());
 
@@ -291,7 +291,7 @@ describe("Registry", function () {
 
       // await printState(data, "DEBUG");
 
-      const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0]];
+      const sellData1 = [[INPUT_SELL, data.user1.address, 1, ethers.parseEther("1.1"), 0, 0], [INPUT_SELL, data.user1.address, 3, ethers.parseEther("3.3"), 0, 0]];
       const tx7 = await data.exchange.connect(data.user0).execute(sellData1, data.uiFeeAccount);
       await printTx(data, "tx7", await tx7.wait());
 
@@ -333,7 +333,7 @@ describe("Registry", function () {
       await printTx(data, "tx8", await tx8.wait());
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
-      const collectionOfferData = [[INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const collectionOfferData = [[INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 5, expiry]];
       const tx9 = await data.exchange.connect(data.user1).execute(collectionOfferData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
@@ -342,7 +342,7 @@ describe("Registry", function () {
 
       await printState(data, "DEBUG");
 
-      const sellData1 = [[INPUT_COLLECTION_BUY, data.user1.address, 6, ethers.parseEther("1.1"), 0]];
+      const sellData1 = [[INPUT_COLLECTION_BUY, data.user1.address, 6, ethers.parseEther("1.1"), 0, 0]];
       const tx11 = await data.exchange.connect(data.user2).execute(sellData1, data.uiFeeAccount);
       await printTx(data, "tx11", await tx11.wait());
 
@@ -386,7 +386,7 @@ describe("Registry", function () {
 
 
       const expiry = parseInt(new Date() / 1000) + 60 * 60;
-      const collectionOfferData = [[INPUT_COLLECTION_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), expiry], [INPUT_COLLECTION_BID, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), expiry], [INPUT_COLLECTION_BID, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), expiry]];
+      const collectionOfferData = [[INPUT_COLLECTION_BID, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 5, expiry], [INPUT_COLLECTION_BID, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 5, expiry], [INPUT_COLLECTION_BID, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 5, expiry]];
       const tx9 = await data.exchange.connect(data.user2).execute(collectionOfferData, data.uiFeeAccount);
       await printTx(data, "tx9", await tx9.wait());
 
@@ -395,7 +395,7 @@ describe("Registry", function () {
 
       await printState(data, "DEBUG");
 
-      const sellData1 = [[INPUT_COLLECTION_SELL, data.user2.address, 6, ethers.parseEther("1.1"), 0]];
+      const sellData1 = [[INPUT_COLLECTION_SELL, data.user2.address, 6, ethers.parseEther("1.1"), 0, 0]];
       const tx11 = await data.exchange.connect(data.user1).execute(sellData1, data.uiFeeAccount);
       await printTx(data, "tx11", await tx11.wait());
 

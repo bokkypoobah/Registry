@@ -73,17 +73,21 @@ contract Exchange is Owned {
         address counterparty; // ? Required for Buy And Sell
         uint id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
         uint price;
+        uint count;
         uint expiry; // ? Required for Offer and Bid
     }
     struct Record {
         uint96 price;
+        uint64 count;
         uint64 expiry;
     }
 
     /// @dev Maximum price in orders
-    uint public constant PRICE_MAX = 1_000_000 ether;
+    uint private constant MAX_PRICE = 1_000_000 ether;
+    /// @dev Maximum count in orders
+    uint private constant MAX_COUNT = 1000000;
     /// @dev Maximum fee in basis points (10 bps = 0.1%)
-    uint public constant MAX_FEE = 10;
+    uint private constant MAX_FEE = 10;
 
     // WETH
     ERC20 public immutable weth;
@@ -97,7 +101,11 @@ contract Exchange is Owned {
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
     /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event Order(address indexed account, Action action, uint indexed id, uint indexed price, uint expiry, uint timestamp);
+    event Order(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
+    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    event OrderUpdated(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
+    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    event OrderDeleted(address indexed account, Action action, uint indexed id, uint indexed price, uint timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
     event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint collectionId, uint price, uint timestamp);
     /// @dev `tokenIds` bulk transferred from `from` to `to`, at `timestamp`
@@ -107,7 +115,8 @@ contract Exchange is Owned {
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
     event FeeUpdated(uint indexed oldFee, uint indexed newFee, uint timestamp);
 
-    error InvalidPrice(uint price, uint maxPrice);
+    error InvalidCount(uint index, uint count, uint maxCount);
+    error InvalidPrice(uint index, uint price, uint maxPrice);
     error SellerDoesNotOwnToken(uint tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(uint tokenId, uint expiry);
     error OrderInvalid(uint tokenId, address account);
@@ -141,26 +150,23 @@ contract Exchange is Owned {
     function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
             Input memory input = inputs[i];
-
-            Action baseAction;
-            // bool collectionMode;
-            if (uint(input.action) <= uint(Action.Sell)) {
-                baseAction = input.action;
-            } else {
-                baseAction = Action(uint(input.action) - 4);
-                // collectionMode = true;
-            }
-
-            // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
-            // action maps { CollectionOffer, CollectionBid, CollectionBuy, CollectionSell } to { Offer, Bid, Buy, Sell } & collectionMode = true
-
+            Action baseAction = (uint(input.action) <= uint(Action.Sell)) ? input.action : Action(uint(input.action) - 4);
             // Offer, Bid, CollectionOffer & CollectionBid
             if (baseAction == Action.Offer || baseAction == Action.Bid) {
-                if (input.price > PRICE_MAX) {
-                    revert InvalidPrice(input.price, PRICE_MAX);
+                if (input.price > MAX_PRICE) {
+                    revert InvalidPrice(i, input.price, MAX_PRICE);
                 }
-                orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.expiry));
-                emit Order(msg.sender, input.action, input.id, input.price, input.expiry, block.timestamp);
+                if (input.action == Action.Offer || input.action == Action.Bid) {
+                    if (input.count != 1) {
+                        revert InvalidCount(i, input.count, 1);
+                    }
+                } else {
+                    if (input.count == 0 || input.count > MAX_COUNT) {
+                        revert InvalidCount(i, input.count, MAX_COUNT);
+                    }
+                }
+                orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.count), uint64(input.expiry));
+                emit Order(msg.sender, input.action, input.id, input.price, input.count, input.expiry, block.timestamp);
             // Buy, Sell, CollectionBuy, CollectionSell
             } else {
                 if (msg.sender == input.counterparty) {
@@ -170,7 +176,7 @@ contract Exchange is Owned {
                 Action matchingAction = Action(uint(input.action) - 2);
                 uint collectionId = registry.getCollectionId(input.id);
                 uint matchingId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
-                Record memory order = orders[input.counterparty][matchingId][matchingAction];
+                Record storage order = orders[input.counterparty][matchingId][matchingAction];
                 if (order.expiry == 0) {
                     revert OrderInvalid(matchingId, input.counterparty);
                 } else if (order.expiry < block.timestamp) {
@@ -196,7 +202,20 @@ contract Exchange is Owned {
                 if (available < orderPrice) {
                     revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                 }
-                delete orders[input.counterparty][matchingId][matchingAction];
+                if (order.count > 1) {
+                    order.count--;
+                    // emit DebugUint("One less", uint(order.count));
+                    emit OrderUpdated(input.counterparty, matchingAction, matchingId, orderPrice, order.count, order.expiry, block.timestamp);
+                } else {
+                    delete orders[input.counterparty][matchingId][matchingAction];
+                    emit OrderDeleted(input.counterparty, matchingAction, matchingId, orderPrice, block.timestamp);
+                }
+
+                // /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+                // event OrderUpdated(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
+                // /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+                // event OrderDeleted(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
+
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                 if (uiFeeAccount != address(0)) {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
