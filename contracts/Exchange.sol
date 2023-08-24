@@ -163,16 +163,18 @@ contract Exchange is Owned {
                 if (msg.sender == input.counterparty) {
                     revert CannotSelfTrade(input.id);
                 }
-                // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
-                Action matchingAction = Action(uint(input.action) - 2);
                 uint collectionId = registry.getCollectionId(input.id);
-                uint matchingId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
-                Record storage order = orders[input.counterparty][matchingId][matchingAction];
+                // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
+                Action matchingOrderAction = Action(uint(input.action) - 2);
+                uint matchingOrderId = (input.action == Action.Buy || input.action == Action.Sell) ? input.id : collectionId;
+                Record storage order = orders[input.counterparty][matchingOrderId][matchingOrderAction];
+                // TODO: Want to allow expiry to be zero. Use count as the indicator?
                 if (order.expiry == 0) {
-                    revert OrderInvalid(matchingId, input.counterparty);
+                    revert OrderInvalid(matchingOrderId, input.counterparty);
                 } else if (order.expiry < block.timestamp) {
-                    revert OrderExpired(matchingId, order.expiry);
+                    revert OrderExpired(matchingOrderId, order.expiry);
                 }
+                // Want to allow price to be 0
                 uint orderPrice = uint(order.price);
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.id, orderPrice, input.price);
@@ -188,10 +190,10 @@ contract Exchange is Owned {
                 }
                 if (order.count > 1) {
                     order.count--;
-                    emit OrderUpdated(input.counterparty, matchingAction, matchingId, orderPrice, order.count, order.expiry, block.timestamp);
+                    emit OrderUpdated(input.counterparty, matchingOrderAction, matchingOrderId, orderPrice, order.count, order.expiry, block.timestamp);
                 } else {
-                    delete orders[input.counterparty][matchingId][matchingAction];
-                    emit OrderDeleted(input.counterparty, matchingAction, matchingId, orderPrice, block.timestamp);
+                    delete orders[input.counterparty][matchingOrderId][matchingOrderAction];
+                    emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, orderPrice, block.timestamp);
                 }
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                 if (uiFeeAccount != address(0)) {
