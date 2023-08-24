@@ -135,17 +135,8 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
-    // Buy (maker, tokenId) from Offer (tokenId -> maker -> Offer) - don't need account as can only buy from the owner
-    // Sell (maker, tokenId) into Bid (tokenId -> maker -> Bid)
-    // CollectionBuy (maker, tokenId) from CollectionOffer (tokenId -> collectionId -> maker -> CollectionOffer)
-    // CollectionSell (maker, tokenId) into CollectionBid (tokenId -> collectionId -> maker -> CollectionBid)
-    // enum Action { Offer, Bid, Buy, Sell, CollectionOffer, CollectionBid, CollectionBuy, CollectionSell }
-
-    event DebugUint(string topic, uint u);
-    event DebugAddress(string topic, address a);
-
     /// @dev Execute Offer, Bid, Buy and Sell orders
-    /// @param inputs [[action, account, tokenId, price, expiry]]
+    /// @param inputs [[action, account, tokenId, price, count, expiry]]
     /// @param uiFeeAccount Fee account that will receive half of the fees if non-null
     function execute(Input[] calldata inputs, address uiFeeAccount) public {
         for (uint i = 0; i < inputs.length; i = onePlus(i)) {
@@ -186,15 +177,8 @@ contract Exchange is Owned {
                 if (orderPrice != input.price) {
                     revert PriceMismatch(input.id, orderPrice, input.price);
                 }
-                // emit DebugUint("input.action", uint(input.action));
-                // emit DebugUint("baseAction", uint(baseAction));
-                // emit DebugAddress("msg.sender: ", msg.sender);
-                // emit DebugAddress("input.counterparty: ", input.counterparty);
                 (address buyer, address seller) = baseAction == Action.Buy ? (msg.sender, input.counterparty) : (input.counterparty, msg.sender);
                 address tokenOwner = registry.ownerOf(input.id);
-                // emit DebugUint("tokenId", input.id);
-                // emit DebugAddress("tokenOwner: ", tokenOwner);
-                // emit DebugAddress("seller: ", seller);
                 if (seller != tokenOwner) {
                     revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
                 }
@@ -204,18 +188,11 @@ contract Exchange is Owned {
                 }
                 if (order.count > 1) {
                     order.count--;
-                    // emit DebugUint("One less", uint(order.count));
                     emit OrderUpdated(input.counterparty, matchingAction, matchingId, orderPrice, order.count, order.expiry, block.timestamp);
                 } else {
                     delete orders[input.counterparty][matchingId][matchingAction];
                     emit OrderDeleted(input.counterparty, matchingAction, matchingId, orderPrice, block.timestamp);
                 }
-
-                // /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
-                // event OrderUpdated(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
-                // /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
-                // event OrderDeleted(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
-
                 weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
                 if (uiFeeAccount != address(0)) {
                     weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
