@@ -74,19 +74,19 @@ contract Exchange is Owned {
         address counterparty; // ? Required for Buy And Sell
         Id id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
         Price price;
-        uint64 count;
+        Counter count;
         Unixtime expiry; // ? Required for Offer and Bid
     }
     struct Record {
         Price price;
-        uint64 count;
+        Counter count;
         Unixtime expiry;
     }
 
     /// @dev Maximum price in orders
-    Price private constant MAX_ORDER_PRICE = Price.wrap(uint96(1_000_000 ether));
+    Price private constant MAX_ORDER_PRICE = Price.wrap(1_000_000 ether);
     /// @dev Maximum count in orders
-    uint private constant MAX_ORDER_COUNT = 100_000;
+    Counter private constant MAX_ORDER_COUNT = Counter.wrap(100_000);
     /// @dev Maximum fee in basis points (10 bps = 0.1%)
     BasisPoint private constant MAX_FEE = BasisPoint.wrap(10);
 
@@ -102,9 +102,9 @@ contract Exchange is Owned {
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
     /// @dev Order added by `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event Order(address indexed account, Action action, Id indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
+    event Order(address indexed account, Action action, Id indexed id, Price indexed price, Counter count, Unixtime expiry, Unixtime timestamp);
     /// @dev Order updated for `account` to `action` `id` at `price` before expiry, at `timestamp`
-    event OrderUpdated(address indexed account, Action action, Id indexed id, Price indexed price, uint count, Unixtime expiry, Unixtime timestamp);
+    event OrderUpdated(address indexed account, Action action, Id indexed id, Price indexed price, Counter count, Unixtime expiry, Unixtime timestamp);
     /// @dev Order deleted for `account` to `action` `id` at `price` before expiry, at `timestamp`
     event OrderDeleted(address indexed account, Action action, Id indexed id, Price indexed price, Unixtime timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
@@ -116,7 +116,7 @@ contract Exchange is Owned {
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
     event FeeUpdated(BasisPoint indexed oldFee, BasisPoint indexed newFee, Unixtime timestamp);
 
-    error InvalidOrderCount(uint index, uint count, uint maxCount);
+    error InvalidOrderCount(uint index, Counter count, Counter maxCount);
     error InvalidOrderPrice(uint index, Price price, Price maxPrice);
     error SellerDoesNotOwnToken(Id tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(Id tokenId, Unixtime expiry);
@@ -149,15 +149,15 @@ contract Exchange is Owned {
                     revert InvalidOrderPrice(i, input.price, MAX_ORDER_PRICE);
                 }
                 if (input.action == Action.Offer || input.action == Action.Bid) {
-                    if (input.count != 1) {
-                        revert InvalidOrderCount(i, input.count, 1);
+                    if (Counter.unwrap(input.count) != 1) {
+                        revert InvalidOrderCount(i, input.count, Counter.wrap(1));
                     }
                 } else {
-                    if (input.count == 0 || input.count > MAX_ORDER_COUNT) {
+                    if (Counter.unwrap(input.count) == 0 || Counter.unwrap(input.count) > Counter.unwrap(MAX_ORDER_COUNT)) {
                         revert InvalidOrderCount(i, input.count, MAX_ORDER_COUNT);
                     }
                 }
-                orders[msg.sender][Id.unwrap(input.id)][input.action] = Record(input.price, uint64(input.count), input.expiry);
+                orders[msg.sender][Id.unwrap(input.id)][input.action] = Record(input.price, input.count, input.expiry);
                 emit Order(msg.sender, input.action, input.id, input.price, input.count, input.expiry, Unixtime.wrap(uint64(block.timestamp)));
             // Buy, Sell, CollectionBuy, CollectionSell
             } else {
@@ -189,8 +189,8 @@ contract Exchange is Owned {
                 if (available < orderPrice) {
                     revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                 }
-                if (order.count > 1) {
-                    order.count--;
+                if (Counter.unwrap(order.count) > 1) {
+                    order.count = Counter.wrap(Counter.unwrap(order.count) - 1);
                     emit OrderUpdated(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), order.count, order.expiry, Unixtime.wrap(uint64(block.timestamp)));
                 } else {
                     delete orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
