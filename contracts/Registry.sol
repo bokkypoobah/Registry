@@ -21,6 +21,7 @@ pragma solidity ^0.8.19;
 // type Account is address;
 type BasisPoint is uint64; // 10 bps = 0.1%
 type Counter is uint64;
+type Fuse is uint32;
 type Id is uint64;
 type Unixtime is uint64;
 
@@ -42,7 +43,7 @@ interface RegistryInterface {
         string description;
         address owner;
         ReceiverInterface receiver;
-        uint64 lock;
+        Fuse fuse;
         Counter count;
         Unixtime created;
         Royalty[] royalties;
@@ -179,7 +180,7 @@ contract Registry is RegistryInterface, Utilities {
         string description;
         address owner;
         ReceiverInterface receiver;
-        uint64 lock;
+        Fuse fuse;
         Id collectionId;
         Counter count;
         Unixtime created;
@@ -193,12 +194,12 @@ contract Registry is RegistryInterface, Utilities {
 
     uint private constant MAX_ROYALTY_RECORDS = 10;
 
-    uint64 private constant LOCK_NONE = 0x00;
-    uint64 private constant LOCK_OWNER_SET_DESCRIPTION = 0x01;
-    uint64 private constant LOCK_OWNER_BURN_ITEM = 0x02;
-    uint64 private constant LOCK_USER_MINT_ITEM = 0x04;
-    uint64 private constant LOCK_COLLECTION = 0x08;
-    uint64 private constant LOCK_ROYALTIES = 0x10;
+    Fuse private constant LOCK_NONE = Fuse.wrap(0x00);
+    Fuse private constant LOCK_OWNER_SET_DESCRIPTION = Fuse.wrap(0x01);
+    Fuse private constant LOCK_OWNER_BURN_ITEM = Fuse.wrap(0x02);
+    Fuse private constant LOCK_USER_MINT_ITEM = Fuse.wrap(0x04);
+    Fuse private constant LOCK_COLLECTION = Fuse.wrap(0x08);
+    Fuse private constant LOCK_ROYALTIES = Fuse.wrap(0x10);
 
     // Array of collection receivers
     ReceiverInterface[] public receivers;
@@ -224,9 +225,9 @@ contract Registry is RegistryInterface, Utilities {
         _newCollection("", "", LOCK_NONE, new Royalty[](0));
     }
 
-    function _newCollection(string memory name, string memory description, uint lock, Royalty[] memory royalties) internal returns (Id _collectionId) {
+    function _newCollection(string memory name, string memory description, Fuse fuse, Royalty[] memory royalties) internal returns (Id _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, uint64(lock), Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
+        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, fuse, Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
         _collectionId = Id.wrap(uint64(receivers.length - 1));
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
@@ -239,24 +240,32 @@ contract Registry is RegistryInterface, Utilities {
         emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
+    function isFuseSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+        return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
+    }
+    function isFuseBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+        return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
+    }
+
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description, uint lock, Royalty[] memory royalties) external returns (Id _collectionId) {
+    function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId) {
         if (!isValidName(name)) {
             revert InvalidCollectionName();
         }
         if (!isValidDescription(name)) {
             revert InvalidCollectionDescription();
         }
-        if ((lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
-            revert InvalidLock();
-        }
+        // TODO
+        // if ((lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+        //     revert InvalidLock();
+        // }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
         if (collectionNameCheck[nameHash]) {
             revert DuplicateCollectionName();
         }
         collectionNameCheck[nameHash] = true;
-        return _newCollection(name, description, lock, royalties);
+        return _newCollection(name, description, fuse, royalties);
     }
 
     /// @dev Set description for {collectionId}. Can only be executed by collection owner
@@ -267,9 +276,10 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        if (c.lock == LOCK_COLLECTION) {
-            revert Locked();
-        }
+        // TODO:
+        // if (c.fuse == LOCK_COLLECTION) {
+        //     revert Locked();
+        // }
         c.description = description;
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -285,9 +295,10 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        if (c.lock == LOCK_COLLECTION) {
-            revert Locked();
-        }
+        // TODO
+        // if (c.lock == LOCK_COLLECTION) {
+        //     revert Locked();
+        // }
         if (_royalties[collectionId].length > 0) {
             delete _royalties[collectionId];
         }
@@ -322,9 +333,10 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        if (c.lock == LOCK_COLLECTION) {
-            revert Locked();
-        }
+        // TODO
+        // if (c.lock == LOCK_COLLECTION) {
+        //     revert Locked();
+        // }
         bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
         if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
@@ -336,16 +348,17 @@ contract Registry is RegistryInterface, Utilities {
 
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function collectionOwnerLock(uint collectionId, uint lock) external {
+    function collectionOwnerLock(uint collectionId, Fuse fuse) external {
         // ReceiverInterface receiver = receivers[collectionId];
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        if (c.lock == LOCK_COLLECTION) {
-            revert Locked();
-        }
-        c.lock = uint64(lock);
+        // TODO
+        // if (c.lock == LOCK_COLLECTION) {
+        //     revert Locked();
+        // }
+        // c.lock = uint64(lock);
     }
 
 
@@ -358,9 +371,10 @@ contract Registry is RegistryInterface, Utilities {
         }
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
-            if ((c.lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
-                revert Locked();
-            }
+            // TODO
+            // if ((c.lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+            //     revert Locked();
+            // }
         }
         Data memory d = data[hash];
         bool burnt = false;
@@ -459,7 +473,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _royalties[c.collectionId]);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.fuse, c.count, c.created, _royalties[c.collectionId]);
         }
     }
 
