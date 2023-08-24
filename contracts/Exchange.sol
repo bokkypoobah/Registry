@@ -100,11 +100,11 @@ contract Exchange is Owned {
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
-    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    /// @dev Order added by `account` to `action` `id` at `price` before expiry, at `timestamp`
     event Order(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
-    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    /// @dev Order updated for `account` to `action` `id` at `price` before expiry, at `timestamp`
     event OrderUpdated(address indexed account, Action action, uint indexed id, uint indexed price, uint count, uint expiry, uint timestamp);
-    /// @dev Order by `account` to `action` `id` at `price` before expiry, at `timestamp`
+    /// @dev Order deleted for `account` to `action` `id` at `price` before expiry, at `timestamp`
     event OrderDeleted(address indexed account, Action action, uint indexed id, uint indexed price, uint timestamp);
     /// @dev `account` trade with `counterparty` `action` `tokenId` at `price`, at `timestamp`
     event Trade(address indexed account, address indexed counterparty, Action action, uint indexed tokenId, uint collectionId, uint price, uint timestamp);
@@ -115,8 +115,8 @@ contract Exchange is Owned {
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
     event FeeUpdated(uint indexed oldFee, uint indexed newFee, uint timestamp);
 
-    error InvalidCount(uint index, uint count, uint maxCount);
-    error InvalidPrice(uint index, uint price, uint maxPrice);
+    error InvalidOrderCount(uint index, uint count, uint maxCount);
+    error InvalidOrderPrice(uint index, uint price, uint maxPrice);
     error SellerDoesNotOwnToken(uint tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(uint tokenId, uint expiry);
     error OrderInvalid(uint tokenId, address account);
@@ -145,15 +145,15 @@ contract Exchange is Owned {
             // Offer, Bid, CollectionOffer & CollectionBid
             if (baseAction == Action.Offer || baseAction == Action.Bid) {
                 if (input.price > MAX_PRICE) {
-                    revert InvalidPrice(i, input.price, MAX_PRICE);
+                    revert InvalidOrderPrice(i, input.price, MAX_PRICE);
                 }
                 if (input.action == Action.Offer || input.action == Action.Bid) {
                     if (input.count != 1) {
-                        revert InvalidCount(i, input.count, 1);
+                        revert InvalidOrderCount(i, input.count, 1);
                     }
                 } else {
                     if (input.count == 0 || input.count > MAX_COUNT) {
-                        revert InvalidCount(i, input.count, MAX_COUNT);
+                        revert InvalidOrderCount(i, input.count, MAX_COUNT);
                     }
                 }
                 orders[msg.sender][input.id][input.action] = Record(uint96(input.price), uint64(input.count), uint64(input.expiry));

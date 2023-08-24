@@ -1,23 +1,24 @@
+Compiled 1 Solidity file successfully
 
   Registry
     Exchange - All Order Types
       > tx5 - gasUsed: 105427 ~ ETH 0.00210854 ~ USD 4.21708 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 16.0 Order(account: user0:0x7099, action: Offer, id: 1, price: 1.1 $2200.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
-        + exchange:0x9fE4 -> 16.1 Order(account: user0:0x7099, action: Offer, id: 2, price: 2.2 $4400.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
-        + exchange:0x9fE4 -> 16.2 Order(account: user0:0x7099, action: Offer, id: 3, price: 3.3 $6600.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
+        + exchange:0x9fE4 -> 16.0 Order(account: user0:0x7099, action: Offer, id: 1, price: 1.1 $2200.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
+        + exchange:0x9fE4 -> 16.1 Order(account: user0:0x7099, action: Offer, id: 2, price: 2.2 $4400.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
+        + exchange:0x9fE4 -> 16.2 Order(account: user0:0x7099, action: Offer, id: 3, price: 3.3 $6600.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
       > tx7 - gasUsed: 172634 ~ ETH 0.00345268 ~ USD 6.90536 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 18.0 OrderDeleted(account: user0:0x7099, action: Offer, id: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:36)
+        + exchange:0x9fE4 -> 18.0 OrderDeleted(account: user0:0x7099, action: Offer, id: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:27:58)
         + weth:0x5FbD -> 18.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.0989 $2197.8)
         + weth:0x5FbD -> 18.2 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.00055 $1.1)
         + weth:0x5FbD -> 18.3 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.00055 $1.1)
-        + registry:0xe7f1 -> 18.4 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.5 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: Buy, tokenId: 1, collectionId: 0, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.6 OrderDeleted(account: user0:0x7099, action: Offer, id: 3, price: 3.3 $6600.0, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.4 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.5 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: Buy, tokenId: 1, collectionId: 0, price: 1.1 $2200.0, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.6 OrderDeleted(account: user0:0x7099, action: Offer, id: 3, price: 3.3 $6600.0, timestamp: 2023-08-24T01:27:58)
         + weth:0x5FbD -> 18.7 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 3.2967 $6593.4)
         + weth:0x5FbD -> 18.8 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.00165 $3.3)
         + weth:0x5FbD -> 18.9 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.00165 $3.3)
-        + registry:0xe7f1 -> 18.10 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.11 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: Buy, tokenId: 3, collectionId: 0, price: 3.3 $6600.0, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.10 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.11 Trade(account: user1:0x3C44, counterparty: user0:0x7099, action: Buy, tokenId: 3, collectionId: 0, price: 3.3 $6600.0, timestamp: 2023-08-24T01:27:58)
 
       --- End ---
        Id Account                                        ETH                     WETH
@@ -38,34 +39,34 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user1:0x3C44                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user1:0x3C44                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user1:0x3C44                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user1:0x3C44                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
 
       ✓ Exchange - Offer & Buy #1
       > tx5 - gasUsed: 105694 ~ ETH 0.00211388 ~ USD 4.22776 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 16.0 Order(account: user1:0x3C44, action: Bid, id: 1, price: 1.1 $2200.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
-        + exchange:0x9fE4 -> 16.1 Order(account: user1:0x3C44, action: Bid, id: 2, price: 2.2 $4400.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
-        + exchange:0x9fE4 -> 16.2 Order(account: user1:0x3C44, action: Bid, id: 3, price: 3.3 $6600.0, count: 1, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:34)
+        + exchange:0x9fE4 -> 16.0 Order(account: user1:0x3C44, action: Bid, id: 1, price: 1.1 $2200.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
+        + exchange:0x9fE4 -> 16.1 Order(account: user1:0x3C44, action: Bid, id: 2, price: 2.2 $4400.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
+        + exchange:0x9fE4 -> 16.2 Order(account: user1:0x3C44, action: Bid, id: 3, price: 3.3 $6600.0, count: 1, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:27:56)
       > tx7 - gasUsed: 172710 ~ ETH 0.0034542 ~ USD 6.9084 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 18.0 OrderDeleted(account: user1:0x3C44, action: Bid, id: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:36)
+        + exchange:0x9fE4 -> 18.0 OrderDeleted(account: user1:0x3C44, action: Bid, id: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:27:58)
         + weth:0x5FbD -> 18.1 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 1.0989 $2197.8)
         + weth:0x5FbD -> 18.2 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.00055 $1.1)
         + weth:0x5FbD -> 18.3 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.00055 $1.1)
-        + registry:0xe7f1 -> 18.4 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.5 Trade(account: user0:0x7099, counterparty: user1:0x3C44, action: Sell, tokenId: 1, collectionId: 0, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.6 OrderDeleted(account: user1:0x3C44, action: Bid, id: 3, price: 3.3 $6600.0, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.4 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 1, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.5 Trade(account: user0:0x7099, counterparty: user1:0x3C44, action: Sell, tokenId: 1, collectionId: 0, price: 1.1 $2200.0, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.6 OrderDeleted(account: user1:0x3C44, action: Bid, id: 3, price: 3.3 $6600.0, timestamp: 2023-08-24T01:27:58)
         + weth:0x5FbD -> 18.7 Transfer(from: user1:0x3C44, to: user0:0x7099, tokens: 3.2967 $6593.4)
         + weth:0x5FbD -> 18.8 Transfer(from: user1:0x3C44, to: feeAccount:0x14dC, tokens: 0.00165 $3.3)
         + weth:0x5FbD -> 18.9 Transfer(from: user1:0x3C44, to: uiFeeAccount:0x2361, tokens: 0.00165 $3.3)
-        + registry:0xe7f1 -> 18.10 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-24T01:06:36)
-        + exchange:0x9fE4 -> 18.11 Trade(account: user0:0x7099, counterparty: user1:0x3C44, action: Sell, tokenId: 3, collectionId: 0, price: 3.3 $6600.0, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.10 Transfer(from: user0:0x7099, to: user1:0x3C44, tokenId: 3, timestamp: 2023-08-24T01:27:58)
+        + exchange:0x9fE4 -> 18.11 Trade(account: user0:0x7099, counterparty: user1:0x3C44, action: Sell, tokenId: 3, collectionId: 0, price: 3.3 $6600.0, timestamp: 2023-08-24T01:27:58)
 
       --- End ---
        Id Account                                        ETH                     WETH
@@ -86,29 +87,29 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user1:0x3C44                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user1:0x3C44                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user1:0x3C44                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user1:0x3C44                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
 
       ✓ Exchange - Bid & Sell #1
       > tx5 - gasUsed: 440564 ~ ETH 0.00881128 ~ USD 17.62256 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + registry:0xe7f1 -> 16.0 CollectionOwnerUpdatedRoyalties(collectionId: 1, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30)
       > tx6 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 Registered(tokenId: 5, hash: 0x14c6fff2, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:35)
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 5, hash: 0x14c6fff2, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:57)
       > tx7 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 18.0 Registered(tokenId: 6, hash: 0x16585189, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.0 Registered(tokenId: 6, hash: 0x16585189, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:58)
       > tx8 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 19.0 Registered(tokenId: 7, hash: 0xb1d3157b, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:37)
+        + registry:0xe7f1 -> 19.0 Registered(tokenId: 7, hash: 0xb1d3157b, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:59)
       > tx9 - gasUsed: 106090 ~ ETH 0.0021218 ~ USD 4.2436 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 20.0 Order(account: user1:0x3C44, action: CollectionOffer, id: 1, price: 1.1 $2200.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
-        + exchange:0x9fE4 -> 20.1 Order(account: user1:0x3C44, action: CollectionOffer, id: 2, price: 2.2 $4400.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
-        + exchange:0x9fE4 -> 20.2 Order(account: user1:0x3C44, action: CollectionOffer, id: 3, price: 3.3 $6600.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
+        + exchange:0x9fE4 -> 20.0 Order(account: user1:0x3C44, action: CollectionOffer, id: 1, price: 1.1 $2200.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
+        + exchange:0x9fE4 -> 20.1 Order(account: user1:0x3C44, action: CollectionOffer, id: 2, price: 2.2 $4400.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
+        + exchange:0x9fE4 -> 20.2 Order(account: user1:0x3C44, action: CollectionOffer, id: 3, price: 3.3 $6600.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
 
       --- DEBUG ---
        Id Account                                        ETH                     WETH
@@ -129,27 +130,27 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
-        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:06:34.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
+        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:27:56.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
-        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:06:35.000Z
-        6 "collection1user1string1":0x1658                 1 user1:0x3C44                   2023-08-24T01:06:36.000Z
-        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:06:37.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
+        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:27:57.000Z
+        6 "collection1user1string1":0x1658                 1 user1:0x3C44                   2023-08-24T01:27:58.000Z
+        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:27:59.000Z
 
       > tx11 - gasUsed: 139042 ~ ETH 0.00278084 ~ USD 5.56168 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 22.0 OrderUpdated(account: user1:0x3C44, action: CollectionOffer, id: 1, price: 1.1 $2200.0, count: 4, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:40)
+        + exchange:0x9fE4 -> 22.0 OrderUpdated(account: user1:0x3C44, action: CollectionOffer, id: 1, price: 1.1 $2200.0, count: 4, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:02)
         + weth:0x5FbD -> 22.1 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 1.0989 $2197.8)
         + weth:0x5FbD -> 22.2 Transfer(from: user2:0x90F7, to: feeAccount:0x14dC, tokens: 0.00055 $1.1)
         + weth:0x5FbD -> 22.3 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x2361, tokens: 0.00055 $1.1)
-        + registry:0xe7f1 -> 22.4 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 6, timestamp: 2023-08-24T01:06:40)
-        + exchange:0x9fE4 -> 22.5 Trade(account: user2:0x90F7, counterparty: user1:0x3C44, action: CollectionBuy, tokenId: 6, collectionId: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:40)
+        + registry:0xe7f1 -> 22.4 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 6, timestamp: 2023-08-24T01:28:02)
+        + exchange:0x9fE4 -> 22.5 Trade(account: user2:0x90F7, counterparty: user1:0x3C44, action: CollectionBuy, tokenId: 6, collectionId: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:28:02)
 
       --- End ---
        Id Account                                        ETH                     WETH
@@ -170,33 +171,33 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
-        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:06:34.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
+        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:27:56.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
-        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:06:35.000Z
-        6 "collection1user1string1":0x1658                 1 user2:0x90F7                   2023-08-24T01:06:36.000Z
-        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:06:37.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
+        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:27:57.000Z
+        6 "collection1user1string1":0x1658                 1 user2:0x90F7                   2023-08-24T01:27:58.000Z
+        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:27:59.000Z
 
       ✓ Exchange - Collection Offer & Collection Buy #1
       > tx5 - gasUsed: 440564 ~ ETH 0.00881128 ~ USD 17.62256 @ gasPrice 20.0 gwei, ETH/USD 2000.0
         + registry:0xe7f1 -> 16.0 CollectionOwnerUpdatedRoyalties(collectionId: 1, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30)
       > tx6 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 Registered(tokenId: 5, hash: 0x14c6fff2, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:35)
+        + registry:0xe7f1 -> 17.0 Registered(tokenId: 5, hash: 0x14c6fff2, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:57)
       > tx7 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 18.0 Registered(tokenId: 6, hash: 0x16585189, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:36)
+        + registry:0xe7f1 -> 18.0 Registered(tokenId: 6, hash: 0x16585189, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:58)
       > tx8 - gasUsed: 112506 ~ ETH 0.00225012 ~ USD 4.50024 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 19.0 Registered(tokenId: 7, hash: 0xb1d3157b, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:06:37)
+        + registry:0xe7f1 -> 19.0 Registered(tokenId: 7, hash: 0xb1d3157b, collection: receiver#1:0x9f1a, owner: user1:0x3C44, timestamp: 2023-08-24T01:27:59)
       > tx9 - gasUsed: 106201 ~ ETH 0.00212402 ~ USD 4.24804 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 20.0 Order(account: user2:0x90F7, action: CollectionBid, id: 1, price: 1.1 $2200.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
-        + exchange:0x9fE4 -> 20.1 Order(account: user2:0x90F7, action: CollectionBid, id: 2, price: 2.2 $4400.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
-        + exchange:0x9fE4 -> 20.2 Order(account: user2:0x90F7, action: CollectionBid, id: 3, price: 3.3 $6600.0, count: 5, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:38)
+        + exchange:0x9fE4 -> 20.0 Order(account: user2:0x90F7, action: CollectionBid, id: 1, price: 1.1 $2200.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
+        + exchange:0x9fE4 -> 20.1 Order(account: user2:0x90F7, action: CollectionBid, id: 2, price: 2.2 $4400.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
+        + exchange:0x9fE4 -> 20.2 Order(account: user2:0x90F7, action: CollectionBid, id: 3, price: 3.3 $6600.0, count: 5, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:00)
 
       --- DEBUG ---
        Id Account                                        ETH                     WETH
@@ -217,27 +218,27 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
-        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:06:34.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
+        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:27:56.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
-        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:06:35.000Z
-        6 "collection1user1string1":0x1658                 1 user1:0x3C44                   2023-08-24T01:06:36.000Z
-        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:06:37.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
+        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:27:57.000Z
+        6 "collection1user1string1":0x1658                 1 user1:0x3C44                   2023-08-24T01:27:58.000Z
+        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:27:59.000Z
 
       > tx11 - gasUsed: 139064 ~ ETH 0.00278128 ~ USD 5.56256 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + exchange:0x9fE4 -> 22.0 OrderUpdated(account: user2:0x90F7, action: CollectionBid, id: 1, price: 1.1 $2200.0, count: 4, expiry: 2023-08-24T02:06:21, timestamp: 2023-08-24T01:06:40)
+        + exchange:0x9fE4 -> 22.0 OrderUpdated(account: user2:0x90F7, action: CollectionBid, id: 1, price: 1.1 $2200.0, count: 4, expiry: 2023-08-24T02:27:46, timestamp: 2023-08-24T01:28:02)
         + weth:0x5FbD -> 22.1 Transfer(from: user2:0x90F7, to: user1:0x3C44, tokens: 1.0989 $2197.8)
         + weth:0x5FbD -> 22.2 Transfer(from: user2:0x90F7, to: feeAccount:0x14dC, tokens: 0.00055 $1.1)
         + weth:0x5FbD -> 22.3 Transfer(from: user2:0x90F7, to: uiFeeAccount:0x2361, tokens: 0.00055 $1.1)
-        + registry:0xe7f1 -> 22.4 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 6, timestamp: 2023-08-24T01:06:40)
-        + exchange:0x9fE4 -> 22.5 Trade(account: user1:0x3C44, counterparty: user2:0x90F7, action: CollectionSell, tokenId: 6, collectionId: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:06:40)
+        + registry:0xe7f1 -> 22.4 Transfer(from: user1:0x3C44, to: user2:0x90F7, tokenId: 6, timestamp: 2023-08-24T01:28:02)
+        + exchange:0x9fE4 -> 22.5 Trade(account: user1:0x3C44, counterparty: user2:0x90F7, action: CollectionSell, tokenId: 6, collectionId: 1, price: 1.1 $2200.0, timestamp: 2023-08-24T01:28:02)
 
       --- End ---
        Id Account                                        ETH                     WETH
@@ -258,19 +259,19 @@
 
        Id Collection Name      Description          Receiver               Owner                    Items Locked Created
       --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------
-        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:06:20.000Z
-        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:06:34.000Z
+        0 (default)            (default)            receiver:0xCafa        deployer:0xf39F              5 n      2023-08-24T01:27:42.000Z
+        1 Name #1              Collection #1        receiver#1:0x9f1a      user0:0x7099                 3 n      2023-08-24T01:27:56.000Z
 
        Id String:Hash                          Collection Id Owner                          Registered
       --- ------------------------------------ ------------- ------------------------------ ------------------------
-        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:06:29.000Z
-        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:06:30.000Z
-        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:06:31.000Z
-        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:06:32.000Z
-        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:06:33.000Z
-        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:06:35.000Z
-        6 "collection1user1string1":0x1658                 1 user2:0x90F7                   2023-08-24T01:06:36.000Z
-        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:06:37.000Z
+        0 "user0string0":0x5230                            0 user0:0x7099                   2023-08-24T01:27:51.000Z
+        1 "user0string1":0x54f8                            0 user0:0x7099                   2023-08-24T01:27:52.000Z
+        2 "user0string2":0xcb3c                            0 user0:0x7099                   2023-08-24T01:27:53.000Z
+        3 "user0string3":0x4506                            0 user0:0x7099                   2023-08-24T01:27:54.000Z
+        4 "user0string4":0x5c3a                            0 user0:0x7099                   2023-08-24T01:27:55.000Z
+        5 "collection1user1string0":0x14c6                 1 user1:0x3C44                   2023-08-24T01:27:57.000Z
+        6 "collection1user1string1":0x1658                 1 user2:0x90F7                   2023-08-24T01:27:58.000Z
+        7 "collection1user1string2":0xb1d3                 1 user1:0x3C44                   2023-08-24T01:27:59.000Z
 
       ✓ Exchange - Collection Bid & Collection Sell #1
     Receiver
