@@ -64,6 +64,7 @@ interface RegistryInterface {
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
     function getCollectionId(Id tokenId) external view returns (Id collectionId);
+    function getRoyalties(Id collectionId) external view returns (Royalty[] memory royalties);
     function getReceiver(uint i) external view returns (ReceiverInterface receiver);
     function ownerOf(Id tokenId) external view returns (address);
     function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
@@ -209,7 +210,7 @@ contract Registry is RegistryInterface, Utilities {
     mapping(bytes32 => bool) collectionNameCheck;
     // TODO
     // collection id => Royalty[]
-    mapping(uint => Royalty[]) private _royalties;
+    mapping(Id => Royalty[]) private _royalties;
     // collection id => users => uint
     mapping(uint => mapping(address => uint)) collectionMinterCounts;
 
@@ -235,7 +236,7 @@ contract Registry is RegistryInterface, Utilities {
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _royalties[Id.unwrap(_collectionId)].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
         emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -289,12 +290,12 @@ contract Registry is RegistryInterface, Utilities {
         if (c.lock == LOCK_COLLECTION) {
             revert Locked();
         }
-        if (_royalties[Id.unwrap(collectionId)].length > 0) {
-            delete _royalties[Id.unwrap(collectionId)];
+        if (_royalties[collectionId].length > 0) {
+            delete _royalties[collectionId];
         }
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
-            _royalties[Id.unwrap(collectionId)].push(Royalty(royalty.account, royalty.royalty));
+            _royalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
         emit CollectionRoyaltiesUpdated(collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -440,7 +441,7 @@ contract Registry is RegistryInterface, Utilities {
 
     /// @dev Get royalties for `collectionId`
     /// @param collectionId Collection Id
-    function getRoyalties(uint collectionId) external view returns (Royalty[] memory royalties) {
+    function getRoyalties(Id collectionId) external view returns (Royalty[] memory royalties) {
         return _royalties[collectionId];
     }
 
@@ -460,7 +461,7 @@ contract Registry is RegistryInterface, Utilities {
         for (uint i = 0; i < count && ((i + offset) < receivers.length); i = onePlus(i)) {
             ReceiverInterface receiver = receivers[i + offset];
             Collection memory c = collectionData[receiver];
-            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _royalties[i + offset]);
+            results[i] = CollectionResult(c.name, c.description, c.owner, receiver, c.lock, c.count, c.created, _royalties[c.collectionId]);
         }
     }
 
