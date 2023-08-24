@@ -212,7 +212,7 @@ contract Registry is RegistryInterface, Utilities {
     // collection id => Royalty[]
     mapping(Id => Royalty[]) private _royalties;
     // collection id => users => uint
-    mapping(uint => mapping(address => uint)) collectionMinterCounts;
+    mapping(Id => mapping(address => uint)) collectionMinterCounts;
 
     // Array of unique data hashes
     bytes32[] public hashes;
@@ -311,7 +311,7 @@ contract Registry is RegistryInterface, Utilities {
         }
         for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
             MinterCount memory mc = minterCounts[i];
-            collectionMinterCounts[Id.unwrap(c.collectionId)][mc.account] = Counter.unwrap(mc.count);
+            collectionMinterCounts[c.collectionId][mc.account] = Counter.unwrap(mc.count);
         }
         emit CollectionMinterCountsUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
