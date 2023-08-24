@@ -139,24 +139,23 @@ contract Exchange is Owned {
     function doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
         RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
         uint remaining = Price.unwrap(price);
-        weth.transferFrom(buyer, address(this), remaining);
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             RegistryInterface.Royalty memory royalty = royalties[i];
             uint amount = BasisPoint.unwrap(royalty.royalty) * Price.unwrap(price) / 10_000;
-            weth.transfer(royalty.account, amount);
+            weth.transferFrom(buyer, royalty.account, amount);
             remaining -= amount;
         }
         if (uiFeeAccount != address(0)) {
             uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 20_000;
-            weth.transfer(feeAccount, amount);
-            weth.transfer(uiFeeAccount, amount);
+            weth.transferFrom(buyer, feeAccount, amount);
+            weth.transferFrom(buyer, uiFeeAccount, amount);
             remaining -= 2 * amount;
         } else {
             uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 10_000;
-            weth.transfer(feeAccount, amount);
+            weth.transferFrom(buyer, feeAccount, amount);
             remaining -= amount;
         }
-        weth.transfer(seller, remaining);
+        weth.transferFrom(buyer, seller, remaining);
         registry.transfer(buyer, tokenId);
     }
 
