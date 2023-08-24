@@ -148,7 +148,7 @@ describe("Registry", function () {
         result = result + separator + a.name + ": ";
         if (a.type == 'address') {
           result = result + getAccountName(data, logData.args[a.name].toString());
-        } else if (a.type == 'uint256' || a.type == 'uint128' || a.type == 'uint64') {
+        } else if (a.type == 'uint256' || a.type == 'uint128' || a.type == 'uint96' || a.type == 'uint64') {
           if (a.name == 'timestamp' || a.name == 'expiry') {
             result = result + new Date(parseInt(logData.args[a.name].toString()) * 1000).toISOString().substring(0, 19);
           } else if (a.name == 'tokens' || a.name == 'price') {

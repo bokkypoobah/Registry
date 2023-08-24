@@ -28,7 +28,7 @@ contract Owned {
     address public newOwner;
 
     /// @dev Ownership transferred from `from` to `to`
-    event OwnershipTransferred(address indexed from, address indexed to);
+    event OwnershipTransferred(address indexed from, address indexed to, Unixtime timestamp);
 
     error NotOwner();
     error NotNewOwner(address newOwner);
@@ -56,7 +56,7 @@ contract Owned {
         if (msg.sender != newOwner) {
             revert NotNewOwner(newOwner);
         }
-        emit OwnershipTransferred(owner, newOwner);
+        emit OwnershipTransferred(owner, newOwner, Unixtime.wrap(uint64(block.timestamp)));
         owner = newOwner;
         newOwner = address(0);
     }
@@ -84,11 +84,11 @@ contract Exchange is Owned {
     }
 
     /// @dev Maximum price in orders
-    Price private constant MAX_PRICE = Price.wrap(uint96(1_000_000 ether));
+    Price private constant MAX_ORDER_PRICE = Price.wrap(uint96(1_000_000 ether));
     /// @dev Maximum count in orders
-    uint private constant MAX_COUNT = 1000000;
+    uint private constant MAX_ORDER_COUNT = 100_000;
     /// @dev Maximum fee in basis points (10 bps = 0.1%)
-    uint private constant MAX_FEE = 10;
+    BasisPoint private constant MAX_FEE = BasisPoint.wrap(10);
 
     // WETH
     ERC20 public immutable weth;
@@ -97,7 +97,7 @@ contract Exchange is Owned {
     // Fee account
     address public feeAccount;
     // Fee in basis points (10 bps = 0.1%)
-    uint public fee = MAX_FEE;
+    BasisPoint public fee = MAX_FEE;
     // maker => tokenId => [price, expiry]
     mapping(address => mapping(uint => mapping(Action => Record))) public orders;
 
@@ -114,7 +114,7 @@ contract Exchange is Owned {
     /// @dev Fee account updated from `oldFeeAccount` to `newFeeAccount`, at `timestamp`
     event FeeAccountUpdated(address indexed oldFeeAccount, address indexed newFeeAccount, Unixtime timestamp);
     /// @dev Fee in basis points updated from `oldFee` to `newFee`, at `timestamp`
-    event FeeUpdated(uint indexed oldFee, uint indexed newFee, Unixtime timestamp);
+    event FeeUpdated(BasisPoint indexed oldFee, BasisPoint indexed newFee, Unixtime timestamp);
 
     error InvalidOrderCount(uint index, uint count, uint maxCount);
     error InvalidOrderPrice(uint index, Price price, Price maxPrice);
@@ -127,7 +127,7 @@ contract Exchange is Owned {
     error MakerHasInsufficientWeth(address bidder, uint tokenId, uint required, uint available);
     error BuyerHasInsufficientWeth(address buyer, uint tokenId, uint required, uint available);
     error InvalidFeeAccount();
-    error InvalidFee(uint fee, uint maxFee);
+    error InvalidFee(BasisPoint fee, BasisPoint maxFee);
     error OnlyTokenOwnerCanTransfer();
 
     constructor(ERC20 _weth, RegistryInterface _registry) {
@@ -145,16 +145,16 @@ contract Exchange is Owned {
             Action baseAction = (uint(input.action) <= uint(Action.Sell)) ? input.action : Action(uint(input.action) - 4);
             // Offer, Bid, CollectionOffer & CollectionBid
             if (baseAction == Action.Offer || baseAction == Action.Bid) {
-                if (Price.unwrap(input.price) > Price.unwrap(MAX_PRICE)) {
-                    revert InvalidOrderPrice(i, input.price, MAX_PRICE);
+                if (Price.unwrap(input.price) > Price.unwrap(MAX_ORDER_PRICE)) {
+                    revert InvalidOrderPrice(i, input.price, MAX_ORDER_PRICE);
                 }
                 if (input.action == Action.Offer || input.action == Action.Bid) {
                     if (input.count != 1) {
                         revert InvalidOrderCount(i, input.count, 1);
                     }
                 } else {
-                    if (input.count == 0 || input.count > MAX_COUNT) {
-                        revert InvalidOrderCount(i, input.count, MAX_COUNT);
+                    if (input.count == 0 || input.count > MAX_ORDER_COUNT) {
+                        revert InvalidOrderCount(i, input.count, MAX_ORDER_COUNT);
                     }
                 }
                 orders[msg.sender][input.id][input.action] = Record(input.price, uint64(input.count), input.expiry);
@@ -196,12 +196,12 @@ contract Exchange is Owned {
                     delete orders[input.counterparty][matchingOrderId][matchingOrderAction];
                     emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, Price.wrap(uint96(orderPrice)), Unixtime.wrap(uint64(block.timestamp)));
                 }
-                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - fee)) / 10_000);
+                weth.transferFrom(buyer, seller, (orderPrice * (10_000 - BasisPoint.unwrap(fee))) / 10_000);
                 if (uiFeeAccount != address(0)) {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 20_000);
-                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * fee) / 20_000);
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 20_000);
+                    weth.transferFrom(buyer, uiFeeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 20_000);
                 } else {
-                    weth.transferFrom(buyer, feeAccount, (orderPrice * fee) / 10_000);
+                    weth.transferFrom(buyer, feeAccount, (orderPrice * BasisPoint.unwrap(fee)) / 10_000);
                 }
                 registry.transfer(buyer, input.id);
                 emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, orderPrice, Unixtime.wrap(uint64(block.timestamp)));
@@ -234,8 +234,8 @@ contract Exchange is Owned {
 
     /// @dev Update fee to `newFee`, with a limit of {MAX_FEE}. Only callable by {owner}
     /// @param newFee New fee
-    function updateFee(uint newFee) public onlyOwner {
-        if (newFee > MAX_FEE) {
+    function updateFee(BasisPoint newFee) public onlyOwner {
+        if (BasisPoint.unwrap(newFee) > BasisPoint.unwrap(MAX_FEE)) {
             revert InvalidFee(newFee, MAX_FEE);
         }
         emit FeeUpdated(fee, newFee, Unixtime.wrap(uint64(block.timestamp)));
