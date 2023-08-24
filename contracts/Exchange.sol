@@ -20,7 +20,7 @@ pragma solidity ^0.8.19;
 import "./Registry.sol";
 import "./ERC20.sol";
 
-type Price is uint96;
+type Price is uint96; // 2^96 = 79,228,162,514, 264,337,593,543,950,336
 
 /// @notice Ownership
 contract Owned {
@@ -45,7 +45,7 @@ contract Owned {
         owner = msg.sender;
     }
 
-    /// @dev Assign {newOnwer} to a `_newOwner`. `_newOwner` will have to {acceptOwnership} to confirm transfer
+    /// @dev Assign {newOwner} to a `_newOwner`. `_newOwner` will have to {acceptOwnership} to confirm transfer
     /// @param _newOwner New proposed owner
     function transferOwnership(address _newOwner) public onlyOwner {
         newOwner = _newOwner;

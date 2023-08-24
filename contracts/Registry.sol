@@ -21,7 +21,7 @@ pragma solidity ^0.8.19;
 // type Account is address;
 type BasisPoint is uint64; // 10 bps = 0.1%
 type Counter is uint64;
-type Fuse is uint32;
+type Fuse is uint64;
 type Id is uint64;
 type Unixtime is uint64;
 
@@ -54,19 +54,25 @@ interface RegistryInterface {
         address owner;
         Unixtime created;
     }
+
+    function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId);
+    function updateCollectionDescription(Id collectionId, string memory description) external;
+    function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
+    function updateCollectionMinters(Id collectionId, Minter[] calldata minterCounts) external;
+    function burnCollectionToken(Id collectionId, Id tokenId) external;
+    function lockCollection(uint collectionId, Fuse fuse) external;
+
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
 
     function setApprovalForAll(address operator, bool approved) external;
     function isApprovedForAll(address owner, address operator) external view returns (bool);
     function transfer(address to, Id tokenId) external;
 
-    // TODO - check list of functions completed
-
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
+    function getReceiver(uint i) external view returns (ReceiverInterface receiver);
     function getCollectionId(Id tokenId) external view returns (Id collectionId);
     function getRoyalties(Id collectionId) external view returns (Royalty[] memory royalties);
-    function getReceiver(uint i) external view returns (ReceiverInterface receiver);
     function ownerOf(Id tokenId) external view returns (address);
     function getCollections(uint count, uint offset) external view returns (CollectionResult[] memory results);
     function getItems(uint count, uint offset) external view returns (ItemResult[] memory results);
@@ -218,7 +224,7 @@ contract Registry is RegistryInterface, Utilities {
     // data hash => [owner, tokenId, created]
     mapping(bytes32 => Data) public data;
     // owner => operator => approved?
-    mapping(address => mapping(address => bool)) private _operatorApprovals;
+    mapping(address /* owner */ => mapping(address /* operator */ => bool /* approved */)) private _operatorApprovals;
 
 
     constructor() {
@@ -348,7 +354,7 @@ contract Registry is RegistryInterface, Utilities {
 
 
     /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function collectionOwnerLock(uint collectionId, Fuse fuse) external {
+    function lockCollection(uint collectionId, Fuse fuse) external {
         // ReceiverInterface receiver = receivers[collectionId];
         Collection storage c = collectionData[receivers[collectionId]];
         if (c.owner != msg.sender) {
@@ -391,6 +397,7 @@ contract Registry is RegistryInterface, Utilities {
             hashes.push(hash);
         }
     }
+
 
     /// @dev Approve or remove `operator` to execute {transfer} on the caller's tokens
     function setApprovalForAll(address operator, bool approved) external {
