@@ -71,10 +71,10 @@ contract Exchange is Owned {
     struct Input {
         Action action;
         address counterparty; // ? Required for Buy And Sell
-        uint id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
-        uint price;
-        uint count;
-        uint expiry; // ? Required for Offer and Bid
+        uint64 id; // collectionId for CollectionOffer and CollectionBid, tokenId otherwise
+        uint96 price;
+        uint64 count;
+        uint64 expiry; // ? Required for Offer and Bid
     }
     struct Record {
         uint96 price;
