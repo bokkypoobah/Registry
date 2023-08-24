@@ -191,18 +191,18 @@ contract Registry is RegistryInterface, Utilities {
     // owner => operator => approved?
     mapping(address => mapping(address => bool)) private _operatorApprovals;
 
-    /// @dev Collection `collectionid` description updated to `to`
-    event CollectionDescriptionUpdated(uint indexed collectionId, string description);
-    /// @dev Collection `collectionid` royalties updated to `royalties`
-    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties);
-    /// @dev Collection `collectionid` minters updated with `minters`
-    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts);
+    /// @dev Collection `collectionid` description updated to `to` at `timestamp`
+    event CollectionDescriptionUpdated(uint indexed collectionId, string description, Unixtime timestamp);
+    /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
+    event CollectionRoyaltiesUpdated(uint indexed collectionId, Royalty[] royalties, Unixtime timestamp);
+    /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
+    event CollectionOwnerUpdatedMinterCounts(uint indexed collectionId, MinterCount[] minterCounts, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
-    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, uint timestamp);
+    event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed collection, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
-    event Transfer(address indexed from, address indexed to, uint indexed tokenId, uint timestamp);
+    event Transfer(address indexed from, address indexed to, uint indexed tokenId, Unixtime timestamp);
     /// @dev `owner` has `approved` for `operator` to manage all of its assets at `timestamp`
-    event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved, Unixtime timestamp);
 
     error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
     error InvalidCollectionName();
@@ -233,7 +233,7 @@ contract Registry is RegistryInterface, Utilities {
             Royalty memory royalty = royalties[i];
             _royalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
-        emit CollectionRoyaltiesUpdated(_collectionId, royalties);
+        emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
@@ -268,7 +268,7 @@ contract Registry is RegistryInterface, Utilities {
             revert Locked();
         }
         c.description = description;
-        emit CollectionDescriptionUpdated(collectionId, description);
+        emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
     }
 
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
@@ -292,7 +292,7 @@ contract Registry is RegistryInterface, Utilities {
             Royalty memory royalty = royalties[i];
             _royalties[collectionId].push(Royalty(royalty.account, royalty.royalty));
         }
-        emit CollectionRoyaltiesUpdated(collectionId, royalties);
+        emit CollectionRoyaltiesUpdated(collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
@@ -308,7 +308,7 @@ contract Registry is RegistryInterface, Utilities {
             MinterCount memory mc = minterCounts[i];
             collectionMinterCounts[c.collectionId][mc.account] = mc.count;
         }
-        emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts);
+        emit CollectionOwnerUpdatedMinterCounts(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
@@ -327,7 +327,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotOwner();
         }
         data[hash].owner = address(0x0);
-        emit Transfer(from, address(0x0), tokenId, block.timestamp);
+        emit Transfer(from, address(0x0), tokenId, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
@@ -366,7 +366,7 @@ contract Registry is RegistryInterface, Utilities {
             burnt = true;
         }
         data[hash] = Data(msgSender, c.collectionId, uint64(hashes.length), Unixtime.wrap(uint64(block.timestamp)));
-        emit Registered(hashes.length, hash, msg.sender, msgSender, block.timestamp);
+        emit Registered(hashes.length, hash, msg.sender, msgSender, Unixtime.wrap(uint64(block.timestamp)));
         output = bytes.concat(bytes32(hashes.length));
         if (!burnt) {
             c.count++;
@@ -380,7 +380,7 @@ contract Registry is RegistryInterface, Utilities {
             revert CannotApproveSelf();
         }
         _operatorApprovals[msg.sender][operator] = approved;
-        emit ApprovalForAll(msg.sender, operator, approved, block.timestamp);
+        emit ApprovalForAll(msg.sender, operator, approved, Unixtime.wrap(uint64(block.timestamp)));
     }
 
     /// @dev Is `operator` allowed to manage all of the assets of `owner`?
@@ -407,7 +407,7 @@ contract Registry is RegistryInterface, Utilities {
         bytes32 hash = hashes[tokenId];
         address from = data[hash].owner;
         data[hash].owner = to;
-        emit Transfer(from, to, tokenId, block.timestamp);
+        emit Transfer(from, to, tokenId, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
