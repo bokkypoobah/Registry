@@ -118,10 +118,10 @@ contract Exchange is Owned {
 
     error InvalidOrderCount(uint index, Counter count, Counter maxCount);
     error InvalidOrderPrice(uint index, Price price, Price maxPrice);
+    error CannotSelfTrade(uint index, Id tokenId);
     error SellerDoesNotOwnToken(Id tokenId, address tokenOwner, address orderOwner);
     error OrderExpired(Id tokenId, Unixtime expiry);
     error OrderInvalid(Id tokenId, address account);
-    error CannotSelfTrade(Id tokenId);
     error PriceMismatch(Id tokenId, Price orderPrice, Price tradePrice);
     error TakerHasInsufficientEth(Id tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, Id tokenId, uint required, uint available);
@@ -162,7 +162,7 @@ contract Exchange is Owned {
             // Buy, Sell, CollectionBuy, CollectionSell
             } else {
                 if (msg.sender == input.counterparty) {
-                    revert CannotSelfTrade(input.id);
+                    revert CannotSelfTrade(i, input.id);
                 }
                 Id collectionId = registry.getCollectionId(input.id);
                 // Buy => Offer; Sell => Bid; CollectionBuy => CollectionOffer; CollectionSell => CollectionBid
