@@ -298,7 +298,7 @@ describe("Registry", function () {
       await printState(data, "End");
     });
 
-    it("Exchange - Collection Offer & Collection Buy #1", async function () {
+    it.only("Exchange - Collection Offer & Collection Buy #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
