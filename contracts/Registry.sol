@@ -107,7 +107,7 @@ interface RegistryInterface {
     error InvalidFuses();
     error DuplicateCollectionName();
     error NotOwner();
-    error Locked();
+    error FuseBurnt();
     error InvalidCollection();
     error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
     error CannotApproveSelf();
@@ -302,7 +302,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotOwner();
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
-            revert Locked();
+            revert FuseBurnt();
         }
         c.description = description;
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
@@ -321,7 +321,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotOwner();
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
-            revert Locked();
+            revert FuseBurnt();
         }
         if (_royalties[collectionId].length > 0) {
             delete _royalties[collectionId];
@@ -358,7 +358,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotOwner();
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
-            revert Locked();
+            revert FuseBurnt();
         }
         bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
@@ -379,12 +379,12 @@ contract Registry is RegistryInterface, Utilities {
         // for (uint i = 0; i < inputs.length; i = onePlus(i)) {
         //     Fuse fuse = fuses[i];
         //     if (!_isFuseSet(c.fuses, fuse)) {
-        //         revert Locked();
+        //         revert FuseBurnt();
         //     }
         // }
         // TODO
         // if (c.lock == FUSE_COLLECTION) {
-        //     revert Locked();
+        //     revert FuseBurnt();
         // }
         // c.lock = uint64(lock);
     }
@@ -411,7 +411,7 @@ contract Registry is RegistryInterface, Utilities {
             hash = keccak256(abi.encodePacked(c.name, hash));
             // TODO
             // if ((c.lock & FUSE_USER_MINT_ITEM == FUSE_USER_MINT_ITEM) || (c.lock & FUSE_COLLECTION == FUSE_COLLECTION)) {
-            //     revert Locked();
+            //     revert FuseBurnt();
             // }
         }
         Data memory d = data[hash];

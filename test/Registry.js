@@ -479,29 +479,71 @@ describe("Registry", function () {
     // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
     // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
 
-    const fuses0 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION;
-    const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses0, royalties);
-    await printTx(data, "tx5", await tx5.wait());
+    const fuses0 = 0;
+    const createCollectionTx0 = await data.registry.connect(data.user0).newCollection("Name #0", "Collection #0", fuses0, royalties);
+    await printTx(data, "createCollectionTx0", await createCollectionTx0.wait());
 
-    const fuses1 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES;
-    const tx6 = await data.registry.connect(data.user0).newCollection("Name #2", "Collection #2", fuses1, royalties);
-    await printTx(data, "tx6", await tx6.wait());
+    const fuses1 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION;
+    const createCollectionTx1 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses1, royalties);
+    await printTx(data, "createCollectionTx1", await createCollectionTx1.wait());
 
-    const fuses2 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
-    const tx7 = await data.registry.connect(data.user0).newCollection("Name #3", "Collection #3", fuses2, royalties);
-    await printTx(data, "tx7", await tx7.wait());
+    const fuses2 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES;
+    const createCollectionTx2 = await data.registry.connect(data.user0).newCollection("Name #2", "Collection #2", fuses2, royalties);
+    await printTx(data, "createCollectionTx2", await createCollectionTx2.wait());
 
-    const fuses3 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM;
-    const tx8 = await data.registry.connect(data.user0).newCollection("Name #4", "Collection #4", fuses3, royalties);
-    await printTx(data, "tx8", await tx8.wait());
+    const fuses3 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
+    const createCollectionTx3 = await data.registry.connect(data.user0).newCollection("Name #3", "Collection #3", fuses3, royalties);
+    await printTx(data, "createCollectionTx3", await createCollectionTx3.wait());
 
-    const fuses4 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM;
-    const tx9 = await data.registry.connect(data.user0).newCollection("Name #5", "Collection #5", fuses4, royalties);
-    await printTx(data, "tx9", await tx9.wait());
+    const fuses4 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM;
+    const createCollectionTx4 = await data.registry.connect(data.user0).newCollection("Name #4", "Collection #4", fuses4, royalties);
+    await printTx(data, "createCollectionTx4", await createCollectionTx4.wait());
 
-    const fuses5 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM | FUSE_ANY_USER_CAN_MINT_ITEM;
-    const tx10 = await data.registry.connect(data.user0).newCollection("Name #6", "Collection #6", fuses5, royalties);
-    await printTx(data, "tx10", await tx10.wait());
+    const fuses5 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM;
+    const createCollectionTx5 = await data.registry.connect(data.user0).newCollection("Name #5", "Collection #5", fuses5, royalties);
+    await printTx(data, "createCollectionTx5", await createCollectionTx5.wait());
+
+    const fuses6 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM | FUSE_ANY_USER_CAN_MINT_ITEM;
+    const createCollectionTx6 = await data.registry.connect(data.user0).newCollection("Name #6", "Collection #6", fuses6, royalties);
+    await printTx(data, "createCollectionTx6", await createCollectionTx6.wait());
+
+    // --- Testing updateCollectionDescription ---
+    const updateCollectionDescriptionTx1 = await data.registry.connect(data.user0).updateCollectionDescription(3, "Collection #3a");
+    await printTx(data, "updateCollectionDescriptionTx1", await updateCollectionDescriptionTx1.wait());
+
+    await expect(data.registry.connect(data.user0).updateCollectionDescription(1, "Collection #1a")).to.be.revertedWithCustomError(
+      data.registry,
+      "FuseBurnt"
+    ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
+
+    await expect(data.registry.connect(data.user1).updateCollectionDescription(4, "Collection #4a")).to.be.revertedWithCustomError(
+      data.registry,
+      "NotOwner"
+    ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
+
+    await printState(data, "DEBUG");
+
+    // --- Testing updateCollectionRoyalties ---
+    const newRoyalties = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
+
+    // const updateCollectionRoyaltiesTx1 = await data.registry.connect(data.user0).updateCollectionRoyalties(3, newRoyalties);
+    // await printTx(data, "updateCollectionRoyaltiesTx1", await updateCollectionRoyaltiesTx1.wait());
+
+    await expect(data.registry.connect(data.user0).updateCollectionRoyalties(3, newRoyalties))
+      .to.emit(data.registry, "CollectionRoyaltiesUpdated")
+      .withArgs(3, anyValue, anyValue);
+    const newRoyaltiesString = JSON.stringify(newRoyalties, (_, v) => typeof v === 'bigint' ? v.toString() : v);
+    const testNewRoyalties = await data.registry.getRoyalties(3);
+    const testNewRoyaltiesString = JSON.stringify(testNewRoyalties, (_, v) => typeof v === 'bigint' ? v.toString() : v);
+    expect(newRoyaltiesString).to.equal(testNewRoyaltiesString);
+    await expect(data.registry.connect(data.user0).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
+      data.registry,
+      "FuseBurnt"
+    );
+    await expect(data.registry.connect(data.user1).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
+      data.registry,
+      "NotOwner"
+    );
 
 
     // const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
