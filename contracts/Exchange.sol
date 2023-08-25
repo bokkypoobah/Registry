@@ -136,7 +136,7 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
-    function doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
+    function _doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
         RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
         uint remaining = Price.unwrap(price);
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
@@ -209,7 +209,7 @@ contract Exchange is Owned {
                     if (seller != tokenOwner) {
                         revert SellerDoesNotOwnToken(input.id, tokenOwner, seller);
                     }
-                    uint available = availableWeth(buyer);
+                    uint available = _availableWeth(buyer);
                     if (available < orderPrice) {
                         revert BuyerHasInsufficientWeth(buyer, input.id, orderPrice, available);
                     }
@@ -221,7 +221,7 @@ contract Exchange is Owned {
                     delete orders[input.counterparty][Id.unwrap(matchingOrderId)][matchingOrderAction];
                     emit OrderDeleted(input.counterparty, matchingOrderAction, matchingOrderId, order.price, Unixtime.wrap(uint64(block.timestamp)));
                 }
-                doTransfers(buyer, seller, input.id, collectionId, order.price, uiFeeAccount);
+                _doTransfers(buyer, seller, input.id, collectionId, order.price, uiFeeAccount);
                 emit Trade(msg.sender, input.counterparty, input.action, input.id, collectionId, order.price, Unixtime.wrap(uint64(block.timestamp)));
             }
         }
@@ -250,6 +250,7 @@ contract Exchange is Owned {
         feeAccount = newFeeAccount;
     }
 
+    // TODO: Have a time delayed setting of Fee
     /// @dev Update fee to `newFee`, with a limit of {MAX_FEE}. Only callable by {owner}
     /// @param newFee New fee
     function updateFee(BasisPoint newFee) public onlyOwner {
@@ -261,7 +262,7 @@ contract Exchange is Owned {
     }
 
     /// @dev Minimum of WETH balance and spending allowance to this {Exchange} for `account`
-    function availableWeth(address account) internal view returns (uint tokens) {
+    function _availableWeth(address account) internal view returns (uint tokens) {
         uint allowance = weth.allowance(account, address(this));
         uint balance = weth.balanceOf(account);
         tokens = allowance < balance ? allowance : balance;

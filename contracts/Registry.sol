@@ -91,6 +91,7 @@ interface RegistryInterface {
     event ApprovalForAll(address indexed owner, address indexed operator, bool approved, Unixtime timestamp);
 
     error MaxRoyaltyRecordsExceeded(uint maxRoyaltyRecords);
+    error InvalidRoyalties();
     error InvalidCollectionName();
     error InvalidCollectionDescription();
     error InvalidFuses();
@@ -140,7 +141,7 @@ contract Utilities {
     /// @dev Is name valid? Length between 1 and `MAX_NAME_LENGTH`. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
     /// @param str Name to check
     /// @return True if valid
-    function isValidName(string memory str) internal pure returns (bool) {
+    function _isValidName(string memory str) internal pure returns (bool) {
         bytes memory b = bytes(str);
         if (b.length < 1 || b.length > MAX_NAME_LENGTH) {
             return false;
@@ -165,7 +166,7 @@ contract Utilities {
     /// @dev Is description valid? Length between 0 and `MAX_DESCRIPTION_LENGTH`. No leading or trailing SPACEs
     /// @param str Description to check
     /// @return True if valid
-    function isValidDescription(string memory str) internal pure returns (bool) {
+    function _isValidDescription(string memory str) internal pure returns (bool) {
         bytes memory b = bytes(str);
         if (b.length > MAX_DESCRIPTION_LENGTH) {
             return false;
@@ -239,27 +240,32 @@ contract Registry is RegistryInterface, Utilities {
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
             revert MaxRoyaltyRecordsExceeded(MAX_ROYALTY_RECORDS);
         }
+        uint totalRoyalties;
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
             Royalty memory royalty = royalties[i];
             _royalties[_collectionId].push(Royalty(royalty.account, royalty.royalty));
+            totalRoyalties += BasisPoint.unwrap(royalty.royalty);
+        }
+        if (totalRoyalties > 10_000) {
+            revert InvalidRoyalties();
         }
         emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
-    function isFuseSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+    function _isFuseSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
     }
-    function isFuseBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+    function _isFuseBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
     }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
     function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId) {
-        if (!isValidName(name)) {
+        if (!_isValidName(name)) {
             revert InvalidCollectionName();
         }
-        if (!isValidDescription(name)) {
+        if (!_isValidDescription(name)) {
             revert InvalidCollectionDescription();
         }
         // TODO
@@ -290,6 +296,7 @@ contract Registry is RegistryInterface, Utilities {
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
     }
 
+    // TODO: Have a time delayed setting of Royalties
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param royalties Royalties
