@@ -25,12 +25,12 @@ type Fuse is uint64;
 type Id is uint64;
 type Unixtime is uint64;
 
-Fuse constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01);
-Fuse constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02);
-Fuse constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04);
-Fuse constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08);
-Fuse constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10);
-Fuse constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20);
+Fuse constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x01);
+Fuse constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x02);
+Fuse constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x04);
+Fuse constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x08);
+Fuse constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x10);
+Fuse constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x20);
 
 
 interface ReceiverInterface {
@@ -403,15 +403,15 @@ contract Registry is RegistryInterface, Utilities {
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
             bool ok;
-            if (c.owner == msg.sender && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
-                ok = true;
-            } else if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
+            if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
                 ok = true;
             } else if (_isFuseSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
                 if (collectionMinters[c.collectionId][msgSender] > 0) {
                     collectionMinters[c.collectionId][msgSender]--;
                     ok = true;
                 }
+            } else if (c.owner == msgSender && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
+                ok = true;
             }
             if (!ok) {
                 revert FuseBurnt();

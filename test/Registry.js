@@ -31,12 +31,12 @@ const INPUT = {
   "COLLECTION_SELL": 7,
 };
 
-const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01;
-const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02;
-const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04;
-const FUSE_OWNER_CAN_MINT_ITEM = 0x08;
-const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10;
-const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20;
+const FUSE_ANY_USER_CAN_MINT_ITEM = 0x01;
+const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x02;
+const FUSE_OWNER_CAN_MINT_ITEM = 0x04;
+const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x08;
+const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x10;
+const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x20;
 
 
 describe("Registry", function () {
@@ -204,28 +204,28 @@ describe("Registry", function () {
 
     const collectionData = await data.registry.getCollections(10, 0);
     let i = 0;
-    console.log("       Id Collection Name      Description          Receiver               Owner                  Items Descr Royal OBurn OMint MintL AnyUs Created");
+    console.log("       Id Collection Name      Description          Receiver               Owner                  Items AnyUs MintL OMint OBurn Descr Royal Created");
     console.log("      --- -------------------- -------------------- ---------------------- -------------------- ------- ----- ----- ----- ----- ----- ----- ------------------------");
     for (const _d of collectionData) {
       const [name, description, owner, receiver, fuses, items, created] = _d;
       if (created == 0) {
         break;
       }
+      const anyUserCanMintItems = (parseInt(fuses) & FUSE_ANY_USER_CAN_MINT_ITEM) == FUSE_ANY_USER_CAN_MINT_ITEM ? "y" : "n";
+      const minterListCanMintItems = (parseInt(fuses) & FUSE_MINTER_LIST_CAN_MINT_ITEM) == FUSE_MINTER_LIST_CAN_MINT_ITEM ? "y" : "n";
+      const ownerCanMintItems = (parseInt(fuses) & FUSE_OWNER_CAN_MINT_ITEM) == FUSE_OWNER_CAN_MINT_ITEM ? "y" : "n";
+      const ownerCanBurnUserItems = (parseInt(fuses) & FUSE_OWNER_CAN_BURN_USER_ITEM) == FUSE_OWNER_CAN_BURN_USER_ITEM ? "y" : "n";
       const ownerCanUpdateDescription = (parseInt(fuses) & FUSE_OWNER_CAN_UPDATE_DESCRIPTION) == FUSE_OWNER_CAN_UPDATE_DESCRIPTION ? "y" : "n";
       const ownerCanUpdateRoyalties = (parseInt(fuses) & FUSE_OWNER_CAN_UPDATE_ROYALTIES) == FUSE_OWNER_CAN_UPDATE_ROYALTIES ? "y" : "n";
-      const ownerCanBurnUserItems = (parseInt(fuses) & FUSE_OWNER_CAN_BURN_USER_ITEM) == FUSE_OWNER_CAN_BURN_USER_ITEM ? "y" : "n";
-      const ownerCanMintItems = (parseInt(fuses) & FUSE_OWNER_CAN_MINT_ITEM) == FUSE_OWNER_CAN_MINT_ITEM ? "y" : "n";
-      const minterListCanMintItems = (parseInt(fuses) & FUSE_MINTER_LIST_CAN_MINT_ITEM) == FUSE_MINTER_LIST_CAN_MINT_ITEM ? "y" : "n";
-      const anyUserCanMintItems = (parseInt(fuses) & FUSE_ANY_USER_CAN_MINT_ITEM) == FUSE_ANY_USER_CAN_MINT_ITEM ? "y" : "n";
       console.log("      " + padLeft(i, 3) + " " + padRight(name || '(default)', 20) + " " + padRight(description || '(default)', 20) + " " +
         padRight(getAccountName(data, receiver), 22) + " " + padRight(getAccountName(data, owner), 20) + " " +
         padLeft(items, 7) + " " +
+        padLeft(anyUserCanMintItems, 5) + " " +
+        padLeft(minterListCanMintItems, 5) + " " +
+        padLeft(ownerCanMintItems, 5) + " " +
+        padLeft(ownerCanBurnUserItems, 5) + " " +
         padLeft(ownerCanUpdateDescription, 5) + " " +
         padLeft(ownerCanUpdateRoyalties, 5) + " " +
-        padLeft(ownerCanBurnUserItems, 5) + " " +
-        padLeft(ownerCanMintItems, 5) + " " +
-        padLeft(minterListCanMintItems, 5) + " " +
-        padLeft(anyUserCanMintItems, 5) + " " +
         new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
