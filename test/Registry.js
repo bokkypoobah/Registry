@@ -31,6 +31,13 @@ const INPUT = {
   "COLLECTION_SELL": 7,
 };
 
+const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
+const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
+const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
+const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
+const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
+const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
+
 describe("Registry", function () {
   async function deployFixture() {
     const [deployer, user0, user1, user2, royalty0, royalty1, royalty2, feeAccount, uiFeeAccount] = await ethers.getSigners();
@@ -179,6 +186,14 @@ describe("Registry", function () {
   }
 
   async function printState(data, prefix) {
+
+    // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
+    // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
+    // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
+    // const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
+    // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
+    // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
+
     console.log();
     console.log("      --- " + prefix + " ---");
     console.log("       Id Account                                        ETH                     WETH");
@@ -196,16 +211,16 @@ describe("Registry", function () {
     // console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
 
     let i = 0;
-    console.log("       Id Collection Name      Description          Receiver               Owner                    Items Locked Created");
-    console.log("      --- -------------------- -------------------- ---------------------- ---------------------- ------- ------ -------------------");
+    console.log("       Id Collection Name      Description          Receiver               Owner                  Items Locked Created");
+    console.log("      --- -------------------- -------------------- ---------------------- -------------------- ------- ------ -------------------");
     for (const _d of collectionData) {
-      const [name, description, owner, receiver, locked, items, created] = _d;
-      if (owner == ZERO_ADDRESS) {
+      const [name, description, owner, receiver, fuses, items, created] = _d;
+      if (created == 0) {
         break;
       }
       console.log("      " + padLeft(i, 3) + " " + padRight(name || '(default)', 20) + " " + padRight(description || '(default)', 20) + " " +
-        padRight(getAccountName(data, receiver), 22) + " " + padRight(getAccountName(data, owner), 22) + " " +
-        padLeft(items, 7) + " " + (locked ? "y     " : "n     ") + " " + new Date(parseInt(created) * 1000).toISOString());
+        padRight(getAccountName(data, receiver), 22) + " " + padRight(getAccountName(data, owner), 20) + " " +
+        padLeft(items, 7) + " " + (fuses) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     console.log();
@@ -315,7 +330,16 @@ describe("Registry", function () {
 
       const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
-      const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, royalties);
+      // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
+      // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
+      // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
+      // const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
+      // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
+      // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
+
+      const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
+
+      const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses, royalties);
       await printTx(data, "tx5", await tx5.wait());
 
       const receiver1 = await data.registry.getReceiver(1);

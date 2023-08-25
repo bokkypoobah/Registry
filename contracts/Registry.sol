@@ -25,6 +25,14 @@ type Fuse is uint64;
 type Id is uint64;
 type Unixtime is uint64;
 
+Fuse constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01); // DESCRIPT DESCR
+Fuse constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02); // ROYALTIES ROYAL
+Fuse constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04); // OWNERBURN OBURN
+Fuse constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08); // OWNERMINT OMINT
+Fuse constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10); // MINTLIST MLIST
+Fuse constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20); // ANY AUSER
+
+
 interface ReceiverInterface {
     function registry() external view returns (RegistryInterface);
 }
@@ -60,7 +68,7 @@ interface RegistryInterface {
     function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
     function updateCollectionMinters(Id collectionId, Minter[] calldata minterCounts) external;
     function burnCollectionToken(Id collectionId, Id tokenId) external;
-    function lockCollection(uint collectionId, Fuse fuse) external;
+    function burnFuses(Id collectionId, Fuse[] calldata fuse) external;
 
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
 
@@ -83,6 +91,8 @@ interface RegistryInterface {
     event CollectionRoyaltiesUpdated(Id indexed collectionId, Royalty[] royalties, Unixtime timestamp);
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
     event CollectionMintersUpdated(Id indexed collectionId, Minter[] minterCounts, Unixtime timestamp);
+    /// @dev Ownership of `collectionId` transferred from `from` to `to`
+    event CollectionOwnershipTransferred(Id indexed collectionId, address indexed from, address indexed to, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(Id indexed tokenId, Id indexed collectionId, bytes32 indexed hash, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -201,12 +211,12 @@ contract Registry is RegistryInterface, Utilities {
 
     uint private constant MAX_ROYALTY_RECORDS = 10;
 
-    Fuse private constant LOCK_NONE = Fuse.wrap(0x00);
-    Fuse private constant LOCK_OWNER_SET_DESCRIPTION = Fuse.wrap(0x01);
-    Fuse private constant LOCK_OWNER_BURN_ITEM = Fuse.wrap(0x02);
-    Fuse private constant LOCK_USER_MINT_ITEM = Fuse.wrap(0x04);
-    Fuse private constant LOCK_COLLECTION = Fuse.wrap(0x08);
-    Fuse private constant LOCK_ROYALTIES = Fuse.wrap(0x10);
+    // Fuse private constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01);
+    // Fuse private constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02);
+    // Fuse private constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04);
+    // Fuse private constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08);
+    // Fuse private constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10);
+    // Fuse private constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20);
 
     // Array of collection receivers
     ReceiverInterface[] public receivers;
@@ -229,12 +239,12 @@ contract Registry is RegistryInterface, Utilities {
 
 
     constructor() {
-        _newCollection("", "", LOCK_NONE, new Royalty[](0));
+        _newCollection("", "", address(0), FUSE_ANY_USER_CAN_MINT_ITEM, new Royalty[](0));
     }
 
-    function _newCollection(string memory name, string memory description, Fuse fuse, Royalty[] memory royalties) internal returns (Id _collectionId) {
+    function _newCollection(string memory name, string memory description, address owner, Fuse fuse, Royalty[] memory royalties) internal returns (Id _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, address(msg.sender), receiver, fuse, Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
+        collectionData[receiver] = Collection(name, description, owner, receiver, fuse, Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
         _collectionId = Id.wrap(uint64(receivers.length - 1));
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
@@ -258,6 +268,9 @@ contract Registry is RegistryInterface, Utilities {
     function _isFuseBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
     }
+    // function _burnFuse(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+    //     return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
+    // }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
@@ -269,7 +282,7 @@ contract Registry is RegistryInterface, Utilities {
             revert InvalidCollectionDescription();
         }
         // TODO
-        // if ((lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+        // if ((lock & FUSE_USER_MINT_ITEM == FUSE_USER_MINT_ITEM) || (lock & FUSE_COLLECTION == FUSE_COLLECTION)) {
         //     revert InvalidFuses();
         // }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
@@ -277,7 +290,7 @@ contract Registry is RegistryInterface, Utilities {
             revert DuplicateCollectionName();
         }
         collectionNameCheck[nameHash] = true;
-        return _newCollection(name, description, fuse, royalties);
+        return _newCollection(name, description, address(msg.sender), fuse, royalties);
     }
 
     /// @dev Set description for {collectionId}. Can only be executed by collection owner
@@ -288,10 +301,9 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        // TODO:
-        // if (c.fuse == LOCK_COLLECTION) {
-        //     revert Locked();
-        // }
+        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
+            revert Locked();
+        }
         c.description = description;
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -308,10 +320,9 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        // TODO
-        // if (c.lock == LOCK_COLLECTION) {
-        //     revert Locked();
-        // }
+        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
+            revert Locked();
+        }
         if (_royalties[collectionId].length > 0) {
             delete _royalties[collectionId];
         }
@@ -346,10 +357,9 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        // TODO
-        // if (c.lock == LOCK_COLLECTION) {
-        //     revert Locked();
-        // }
+        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
+            revert Locked();
+        }
         bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
         if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
@@ -360,18 +370,33 @@ contract Registry is RegistryInterface, Utilities {
     }
 
 
-    /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function lockCollection(uint collectionId, Fuse fuse) external {
-        // ReceiverInterface receiver = receivers[collectionId];
-        Collection storage c = collectionData[receivers[collectionId]];
+    /// @dev Burn fuses for {collectionId}. Can only be executed by collection owner
+    function burnFuses(Id collectionId, Fuse[] calldata fuses) external {
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
+        // for (uint i = 0; i < inputs.length; i = onePlus(i)) {
+        //     Fuse fuse = fuses[i];
+        //     if (!_isFuseSet(c.fuses, fuse)) {
+        //         revert Locked();
+        //     }
+        // }
         // TODO
-        // if (c.lock == LOCK_COLLECTION) {
+        // if (c.lock == FUSE_COLLECTION) {
         //     revert Locked();
         // }
         // c.lock = uint64(lock);
+    }
+
+
+    function transferCollectionOwnership(Id collectionId, address newOwner) external {
+        Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
+        if (c.owner != msg.sender) {
+            revert NotOwner();
+        }
+        emit CollectionOwnershipTransferred(collectionId, c.owner, newOwner, Unixtime.wrap(uint64(block.timestamp)));
+        c.owner = newOwner;
     }
 
 
@@ -385,7 +410,7 @@ contract Registry is RegistryInterface, Utilities {
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
             // TODO
-            // if ((c.lock & LOCK_USER_MINT_ITEM == LOCK_USER_MINT_ITEM) || (c.lock & LOCK_COLLECTION == LOCK_COLLECTION)) {
+            // if ((c.lock & FUSE_USER_MINT_ITEM == FUSE_USER_MINT_ITEM) || (c.lock & FUSE_COLLECTION == FUSE_COLLECTION)) {
             //     revert Locked();
             // }
         }
