@@ -186,19 +186,10 @@ describe("Registry", function () {
   }
 
   async function printState(data, prefix) {
-
-    // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
-    // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
-    // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
-    // const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
-    // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
-    // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
-
     console.log();
     console.log("      --- " + prefix + " ---");
     console.log("       Id Account                                        ETH                     WETH");
     console.log("      --- ------------------------- ------------------------ ------------------------");
-
     for (let i = 0; i < data.accounts.length; i++) {
       const account = data.accounts[i];
       const balance = await ethers.provider.getBalance(account);
@@ -208,19 +199,30 @@ describe("Registry", function () {
     console.log();
 
     const collectionData = await data.registry.getCollections(10, 0);
-    // console.log("collectionData: " + JSON.stringify(collectionData, (_, v) => typeof v === 'bigint' ? v.toString() : v));
-
     let i = 0;
-    console.log("       Id Collection Name      Description          Receiver               Owner                  Items Locked Created");
-    console.log("      --- -------------------- -------------------- ---------------------- -------------------- ------- ------ -------------------");
+    console.log("       Id Collection Name      Description          Receiver               Owner                  Items Descr Royal OBurn OMint MintL AnyUs Created");
+    console.log("      --- -------------------- -------------------- ---------------------- -------------------- ------- ----- ----- ----- ----- ----- ----- ------------------------");
     for (const _d of collectionData) {
       const [name, description, owner, receiver, fuses, items, created] = _d;
       if (created == 0) {
         break;
       }
+      const ownerCanUpdateDescription = (parseInt(fuses) & FUSE_OWNER_CAN_UPDATE_DESCRIPTION) == FUSE_OWNER_CAN_UPDATE_DESCRIPTION ? "y" : "n";
+      const ownerCanUpdateRoyalties = (parseInt(fuses) & FUSE_OWNER_CAN_UPDATE_ROYALTIES) == FUSE_OWNER_CAN_UPDATE_ROYALTIES ? "y" : "n";
+      const ownerCanBurnUserItems = (parseInt(fuses) & FUSE_OWNER_CAN_BURN_USER_ITEM) == FUSE_OWNER_CAN_BURN_USER_ITEM ? "y" : "n";
+      const ownerCanMintItems = (parseInt(fuses) & FUSE_OWNER_CAN_MINT_ITEM) == FUSE_OWNER_CAN_MINT_ITEM ? "y" : "n";
+      const minterListCanMintItems = (parseInt(fuses) & FUSE_MINTER_LIST_CAN_MINT_ITEM) == FUSE_MINTER_LIST_CAN_MINT_ITEM ? "y" : "n";
+      const anyUserCanMintItems = (parseInt(fuses) & FUSE_ANY_USER_CAN_MINT_ITEM) == FUSE_ANY_USER_CAN_MINT_ITEM ? "y" : "n";
       console.log("      " + padLeft(i, 3) + " " + padRight(name || '(default)', 20) + " " + padRight(description || '(default)', 20) + " " +
         padRight(getAccountName(data, receiver), 22) + " " + padRight(getAccountName(data, owner), 20) + " " +
-        padLeft(items, 7) + " " + (fuses) + " " + new Date(parseInt(created) * 1000).toISOString());
+        padLeft(items, 7) + " " +
+        padLeft(ownerCanUpdateDescription, 5) + " " +
+        padLeft(ownerCanUpdateRoyalties, 5) + " " +
+        padLeft(ownerCanBurnUserItems, 5) + " " +
+        padLeft(ownerCanMintItems, 5) + " " +
+        padLeft(minterListCanMintItems, 5) + " " +
+        padLeft(anyUserCanMintItems, 5) + " " +
+        new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
     console.log();
@@ -238,6 +240,7 @@ describe("Registry", function () {
       console.log("      " + padLeft(i, 3) + " " + padLeft(collectionId, 13) + " " + padRight(getHashData(data, hash).substring(0, 36), 36) + " " + padRight(getAccountName(data, owner), 30) + " " + new Date(parseInt(created) * 1000).toISOString());
       i++;
     }
+    // TODO: Make sure tested separately
     // const length = await data.registry.itemsLength();
     // for (let i = 0; i < length; i++) {
     //   const hash = await data.registry.hashes(i);
