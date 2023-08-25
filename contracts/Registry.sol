@@ -25,12 +25,12 @@ type Fuse is uint64;
 type Id is uint64;
 type Unixtime is uint64;
 
-Fuse constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01); // DESCRIPT DESCR
-Fuse constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02); // ROYALTIES ROYAL
-Fuse constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04); // OWNERBURN OBURN
-Fuse constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08); // OWNERMINT OMINT
-Fuse constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10); // MINTLIST MLIST
-Fuse constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20); // ANY AUSER
+Fuse constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01);
+Fuse constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02);
+Fuse constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04);
+Fuse constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08);
+Fuse constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10);
+Fuse constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20);
 
 
 interface ReceiverInterface {
@@ -210,13 +210,6 @@ contract Registry is RegistryInterface, Utilities {
     }
 
     uint private constant MAX_ROYALTY_RECORDS = 10;
-
-    // Fuse private constant FUSE_OWNER_CAN_UPDATE_DESCRIPTION = Fuse.wrap(0x01);
-    // Fuse private constant FUSE_OWNER_CAN_UPDATE_ROYALTIES = Fuse.wrap(0x02);
-    // Fuse private constant FUSE_OWNER_CAN_BURN_USER_ITEM = Fuse.wrap(0x04);
-    // Fuse private constant FUSE_OWNER_CAN_MINT_ITEM = Fuse.wrap(0x08);
-    // Fuse private constant FUSE_MINTER_LIST_CAN_MINT_ITEM = Fuse.wrap(0x10);
-    // Fuse private constant FUSE_ANY_USER_CAN_MINT_ITEM = Fuse.wrap(0x20);
 
     // Array of collection receivers
     ReceiverInterface[] public receivers;
@@ -409,10 +402,22 @@ contract Registry is RegistryInterface, Utilities {
         }
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
-            // TODO
-            // if ((c.lock & FUSE_USER_MINT_ITEM == FUSE_USER_MINT_ITEM) || (c.lock & FUSE_COLLECTION == FUSE_COLLECTION)) {
-            //     revert FuseBurnt();
-            // }
+            bool ok;
+            if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
+                ok = true;
+            }
+            if (!ok && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM) && c.owner == msg.sender) {
+                ok = true;
+            }
+            if (!ok && _isFuseSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
+                if (collectionMinters[c.collectionId][msg.sender] > 0) {
+                    collectionMinters[c.collectionId][msg.sender]--;
+                    ok = true;
+                }
+            }
+            if (!ok) {
+                revert FuseBurnt();
+            }
         }
         Data memory d = data[hash];
         bool burnt = false;

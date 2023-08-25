@@ -31,12 +31,13 @@ const INPUT = {
   "COLLECTION_SELL": 7,
 };
 
-const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
-const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
-const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
-const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
-const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
-const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
+const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01;
+const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02;
+const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04;
+const FUSE_OWNER_CAN_MINT_ITEM = 0x08;
+const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10;
+const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20;
+
 
 describe("Registry", function () {
   async function deployFixture() {
@@ -472,13 +473,6 @@ describe("Registry", function () {
 
     const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
-    // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
-    // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
-    // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
-    // const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
-    // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
-    // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
-
     const fuses0 = 0;
     const createCollectionTx0 = await data.registry.connect(data.user0).newCollection("Name #0", "Collection #0", fuses0, royalties);
     await printTx(data, "createCollectionTx0", await createCollectionTx0.wait());
@@ -507,6 +501,8 @@ describe("Registry", function () {
     const createCollectionTx6 = await data.registry.connect(data.user0).newCollection("Name #6", "Collection #6", fuses6, royalties);
     await printTx(data, "createCollectionTx6", await createCollectionTx6.wait());
 
+    await printState(data, "DEBUG");
+
     // --- Testing updateCollectionDescription ---
     const updateCollectionDescriptionTx1 = await data.registry.connect(data.user0).updateCollectionDescription(3, "Collection #3a");
     await printTx(data, "updateCollectionDescriptionTx1", await updateCollectionDescriptionTx1.wait());
@@ -518,8 +514,6 @@ describe("Registry", function () {
       data.registry,
       "NotOwner"
     ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
-
-    await printState(data, "DEBUG");
 
     // --- Testing updateCollectionRoyalties ---
     const newRoyalties = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
