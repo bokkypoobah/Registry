@@ -403,15 +403,13 @@ contract Registry is RegistryInterface, Utilities {
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
             bool ok;
-            if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
+            if (c.owner == msg.sender && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
                 ok = true;
-            }
-            if (!ok && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM) && c.owner == msg.sender) {
+            } else if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
                 ok = true;
-            }
-            if (!ok && _isFuseSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
-                if (collectionMinters[c.collectionId][msg.sender] > 0) {
-                    collectionMinters[c.collectionId][msg.sender]--;
+            } else if (_isFuseSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
+                if (collectionMinters[c.collectionId][msgSender] > 0) {
+                    collectionMinters[c.collectionId][msgSender]--;
                     ok = true;
                 }
             }
