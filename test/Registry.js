@@ -479,38 +479,62 @@ describe("Registry", function () {
     // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
     // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
 
-    const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
-
-    const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses, royalties);
+    const fuses0 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION;
+    const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses0, royalties);
     await printTx(data, "tx5", await tx5.wait());
 
-    const receiver1 = await data.registry.getReceiver(1);
-    data.accountNames[receiver1.toLowerCase()] = "receiver#1";
-
-    addHash("Name #1", data, "collection1user1string0");
-    addHash("Name #1", data, "collection1user1string1");
-    addHash("Name #1", data, "collection1user1string2");
-
-    const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
-    const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
-    const tx8 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string2")) });
+    const fuses1 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES;
+    const tx6 = await data.registry.connect(data.user0).newCollection("Name #2", "Collection #2", fuses1, royalties);
     await printTx(data, "tx6", await tx6.wait());
+
+    const fuses2 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
+    const tx7 = await data.registry.connect(data.user0).newCollection("Name #3", "Collection #3", fuses2, royalties);
     await printTx(data, "tx7", await tx7.wait());
+
+    const fuses3 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM;
+    const tx8 = await data.registry.connect(data.user0).newCollection("Name #4", "Collection #4", fuses3, royalties);
     await printTx(data, "tx8", await tx8.wait());
 
-    const expiry = parseInt(new Date() / 1000) + 60 * 60;
-    const collectionOfferData = [[INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 5, expiry]];
-    const tx9 = await data.exchange.connect(data.user1).execute(collectionOfferData, data.uiFeeAccount);
+    const fuses4 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM;
+    const tx9 = await data.registry.connect(data.user0).newCollection("Name #5", "Collection #5", fuses4, royalties);
     await printTx(data, "tx9", await tx9.wait());
 
-    const tx10 = await data.registry.connect(data.user1).setApprovalForAll(data.exchange.target, true);
-    // await printTx(data, "tx10", await tx10.wait());
+    const fuses5 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM | FUSE_ANY_USER_CAN_MINT_ITEM;
+    const tx10 = await data.registry.connect(data.user0).newCollection("Name #6", "Collection #6", fuses5, royalties);
+    await printTx(data, "tx10", await tx10.wait());
 
-    await printState(data, "DEBUG");
 
-    const sellData1 = [[INPUT_COLLECTION_BUY, data.user1.address, 6, ethers.parseEther("1.1"), 0, 0]];
-    const tx11 = await data.exchange.connect(data.user2).execute(sellData1, data.uiFeeAccount);
-    await printTx(data, "tx11", await tx11.wait());
+    // const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
+    // const tx6 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses, royalties);
+    // await printTx(data, "tx6", await tx6.wait());
+
+    // const receiver1 = await data.registry.getReceiver(1);
+    // data.accountNames[receiver1.toLowerCase()] = "receiver#1";
+    //
+    // addHash("Name #1", data, "collection1user1string0");
+    // addHash("Name #1", data, "collection1user1string1");
+    // addHash("Name #1", data, "collection1user1string2");
+
+    // const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
+    // const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
+    // const tx8 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string2")) });
+    // await printTx(data, "tx6", await tx6.wait());
+    // await printTx(data, "tx7", await tx7.wait());
+    // await printTx(data, "tx8", await tx8.wait());
+    //
+    // const expiry = parseInt(new Date() / 1000) + 60 * 60;
+    // const collectionOfferData = [[INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 1, ethers.parseEther("1.1"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 2, ethers.parseEther("2.2"), 5, expiry], [INPUT_COLLECTION_OFFER, ZERO_ADDRESS, 3, ethers.parseEther("3.3"), 5, expiry]];
+    // const tx9 = await data.exchange.connect(data.user1).execute(collectionOfferData, data.uiFeeAccount);
+    // await printTx(data, "tx9", await tx9.wait());
+    //
+    // const tx10 = await data.registry.connect(data.user1).setApprovalForAll(data.exchange.target, true);
+    // // await printTx(data, "tx10", await tx10.wait());
+    //
+    // await printState(data, "DEBUG");
+    //
+    // const sellData1 = [[INPUT_COLLECTION_BUY, data.user1.address, 6, ethers.parseEther("1.1"), 0, 0]];
+    // const tx11 = await data.exchange.connect(data.user2).execute(sellData1, data.uiFeeAccount);
+    // await printTx(data, "tx11", await tx11.wait());
 
 
     await printState(data, "End");
