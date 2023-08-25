@@ -66,7 +66,7 @@ interface RegistryInterface {
     function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId);
     function updateCollectionDescription(Id collectionId, string memory description) external;
     function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
-    function updateCollectionMinters(Id collectionId, Minter[] calldata minterCounts) external;
+    function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external;
     function burnCollectionToken(Id collectionId, Id tokenId) external;
     function burnFuses(Id collectionId, Fuse[] calldata fuse) external;
 
@@ -90,7 +90,7 @@ interface RegistryInterface {
     /// @dev Collection `collectionid` royalties updated to `royalties` at `timestamp`
     event CollectionRoyaltiesUpdated(Id indexed collectionId, Royalty[] royalties, Unixtime timestamp);
     /// @dev Collection `collectionid` minters updated with `minters` at `timestamp`
-    event CollectionMintersUpdated(Id indexed collectionId, Minter[] minterCounts, Unixtime timestamp);
+    event CollectionMintersUpdated(Id indexed collectionId, Minter[] minters, Unixtime timestamp);
     /// @dev Ownership of `collectionId` transferred from `from` to `to`
     event CollectionOwnershipTransferred(Id indexed collectionId, address indexed from, address indexed to, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
@@ -334,19 +334,19 @@ contract Registry is RegistryInterface, Utilities {
     }
 
 
-    /// @dev Update  `minterCounts` for `collectionId`. Can only be executed by collection owner
+    /// @dev Update  `minters` for `collectionId`. Can only be executed by collection owner
     /// @param collectionId Collection Id
-    /// @param minterCounts Array of [[account, count]]
-    function updateCollectionMinters(Id collectionId, Minter[] calldata minterCounts) external {
+    /// @param minters Array of [[account, count]]
+    function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotOwner();
         }
-        for (uint i = 0; i < minterCounts.length; i = onePlus(i)) {
-            Minter memory mc = minterCounts[i];
+        for (uint i = 0; i < minters.length; i = onePlus(i)) {
+            Minter memory mc = minters[i];
             collectionMinters[c.collectionId][mc.account] = Counter.unwrap(mc.count);
         }
-        emit CollectionMintersUpdated(collectionId, minterCounts, Unixtime.wrap(uint64(block.timestamp)));
+        emit CollectionMintersUpdated(collectionId, minters, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 

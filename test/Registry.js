@@ -510,12 +510,10 @@ describe("Registry", function () {
     // --- Testing updateCollectionDescription ---
     const updateCollectionDescriptionTx1 = await data.registry.connect(data.user0).updateCollectionDescription(3, "Collection #3a");
     await printTx(data, "updateCollectionDescriptionTx1", await updateCollectionDescriptionTx1.wait());
-
     await expect(data.registry.connect(data.user0).updateCollectionDescription(1, "Collection #1a")).to.be.revertedWithCustomError(
       data.registry,
       "FuseBurnt"
     ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
-
     await expect(data.registry.connect(data.user1).updateCollectionDescription(4, "Collection #4a")).to.be.revertedWithCustomError(
       data.registry,
       "NotOwner"
@@ -525,10 +523,6 @@ describe("Registry", function () {
 
     // --- Testing updateCollectionRoyalties ---
     const newRoyalties = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
-
-    // const updateCollectionRoyaltiesTx1 = await data.registry.connect(data.user0).updateCollectionRoyalties(3, newRoyalties);
-    // await printTx(data, "updateCollectionRoyaltiesTx1", await updateCollectionRoyaltiesTx1.wait());
-
     await expect(data.registry.connect(data.user0).updateCollectionRoyalties(3, newRoyalties))
       .to.emit(data.registry, "CollectionRoyaltiesUpdated")
       .withArgs(3, anyValue, anyValue);
@@ -541,6 +535,17 @@ describe("Registry", function () {
       "FuseBurnt"
     );
     await expect(data.registry.connect(data.user1).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
+      data.registry,
+      "NotOwner"
+    );
+
+    // --- Testing updateCollectionMinters ---
+    const newMinters = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
+    await expect(data.registry.connect(data.user0).updateCollectionMinters(4, newMinters))
+      .to.emit(data.registry, "CollectionMintersUpdated")
+      .withArgs(4, anyValue, anyValue);
+    // TODO: Complete testing with txs that succeed or revert
+    await expect(data.registry.connect(data.user1).updateCollectionMinters(4, newMinters)).to.be.revertedWithCustomError(
       data.registry,
       "NotOwner"
     );
