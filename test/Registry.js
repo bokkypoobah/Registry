@@ -44,6 +44,9 @@ describe("Registry", function () {
     const [deployer, user0, user1, user2, royalty0, royalty1, royalty2, feeAccount, uiFeeAccount] = await ethers.getSigners();
     const Token = await ethers.getContractFactory("Token");
     const weth = await Token.deploy("WETH", "Wrapped Ether", 18, ethers.parseEther("3000"));
+    // TODO: Test with WETH9 sometime
+    // const WETH9 = await ethers.getContractFactory("WETH9");
+    // const weth = await WETH9.deploy();
     const Registry = await ethers.getContractFactory("Registry");
     const registry = await Registry.deploy();
     const Exchange = await ethers.getContractFactory("Exchange");
@@ -343,15 +346,15 @@ describe("Registry", function () {
 
       const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
 
-      const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses, royalties);
+      const tx5 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", fuses, royalties);
       await printTx(data, "tx5", await tx5.wait());
 
       const receiver1 = await data.registry.getReceiver(1);
       data.accountNames[receiver1.toLowerCase()] = "receiver#1";
 
-      addHash("Name #1", data, "collection1user1string0");
-      addHash("Name #1", data, "collection1user1string1");
-      addHash("Name #1", data, "collection1user1string2");
+      addHash("Collection Name #1", data, "collection1user1string0");
+      addHash("Collection Name #1", data, "collection1user1string1");
+      addHash("Collection Name #1", data, "collection1user1string2");
 
       const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
       const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
@@ -395,15 +398,15 @@ describe("Registry", function () {
 
       const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
-      const tx5 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, royalties);
+      const tx5 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", 0, royalties);
       await printTx(data, "tx5", await tx5.wait());
 
       const receiver1 = await data.registry.getReceiver(1);
       data.accountNames[receiver1.toLowerCase()] = "receiver#1";
 
-      addHash("Name #1", data, "collection1user1string0");
-      addHash("Name #1", data, "collection1user1string1");
-      addHash("Name #1", data, "collection1user1string2");
+      addHash("Collection Name #1", data, "collection1user1string0");
+      addHash("Collection Name #1", data, "collection1user1string1");
+      addHash("Collection Name #1", data, "collection1user1string2");
 
       const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
       const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
@@ -474,31 +477,31 @@ describe("Registry", function () {
     const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
     const fuses0 = 0;
-    const createCollectionTx0 = await data.registry.connect(data.user0).newCollection("Name #0", "Collection #0", fuses0, royalties);
+    const createCollectionTx0 = await data.registry.connect(data.user0).newCollection("Collection Name #0", "Collection #0", fuses0, royalties);
     await printTx(data, "createCollectionTx0", await createCollectionTx0.wait());
 
     const fuses1 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION;
-    const createCollectionTx1 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses1, royalties);
+    const createCollectionTx1 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", fuses1, royalties);
     await printTx(data, "createCollectionTx1", await createCollectionTx1.wait());
 
     const fuses2 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES;
-    const createCollectionTx2 = await data.registry.connect(data.user0).newCollection("Name #2", "Collection #2", fuses2, royalties);
+    const createCollectionTx2 = await data.registry.connect(data.user0).newCollection("Collection Name #2", "Collection #2", fuses2, royalties);
     await printTx(data, "createCollectionTx2", await createCollectionTx2.wait());
 
     const fuses3 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
-    const createCollectionTx3 = await data.registry.connect(data.user0).newCollection("Name #3", "Collection #3", fuses3, royalties);
+    const createCollectionTx3 = await data.registry.connect(data.user0).newCollection("Collection Name #3", "Collection #3", fuses3, royalties);
     await printTx(data, "createCollectionTx3", await createCollectionTx3.wait());
 
     const fuses4 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM;
-    const createCollectionTx4 = await data.registry.connect(data.user0).newCollection("Name #4", "Collection #4", fuses4, royalties);
+    const createCollectionTx4 = await data.registry.connect(data.user0).newCollection("Collection Name #4", "Collection #4", fuses4, royalties);
     await printTx(data, "createCollectionTx4", await createCollectionTx4.wait());
 
     const fuses5 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM;
-    const createCollectionTx5 = await data.registry.connect(data.user0).newCollection("Name #5", "Collection #5", fuses5, royalties);
+    const createCollectionTx5 = await data.registry.connect(data.user0).newCollection("Collection Name #5", "Collection #5", fuses5, royalties);
     await printTx(data, "createCollectionTx5", await createCollectionTx5.wait());
 
     const fuses6 = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM | FUSE_OWNER_CAN_MINT_ITEM | FUSE_MINTER_LIST_CAN_MINT_ITEM | FUSE_ANY_USER_CAN_MINT_ITEM;
-    const createCollectionTx6 = await data.registry.connect(data.user0).newCollection("Name #6", "Collection #6", fuses6, royalties);
+    const createCollectionTx6 = await data.registry.connect(data.user0).newCollection("Collection Name #6", "Collection #6", fuses6, royalties);
     await printTx(data, "createCollectionTx6", await createCollectionTx6.wait());
 
     await printState(data, "DEBUG");
@@ -546,15 +549,15 @@ describe("Registry", function () {
 
 
     // const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
-    // const tx6 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", fuses, royalties);
+    // const tx6 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", fuses, royalties);
     // await printTx(data, "tx6", await tx6.wait());
 
     // const receiver1 = await data.registry.getReceiver(1);
     // data.accountNames[receiver1.toLowerCase()] = "receiver#1";
     //
-    // addHash("Name #1", data, "collection1user1string0");
-    // addHash("Name #1", data, "collection1user1string1");
-    // addHash("Name #1", data, "collection1user1string2");
+    // addHash("Collection Name #1", data, "collection1user1string0");
+    // addHash("Collection Name #1", data, "collection1user1string1");
+    // addHash("Collection Name #1", data, "collection1user1string2");
 
     // const tx6 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string0")) });
     // const tx7 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string1")) });
@@ -718,12 +721,12 @@ describe("Registry", function () {
         [ data.royalty2.address, "30" ],
       ];
 
-      const tx4 = await data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, royalties);
+      const tx4 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", 0, royalties);
       await printTx(data, "tx4", await tx4.wait());
       // expect(await data.exchange.newOwner()).to.equal(data.user2.address);
 
       await expect(
-        data.registry.connect(data.user0).newCollection("Name #1", "Collection #1", 0, [])).to.be.revertedWithCustomError(
+        data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", 0, [])).to.be.revertedWithCustomError(
         data.registry,
         "DuplicateCollectionName"
       );
@@ -731,7 +734,7 @@ describe("Registry", function () {
       const receiver1 = await data.registry.getReceiver(1);
       data.accountNames[receiver1.toLowerCase()] = "receiver#1";
 
-      addHash("Name #1", data, "collection1user1string");
+      addHash("Collection Name #1", data, "collection1user1string");
 
       const tx5 = await data.user1.sendTransaction({ to: receiver1, value: 0, data: ethers.hexlify(ethers.toUtf8Bytes("collection1user1string")) });
       await printTx(data, "tx5", await tx5.wait());
