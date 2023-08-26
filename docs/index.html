@@ -5706,6 +5706,17 @@
             }
           },
           // TODO: Delete
+          async testIt() {
+            console.log("Testing it");
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            // const signer = provider.getSigner();
+            // const ensReverseRecordsContract = new ethers.Contract(ENSREVERSERECORDSADDRESS, ENSREVERSERECORDSABI, provider);
+            const weth = new ethers.Contract(WETHADDRESS, WETHABI, provider);
+            const totalSupply = await weth.totalSupply();
+            console.log("totalSupply: " + ethers.utils.formatEther(totalSupply));
+          },
+
+          // TODO: Delete
           async processIt(action, parameters = null) {
             console.log("processIt - action: " + action + ", parameters: " + parameters);
             let connected = true;
