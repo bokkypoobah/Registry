@@ -301,8 +301,13 @@
             </pre> -->
           </b-modal>
 
+          <b-card v-if="chainId == 1" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+            Testing WETH events
+            <b-button size="sm" variant="success" class="ml-1" @click="testIt();" v-b-popover.hover.bottom="'Testing WETH event log retrieval'">Click to run test</b-button>
+          </b-card>
+
           <!-- 0:Home -->
-          <b-card v-if="settings.tabIndex == 0" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
+          <b-card v-if="settings.tabIndex == 0 && chainId == '11155111'" class="m-0 p-0 border-0" body-class="m-1 p-0" header-class="m-0 p-2">
             <template #header>
               Home
             </template>
