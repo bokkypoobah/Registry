@@ -515,7 +515,7 @@ describe("Registry", function () {
     ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
     await expect(data.registry.connect(data.user1).updateCollectionDescription(4, "Collection #4a")).to.be.revertedWithCustomError(
       data.registry,
-      "NotOwner"
+      "NotCollectionOwner"
     ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
 
     // --- Testing updateCollectionRoyalties ---
@@ -533,7 +533,7 @@ describe("Registry", function () {
     );
     await expect(data.registry.connect(data.user1).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
       data.registry,
-      "NotOwner"
+      "NotCollectionOwner"
     );
 
     // // --- Testing updateCollectionMinters ---
@@ -544,7 +544,7 @@ describe("Registry", function () {
     // // TODO: Complete testing with txs that succeed or revert
     // await expect(data.registry.connect(data.user1).updateCollectionMinters(4, newMinters)).to.be.revertedWithCustomError(
     //   data.registry,
-    //   "NotOwner"
+    //   "NotCollectionOwner"
     // );
 
 
@@ -760,7 +760,7 @@ describe("Registry", function () {
       await expect(
         data.exchange.connect(data.user0).transferOwnership(data.user1.address)).to.be.revertedWithCustomError(
         data.exchange,
-        "NotOwner"
+        "NotCollectionOwner"
       );
 
       // Non-newOwner cannot accept ownership transfer
@@ -838,7 +838,7 @@ describe("Registry", function () {
       await expect(
         data.exchange.connect(data.user2).updateFee(11)).to.be.revertedWithCustomError(
         data.exchange,
-        "NotOwner"
+        "NotCollectionOwner"
       );
 
       // Cannot set fee > MAX_FEE

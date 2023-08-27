@@ -106,7 +106,7 @@ interface RegistryInterface {
     error InvalidCollectionDescription();
     error InvalidFuses();
     error DuplicateCollectionName();
-    error NotOwner();
+    error NotCollectionOwner(Id collectionId, address owner);
     error FuseBurnt();
     error InvalidCollection();
     error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
@@ -292,7 +292,7 @@ contract Registry is RegistryInterface, Utilities {
     function updateCollectionDescription(Id collectionId, string memory description) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
             revert FuseBurnt();
@@ -311,7 +311,7 @@ contract Registry is RegistryInterface, Utilities {
         }
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
             revert FuseBurnt();
@@ -333,7 +333,7 @@ contract Registry is RegistryInterface, Utilities {
     function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         for (uint i = 0; i < minters.length; i = onePlus(i)) {
             Minter memory mc = minters[i];
@@ -344,20 +344,22 @@ contract Registry is RegistryInterface, Utilities {
 
 
     // TODO: Wrong below
+    // TODO: May remove collectionId, as this can be derived from tokenId
     /// @dev Lock {collectionId}. Can only be executed by collection owner
     function burnCollectionToken(Id collectionId, Id tokenId) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
             revert FuseBurnt();
         }
         bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
-        if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
-            revert NotOwner();
-        }
+        // // TODO
+        // if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
+        //     revert NotCollectionOwner();
+        // }
         data[hash].owner = address(0x0);
         emit Transfer(from, address(0x0), tokenId, Unixtime.wrap(uint64(block.timestamp)));
     }
@@ -367,7 +369,7 @@ contract Registry is RegistryInterface, Utilities {
     function burnFuses(Id collectionId, Fuse[] calldata fuses) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         // for (uint i = 0; i < inputs.length; i = onePlus(i)) {
         //     Fuse fuse = fuses[i];
@@ -386,7 +388,7 @@ contract Registry is RegistryInterface, Utilities {
     function transferCollectionOwnership(Id collectionId, address newOwner) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
-            revert NotOwner();
+            revert NotCollectionOwner(collectionId, c.owner);
         }
         emit CollectionOwnershipTransferred(collectionId, c.owner, newOwner, Unixtime.wrap(uint64(block.timestamp)));
         c.owner = newOwner;
