@@ -1976,9 +1976,9 @@
                         if (_data.data && (_data.data.substring(0, 10) == "0x64617461" || _data.data.substring(0, 18) == "0x0064006100740061")) {
                           const __data = ethers.utils.toUtf8String(_data.data).trim();
                           if (__data.substring(0, 5) == "data:") {
-                            console.log("data: " + __data);
+                            // console.log("data: " + __data);
                             let [scheme, _mediaType, ___data] = __data.split(/[:,]/);
-                            console.log("scheme: " + scheme + ", _mediaType: " + _mediaType);
+                            // console.log("scheme: " + scheme + ", _mediaType: " + _mediaType);
                             if (scheme == "data") {
                               mediaType = _mediaType;
                               // data = ___data;
@@ -3937,25 +3937,39 @@
               // console.log("syncRegistryEvents - events AFTER: " + JSON.stringify(events, null, 2));
             }
             const blockNumbers = Object.keys(events).sort((a, b) => { return b - a });
-            const startBlock = blockNumbers.length > 0 ? parseInt(blockNumbers[0]) + 1: REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
+            // const startBlock = blockNumbers.length > 0 ? parseInt(blockNumbers[0]) + 1: REGISTRYDEPLOYMENTBLOCKNUMBER_SEPOLIA;
+            const startBlock = 0;
             const fromBlock = startBlock;
             const toBlock = context.latestBlockNumber;
-            // TODO: Handle > 10k events by batching
-            try {
-              const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
-              const eventLogs = await context.provider.getLogs(filter);
-              // console.log(JSON.stringify(eventLogs, null, 2));
-              for (const event of eventLogs) {
+
+            async function getLogs(fromBlock, toBlock, processLogs) {
+              try {
+                const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
+                const eventLogs = await context.provider.getLogs(filter);
+                processLogs(fromBlock, toBlock, eventLogs);
+              } catch (e) {
+                const mid = parseInt((fromBlock + toBlock) / 2);
+                await getLogs(fromBlock, mid, processLogs);
+                await getLogs(parseInt(mid) + 1, toBlock, processLogs);
+              }
+            }
+            let total = 0;
+            function processLogs(fromBlock, toBlock, logs) {
+              total = parseInt(total) + logs.length;
+              console.log(moment().format("YYYY-MM-DD HH:mm:ss") + " " + fromBlock + " - " + toBlock + " " + logs.length + " " + total);
+              // console.log(JSON.stringify(logs, null, 2));
+              for (const event of logs) {
                 if (!event.removed) {
                   const logData = registryContract.interface.parseLog(event);
+                  // console.log(JSON.stringify(logData, null, 2));
                   const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, parseInt(event.blockNumber), parseInt(event.transactionIndex), parseInt(event.logIndex)];
                   let record = null;
                   let timestamp = null;
                   let hash = null;
                   if (logData.eventFragment.name == "Registered") {
-                    // event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
+            //         // event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
                     const [tokenId, hash, owner, timestamp] = logData.args;
-                    // console.log("Registered - hash: " + hash + ", tokenId: " + tokenId + ", owner: " + owner + ", timestamp: " + timestamp);
+            //         // console.log("Registered - hash: " + hash + ", tokenId: " + tokenId + ", owner: " + owner + ", timestamp: " + timestamp);
                     if (!(owner in addressToIndex)) {
                       addressToIndex[owner] = indexToAddress.length;
                       indexToAddress.push(owner);
@@ -3963,20 +3977,21 @@
                     const ownerIndex = addressToIndex[owner];
                     record = [parseInt(timestamp), 1, parseInt(tokenId), hash, ownerIndex];
                   } else if (logData.eventFragment.name == "Transfer") {
-                    // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
-                    console.log("Transfer: " + JSON.stringify(logData));
+            //         // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
+            //         console.log("Transfer: " + JSON.stringify(logData));
                   } else if (logData.eventFragment.name == "ApprovalForAll") {
-                    // event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
-                    console.log("ApprovalForAll: " + JSON.stringify(logData));
+            //         // event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
+            //         console.log("ApprovalForAll: " + JSON.stringify(logData));
                   }
-
-                  // eventTypes: {
-                  //   1: "Registered",
-                  //   2: "Transferred",
-                  //   3: "ApprovedForAll",
-                  // },
-
+            //
+            //       // eventTypes: {
+            //       //   1: "Registered",
+            //       //   2: "Transferred",
+            //       //   3: "ApprovedForAll",
+            //       // },
+            //
                   if (record) {
+                    // console.log("record: " + JSON.stringify(record));
                     const confirmations = context.latestBlockNumber - blockNumber;
                     if (!(blockNumber in events)) {
                       events[blockNumber] = confirmations < CONFIRMATIONS ? { unconfirmed: true } : {};
@@ -3994,25 +4009,83 @@
                   }
                 }
               }
-            } catch (e) {
-              console.log(e);
             }
-            Vue.set(this, "addressToIndex", addressToIndex);
-            Vue.set(this, "indexToAddress", indexToAddress);
-            await context.db.cache.put({ objectName: this.chainId + "_indexToAddress", object: indexToAddress }).then (function() {
-            }).catch(function(error) {
-              console.log("error: " + error);
-            });
-            await context.db.cache.put({ objectName: this.chainId + "_addressToIndex", object: addressToIndex }).then (function() {
-            }).catch(function(error) {
-              console.log("error: " + error);
-            });
-            // console.log("events: " + JSON.stringify(events, null, 2));
-            Vue.set(this, "events", events);
-            await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
-            }).catch(function(error) {
-              console.log("error: " + error);
-            });
+            await getLogs(fromBlock, toBlock, processLogs);
+            console.log("events: " + JSON.stringify(events, null, 2));
+
+            // // TODO: Handle > 10k events by batching
+            // try {
+            //   const filter = { address: REGISTRYADDRESS_SEPOLIA, fromBlock, toBlock, topics: [null, null, null] };
+            //   const eventLogs = await context.provider.getLogs(filter);
+            //   // console.log(JSON.stringify(eventLogs, null, 2));
+            //   for (const event of eventLogs) {
+            //     if (!event.removed) {
+            //       const logData = registryContract.interface.parseLog(event);
+            //       const [txHash, blockNumber, transactionIndex, logIndex] = [event.transactionHash, parseInt(event.blockNumber), parseInt(event.transactionIndex), parseInt(event.logIndex)];
+            //       let record = null;
+            //       let timestamp = null;
+            //       let hash = null;
+            //       if (logData.eventFragment.name == "Registered") {
+            //         // event Registered(uint indexed tokenId, bytes32 indexed hash, address indexed owner, uint timestamp);
+            //         const [tokenId, hash, owner, timestamp] = logData.args;
+            //         // console.log("Registered - hash: " + hash + ", tokenId: " + tokenId + ", owner: " + owner + ", timestamp: " + timestamp);
+            //         if (!(owner in addressToIndex)) {
+            //           addressToIndex[owner] = indexToAddress.length;
+            //           indexToAddress.push(owner);
+            //         }
+            //         const ownerIndex = addressToIndex[owner];
+            //         record = [parseInt(timestamp), 1, parseInt(tokenId), hash, ownerIndex];
+            //       } else if (logData.eventFragment.name == "Transfer") {
+            //         // event Transfer(address indexed from, address indexed to, bytes32 indexed hash, uint timestamp);
+            //         console.log("Transfer: " + JSON.stringify(logData));
+            //       } else if (logData.eventFragment.name == "ApprovalForAll") {
+            //         // event ApprovalForAll(address indexed owner, address indexed operator, bool approved, uint timestamp);
+            //         console.log("ApprovalForAll: " + JSON.stringify(logData));
+            //       }
+            //
+            //       // eventTypes: {
+            //       //   1: "Registered",
+            //       //   2: "Transferred",
+            //       //   3: "ApprovedForAll",
+            //       // },
+            //
+            //       if (record) {
+            //         const confirmations = context.latestBlockNumber - blockNumber;
+            //         if (!(blockNumber in events)) {
+            //           events[blockNumber] = confirmations < CONFIRMATIONS ? { unconfirmed: true } : {};
+            //         }
+            //         if (!(transactionIndex in events[blockNumber])) {
+            //           events[blockNumber][transactionIndex] = {};
+            //         }
+            //         if (!(txHash in events[blockNumber][transactionIndex])) {
+            //           events[blockNumber][transactionIndex][txHash] = {};
+            //         }
+            //         if (!(logIndex in events[blockNumber][transactionIndex][txHash])) {
+            //           events[blockNumber][transactionIndex][txHash][logIndex] = record;
+            //           newEvents++;
+            //         }
+            //       }
+            //     }
+            //   }
+            // } catch (e) {
+            //   console.log(e);
+            // }
+            // Vue.set(this, "addressToIndex", addressToIndex);
+            // Vue.set(this, "indexToAddress", indexToAddress);
+            // await context.db.cache.put({ objectName: this.chainId + "_indexToAddress", object: indexToAddress }).then (function() {
+            // }).catch(function(error) {
+            //   console.log("error: " + error);
+            // });
+            // await context.db.cache.put({ objectName: this.chainId + "_addressToIndex", object: addressToIndex }).then (function() {
+            // }).catch(function(error) {
+            //   console.log("error: " + error);
+            // });
+            // // console.log("events: " + JSON.stringify(events, null, 2));
+            // Vue.set(this, "events", events);
+            // await context.db.cache.put({ objectName: this.chainId + "_events", object: events }).then (function() {
+            // }).catch(function(error) {
+            //   console.log("error: " + error);
+            // });
           },
 
 
