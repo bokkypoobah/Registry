@@ -5714,6 +5714,27 @@
             const weth = new ethers.Contract(WETHADDRESS, WETHABI, provider);
             const totalSupply = await weth.totalSupply();
             console.log("totalSupply: " + ethers.utils.formatEther(totalSupply));
+
+            async function getLogs(fromBlock, toBlock, processLogs) {
+              try {
+                const filter = { address: WETHADDRESS, fromBlock, toBlock, topics: [null, null, null] };
+                const eventLogs = await provider.getLogs(filter);
+                processLogs(fromBlock, toBlock, eventLogs);
+              } catch (e) {
+                const mid = parseInt((fromBlock + toBlock) / 2);
+                await getLogs(fromBlock, mid, processLogs);
+                await getLogs(parseInt(mid) + 1, toBlock, processLogs);
+              }
+            }
+
+            const fromBlock = WETHDEPLOYMENTBLOCKNUMBER;
+            const toBlock = parseInt(fromBlock) + 1000000;
+            let total = 0;
+            function processLogs(fromBlock, toBlock, logs) {
+              total = parseInt(total) + logs.length;
+              console.log(moment().format("YYYY-MM-DD HH:mm:ss") + " " + fromBlock + " - " + toBlock + " " + logs.length + " " + total);
+            }
+            await getLogs(fromBlock, toBlock, processLogs);
           },
 
           // TODO: Delete
