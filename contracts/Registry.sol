@@ -78,7 +78,7 @@ interface RegistryInterface {
 
     function collectionsCount() external view returns (uint);
     function itemsCount() external view returns (uint);
-    function getReceiver(uint i) external view returns (ReceiverInterface receiver);
+    function getReceiver(Id collectionId) external view returns (ReceiverInterface receiver);
     function getCollectionId(Id tokenId) external view returns (Id collectionId);
     function getRoyalties(Id collectionId) external view returns (Royalty[] memory royalties);
     function ownerOf(Id tokenId) external view returns (address);
@@ -479,8 +479,8 @@ contract Registry is RegistryInterface, Utilities {
     }
 
     /// @dev Receiver address
-    function getReceiver(uint i) external view returns (ReceiverInterface) {
-        return receivers[i];
+    function getReceiver(Id collectionId) external view returns (ReceiverInterface) {
+        return receivers[Id.unwrap(collectionId)];
     }
 
     /// @dev Returns the `collectionId` of `tokenId`

@@ -28,6 +28,7 @@ contract Owned {
     address public newOwner;
 
     /// @dev Ownership transferred from `from` to `to`
+    event OwnershipTransferProposed(address indexed from, address indexed to, Unixtime timestamp);
     event OwnershipTransferred(address indexed from, address indexed to, Unixtime timestamp);
 
     error NotOwner();
@@ -49,6 +50,7 @@ contract Owned {
     /// @param _newOwner New proposed owner
     function transferOwnership(address _newOwner) public onlyOwner {
         newOwner = _newOwner;
+        emit OwnershipTransferProposed(owner, newOwner, Unixtime.wrap(uint64(block.timestamp)));
     }
 
     /// @dev Acceptance of ownership transfer by {newOwner}
