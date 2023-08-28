@@ -107,8 +107,9 @@ interface RegistryInterface {
     error InvalidFuses();
     error DuplicateCollectionName();
     error NotCollectionOwner(Id collectionId, address owner);
+    error CannotWriteToCollection(Id collectionId);
     error FuseBurnt();
-    error InvalidCollection();
+    error CanOnlyRegisterThroughValidReceivers();
     error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
     error CannotApproveSelf();
     error InvalidTokenId();
@@ -400,7 +401,7 @@ contract Registry is RegistryInterface, Utilities {
     function register(bytes32 hash, address msgSender) external returns (bytes memory output) {
         Collection storage c = collectionData[Receiver(msg.sender)];
         if (Unixtime.unwrap(c.created) == 0) {
-            revert InvalidCollection();
+            revert CanOnlyRegisterThroughValidReceivers();
         }
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
@@ -416,7 +417,7 @@ contract Registry is RegistryInterface, Utilities {
                 ok = true;
             }
             if (!ok) {
-                revert FuseBurnt();
+                revert CannotWriteToCollection(c.collectionId);
             }
         }
         Data memory d = data[hash];
