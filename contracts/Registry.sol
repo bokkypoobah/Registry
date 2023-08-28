@@ -93,6 +93,8 @@ interface RegistryInterface {
     event CollectionMintersUpdated(Id indexed collectionId, Minter[] minters, Unixtime timestamp);
     /// @dev Ownership of `collectionId` transferred from `from` to `to`
     event CollectionOwnershipTransferred(Id indexed collectionId, address indexed from, address indexed to, Unixtime timestamp);
+
+    event FusesBurnt(Id indexed collectionId, Fuse indexed burnt, Fuse result, Unixtime timestamp);
     /// @dev New `hash` has been registered with `tokenId` under `collection` by `owner` at `timestamp`
     event Registered(Id indexed tokenId, Id indexed collectionId, bytes32 indexed hash, address owner, Unixtime timestamp);
     /// @dev `tokenId` has been transferred from `from` to `to` at `timestamp`
@@ -376,6 +378,7 @@ contract Registry is RegistryInterface, Utilities {
             revert FuseAlreadyBurnt();
         }
         c.fuses = Fuse.wrap(Fuse.unwrap(c.fuses) & ~Fuse.unwrap(fuses));
+        emit FusesBurnt(collectionId, fuses, c.fuses, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
