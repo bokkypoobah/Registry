@@ -511,7 +511,7 @@ describe("Registry", function () {
     await printTx(data, "updateCollectionDescriptionTx1", await updateCollectionDescriptionTx1.wait());
     await expect(data.registry.connect(data.user0).updateCollectionDescription(1, "Collection #1a")).to.be.revertedWithCustomError(
       data.registry,
-      "FuseBurnt"
+      "FuseAlreadyBurnt"
     ); // .withArgs(anyValue, data.user0.address, 1, anyValue);
     await expect(data.registry.connect(data.user1).updateCollectionDescription(4, "Collection #4a")).to.be.revertedWithCustomError(
       data.registry,
@@ -529,23 +529,44 @@ describe("Registry", function () {
     expect(newRoyaltiesString).to.equal(testNewRoyaltiesString);
     await expect(data.registry.connect(data.user0).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
       data.registry,
-      "FuseBurnt"
+      "FuseAlreadyBurnt"
     );
     await expect(data.registry.connect(data.user1).updateCollectionRoyalties(2, newRoyalties)).to.be.revertedWithCustomError(
       data.registry,
       "NotCollectionOwner"
     );
 
-    // // --- Testing updateCollectionMinters ---
+    // --- Testing updateCollectionMinters ---
+    const newMinters = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
+    await expect(data.registry.connect(data.user0).updateCollectionMinters(4, newMinters))
+      .to.emit(data.registry, "CollectionMintersUpdated")
+      .withArgs(4, anyValue, anyValue);
+    // TODO: Complete testing with txs that succeed or revert
+    await expect(data.registry.connect(data.user1).updateCollectionMinters(4, newMinters)).to.be.revertedWithCustomError(
+      data.registry,
+      "NotCollectionOwner"
+    );
+
+    // --- Testing burnFuses ---
+    const burnTx = await data.registry.connect(data.user0).burnFuses(7, FUSE_ANY_USER_CAN_MINT_ITEM | FUSE_OWNER_CAN_UPDATE_DESCRIPTION);
+    await printTx(data, "burnTx", await burnTx.wait());
+
     // const newMinters = [ [ data.royalty0.address, "11" ], [ data.royalty2.address, "30" ] ];
-    // await expect(data.registry.connect(data.user0).updateCollectionMinters(4, newMinters))
-    //   .to.emit(data.registry, "CollectionMintersUpdated")
-    //   .withArgs(4, anyValue, anyValue);
+    // await expect(data.registry.connect(data.user0).burnFuses(7, FUSE_ANY_USER_CAN_MINT_ITEM))
+    //   .to.emit(data.registry, "CollectionMintersUpdated");
+      // .withArgs(4, anyValue, anyValue);
     // // TODO: Complete testing with txs that succeed or revert
-    // await expect(data.registry.connect(data.user1).updateCollectionMinters(4, newMinters)).to.be.revertedWithCustomError(
-    //   data.registry,
-    //   "NotCollectionOwner"
-    // );
+    await expect(data.registry.connect(data.user1).burnFuses(4, FUSE_ANY_USER_CAN_MINT_ITEM)).to.be.revertedWithCustomError(
+      data.registry,
+      "NotCollectionOwner"
+    );
+
+    // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x01;
+    // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x02;
+    // const FUSE_OWNER_CAN_MINT_ITEM = 0x04;
+    // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x08;
+    // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x10;
+    // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x20;
 
 
     // const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;

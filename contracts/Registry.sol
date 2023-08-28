@@ -68,7 +68,7 @@ interface RegistryInterface {
     function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
     function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external;
     function burnCollectionToken(Id collectionId, Id tokenId) external;
-    function burnFuses(Id collectionId, Fuse[] calldata fuse) external;
+    function burnFuses(Id collectionId, Fuse fuses) external;
 
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
 
@@ -108,7 +108,7 @@ interface RegistryInterface {
     error DuplicateCollectionName();
     error NotCollectionOwner(Id collectionId, address owner);
     error CannotWriteToCollection(Id collectionId);
-    error FuseBurnt();
+    error FuseAlreadyBurnt();
     error CanOnlyRegisterThroughValidReceivers();
     error AlreadyRegistered(bytes32 hash, address owner, Id tokenId, Unixtime created);
     error CannotApproveSelf();
@@ -259,7 +259,7 @@ contract Registry is RegistryInterface, Utilities {
     function _isFuseSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
     }
-    function _isFuseBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+    function _isFuseAlreadyBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
     }
     // function _burnFuse(Fuse fuses, Fuse fuse) internal pure returns (bool) {
@@ -296,7 +296,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
-            revert FuseBurnt();
+            revert FuseAlreadyBurnt();
         }
         c.description = description;
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
@@ -315,7 +315,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
-            revert FuseBurnt();
+            revert FuseAlreadyBurnt();
         }
         if (_royalties[collectionId].length > 0) {
             delete _royalties[collectionId];
@@ -353,7 +353,7 @@ contract Registry is RegistryInterface, Utilities {
             revert NotCollectionOwner(collectionId, c.owner);
         }
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
-            revert FuseBurnt();
+            revert FuseAlreadyBurnt();
         }
         bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
@@ -367,22 +367,15 @@ contract Registry is RegistryInterface, Utilities {
 
 
     /// @dev Burn fuses for {collectionId}. Can only be executed by collection owner
-    function burnFuses(Id collectionId, Fuse[] calldata fuses) external {
+    function burnFuses(Id collectionId, Fuse fuses) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
         }
-        // for (uint i = 0; i < inputs.length; i = onePlus(i)) {
-        //     Fuse fuse = fuses[i];
-        //     if (!_isFuseSet(c.fuses, fuse)) {
-        //         revert FuseBurnt();
-        //     }
-        // }
-        // TODO
-        // if (c.lock == FUSE_COLLECTION) {
-        //     revert FuseBurnt();
-        // }
-        // c.lock = uint64(lock);
+        if (!_isFuseSet(c.fuses, fuses)) {
+            revert FuseAlreadyBurnt();
+        }
+        c.fuses = Fuse.wrap(Fuse.unwrap(c.fuses) & ~Fuse.unwrap(fuses));
     }
 
 
