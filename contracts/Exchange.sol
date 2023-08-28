@@ -125,7 +125,6 @@ contract Exchange is Owned {
     error OrderExpired(Id tokenId, Unixtime expiry);
     error OrderInvalid(Id tokenId, address account);
     error PriceMismatch(Id tokenId, Price orderPrice, Price tradePrice);
-    error TakerHasInsufficientEth(Id tokenId, uint required, uint available);
     error MakerHasInsufficientWeth(address bidder, Id tokenId, uint required, uint available);
     error BuyerHasInsufficientWeth(address buyer, Id tokenId, uint required, uint available);
     error InvalidFeeAccount();
