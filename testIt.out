@@ -2,27 +2,27 @@ Compiled 2 Solidity files successfully
 
   Registry
       > createCollectionTx0 - gasUsed: 444557 ~ ETH 0.00889114 ~ USD 17.78228 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 16.0 CollectionRoyaltiesUpdated(collectionId: 1, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:13)
+        + registry:0xe7f1 -> 16.0 CollectionRoyaltiesUpdated(collectionId: 1, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:15)
       > createCollectionTx1 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 17.0 CollectionRoyaltiesUpdated(collectionId: 2, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:14)
+        + registry:0xe7f1 -> 17.0 CollectionRoyaltiesUpdated(collectionId: 2, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:16)
       > createCollectionTx2 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 18.0 CollectionRoyaltiesUpdated(collectionId: 3, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:15)
+        + registry:0xe7f1 -> 18.0 CollectionRoyaltiesUpdated(collectionId: 3, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:17)
       > createCollectionTx3 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 19.0 CollectionRoyaltiesUpdated(collectionId: 4, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:16)
+        + registry:0xe7f1 -> 19.0 CollectionRoyaltiesUpdated(collectionId: 4, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:18)
       > createCollectionTx4 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 20.0 CollectionRoyaltiesUpdated(collectionId: 5, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:17)
+        + registry:0xe7f1 -> 20.0 CollectionRoyaltiesUpdated(collectionId: 5, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:19)
       > createCollectionTx5 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 21.0 CollectionRoyaltiesUpdated(collectionId: 6, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:18)
+        + registry:0xe7f1 -> 21.0 CollectionRoyaltiesUpdated(collectionId: 6, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:20)
       > createCollectionTx6 - gasUsed: 444569 ~ ETH 0.00889138 ~ USD 17.78276 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 22.0 CollectionRoyaltiesUpdated(collectionId: 7, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:25:19)
+        + registry:0xe7f1 -> 22.0 CollectionRoyaltiesUpdated(collectionId: 7, royalties: 0x15d34AAf54267DB7D7c367839AAf71A00a2C6A65,10,0x9965507D1a55bcC2695C58ba16FB37d819B0A4dc,20,0x976EA74026E726554dB657fA54763abd0C3a0aa9,30, timestamp: 2023-08-28T08:41:21)
 
       --- DEBUG ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.990542803911353194                      0.0
-        1 user0:0x7099               9999.995890590785903962                   1000.0
-        2 user1:0x3C44               9999.999939202797788632                   1000.0
-        3 user2:0x90F7               9999.999941024447585452                   1000.0
+        0 deployer:0xf39F            9999.990531905162924656                      0.0
+        1 user0:0x7099               9999.995890568347286444                   1000.0
+        2 user1:0x3C44               9999.999939201969106477                   1000.0
+        3 user2:0x90F7               9999.999941023722159541                   1000.0
         4 royalty0:0x15d3                            10000.0                      0.0
         5 royalty1:0x9965                            10000.0                      0.0
         6 royalty2:0x976E                            10000.0                      0.0
@@ -35,35 +35,35 @@ Compiled 2 Solidity files successfully
 
        Id Collection Name      Description          Receiver             Owner                  Items AnyUs MintL OMint OBurn Descr Royal Created
       --- -------------------- -------------------- -------------------- -------------------- ------- ----- ----- ----- ----- ----- ----- ------------------------
-        0 (default)            (default)            receiver:0xCafa      0x000000000000000000       5     y     n     n     n     n     n 2023-08-28T08:24:59.000Z
-        1 Collection Name #0   Collection #0        0x9f1ac54BEF0DD2f6f3 user0:0x7099               0     n     n     n     n     n     n 2023-08-28T08:25:13.000Z
-        2 Collection Name #1   Collection #1        0xbf9fBFf01664500A33 user0:0x7099               0     y     n     n     n     n     n 2023-08-28T08:25:14.000Z
-        3 Collection Name #2   Collection #2        0x93b6BDa6a0813D808d user0:0x7099               0     y     y     n     n     n     n 2023-08-28T08:25:15.000Z
-        4 Collection Name #3   Collection #3        0xA22D78bc37cE77FeE1 user0:0x7099               0     y     y     y     n     n     n 2023-08-28T08:25:16.000Z
-        5 Collection Name #4   Collection #4        0x0ed2E86FcE2e5A7965 user0:0x7099               0     y     y     y     y     n     n 2023-08-28T08:25:17.000Z
-        6 Collection Name #5   Collection #5        0xf433C50017d963b608 user0:0x7099               0     y     y     y     y     y     n 2023-08-28T08:25:18.000Z
-        7 Collection Name #6   Collection #6        0x6c8D53600C7f8F97ed user0:0x7099               0     y     y     y     y     y     y 2023-08-28T08:25:19.000Z
+        0 (default)            (default)            receiver:0xCafa      0x000000000000000000       5     y     n     n     n     n     n 2023-08-28T08:41:01.000Z
+        1 Collection Name #0   Collection #0        0x9f1ac54BEF0DD2f6f3 user0:0x7099               0     n     n     n     n     n     n 2023-08-28T08:41:15.000Z
+        2 Collection Name #1   Collection #1        0xbf9fBFf01664500A33 user0:0x7099               0     y     n     n     n     n     n 2023-08-28T08:41:16.000Z
+        3 Collection Name #2   Collection #2        0x93b6BDa6a0813D808d user0:0x7099               0     y     y     n     n     n     n 2023-08-28T08:41:17.000Z
+        4 Collection Name #3   Collection #3        0xA22D78bc37cE77FeE1 user0:0x7099               0     y     y     y     n     n     n 2023-08-28T08:41:18.000Z
+        5 Collection Name #4   Collection #4        0x0ed2E86FcE2e5A7965 user0:0x7099               0     y     y     y     y     n     n 2023-08-28T08:41:19.000Z
+        6 Collection Name #5   Collection #5        0xf433C50017d963b608 user0:0x7099               0     y     y     y     y     y     n 2023-08-28T08:41:20.000Z
+        7 Collection Name #6   Collection #6        0x6c8D53600C7f8F97ed user0:0x7099               0     y     y     y     y     y     y 2023-08-28T08:41:21.000Z
 
        Id Collection Id String:Hash                          Owner                          Registered
       --- ------------- ------------------------------------ ------------------------------ ------------------------
-        0             0 "user0string0":0x5230                user0:0x7099                   2023-08-28T08:25:08.000Z
-        1             0 "user0string1":0x54f8                user0:0x7099                   2023-08-28T08:25:09.000Z
-        2             0 "user0string2":0xcb3c                user0:0x7099                   2023-08-28T08:25:10.000Z
-        3             0 "user0string3":0x4506                user0:0x7099                   2023-08-28T08:25:11.000Z
-        4             0 "user0string4":0x5c3a                user0:0x7099                   2023-08-28T08:25:12.000Z
+        0             0 "user0string0":0x5230                user0:0x7099                   2023-08-28T08:41:10.000Z
+        1             0 "user0string1":0x54f8                user0:0x7099                   2023-08-28T08:41:11.000Z
+        2             0 "user0string2":0xcb3c                user0:0x7099                   2023-08-28T08:41:12.000Z
+        3             0 "user0string3":0x4506                user0:0x7099                   2023-08-28T08:41:13.000Z
+        4             0 "user0string4":0x5c3a                user0:0x7099                   2023-08-28T08:41:14.000Z
 
-      > updateCollectionDescriptionTx1 - gasUsed: 39257 ~ ETH 0.00078514 ~ USD 1.57028 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 23.0 CollectionDescriptionUpdated(collectionId: 6, description: Collection #5a, timestamp: 2023-08-28T08:25:20)
+      > updateCollectionDescriptionTx1 - gasUsed: 39235 ~ ETH 0.0007847 ~ USD 1.5694 @ gasPrice 20.0 gwei, ETH/USD 2000.0
+        + registry:0xe7f1 -> 23.0 CollectionDescriptionUpdated(collectionId: 6, description: Collection #5a, timestamp: 2023-08-28T08:41:22)
       > burnTx - gasUsed: 35779 ~ ETH 0.00071558 ~ USD 1.43116 @ gasPrice 20.0 gwei, ETH/USD 2000.0
-        + registry:0xe7f1 -> 31.0 FusesBurnt(collectionId: 7, burnt: 17, result: 46, timestamp: 2023-08-28T08:25:28)
+        + registry:0xe7f1 -> 31.0 FusesBurnt(collectionId: 7, burnt: 17, result: 46, timestamp: 2023-08-28T08:41:30)
 
       --- End ---
        Id Account                                        ETH                     WETH
       --- ------------------------- ------------------------ ------------------------
-        0 deployer:0xf39F            9999.990542803911353194                      0.0
-        1 user0:0x7099               9999.995607299307519387                   1000.0
-        2 user1:0x3C44               9999.999817232928017024                   1000.0
-        3 user2:0x90F7               9999.999941024447585452                   1000.0
+        0 deployer:0xf39F            9999.990531905162924656                      0.0
+        1 user0:0x7099               9999.995607344969870718                   1000.0
+        2 user1:0x3C44               9999.999817277223476834                   1000.0
+        3 user2:0x90F7               9999.999941023722159541                   1000.0
         4 royalty0:0x15d3                            10000.0                      0.0
         5 royalty1:0x9965                            10000.0                      0.0
         6 royalty2:0x976E                            10000.0                      0.0
@@ -76,22 +76,22 @@ Compiled 2 Solidity files successfully
 
        Id Collection Name      Description          Receiver             Owner                  Items AnyUs MintL OMint OBurn Descr Royal Created
       --- -------------------- -------------------- -------------------- -------------------- ------- ----- ----- ----- ----- ----- ----- ------------------------
-        0 (default)            (default)            receiver:0xCafa      0x000000000000000000       5     y     n     n     n     n     n 2023-08-28T08:24:59.000Z
-        1 Collection Name #0   Collection #0        0x9f1ac54BEF0DD2f6f3 user0:0x7099               0     n     n     n     n     n     n 2023-08-28T08:25:13.000Z
-        2 Collection Name #1   Collection #1        0xbf9fBFf01664500A33 user0:0x7099               0     y     n     n     n     n     n 2023-08-28T08:25:14.000Z
-        3 Collection Name #2   Collection #2        0x93b6BDa6a0813D808d user0:0x7099               0     y     y     n     n     n     n 2023-08-28T08:25:15.000Z
-        4 Collection Name #3   Collection #3        0xA22D78bc37cE77FeE1 user0:0x7099               0     y     y     y     n     n     n 2023-08-28T08:25:16.000Z
-        5 Collection Name #4   Collection #4        0x0ed2E86FcE2e5A7965 user0:0x7099               0     y     y     y     y     n     n 2023-08-28T08:25:17.000Z
-        6 Collection Name #5   Collection #5a       0xf433C50017d963b608 user0:0x7099               0     y     y     y     y     y     n 2023-08-28T08:25:18.000Z
-        7 Collection Name #6   Collection #6        0x6c8D53600C7f8F97ed user0:0x7099               0     n     y     y     y     n     y 2023-08-28T08:25:19.000Z
+        0 (default)            (default)            receiver:0xCafa      0x000000000000000000       5     y     n     n     n     n     n 2023-08-28T08:41:01.000Z
+        1 Collection Name #0   Collection #0        0x9f1ac54BEF0DD2f6f3 user0:0x7099               0     n     n     n     n     n     n 2023-08-28T08:41:15.000Z
+        2 Collection Name #1   Collection #1        0xbf9fBFf01664500A33 user0:0x7099               0     y     n     n     n     n     n 2023-08-28T08:41:16.000Z
+        3 Collection Name #2   Collection #2        0x93b6BDa6a0813D808d user0:0x7099               0     y     y     n     n     n     n 2023-08-28T08:41:17.000Z
+        4 Collection Name #3   Collection #3        0xA22D78bc37cE77FeE1 user0:0x7099               0     y     y     y     n     n     n 2023-08-28T08:41:18.000Z
+        5 Collection Name #4   Collection #4        0x0ed2E86FcE2e5A7965 user0:0x7099               0     y     y     y     y     n     n 2023-08-28T08:41:19.000Z
+        6 Collection Name #5   Collection #5a       0xf433C50017d963b608 user0:0x7099               0     y     y     y     y     y     n 2023-08-28T08:41:20.000Z
+        7 Collection Name #6   Collection #6        0x6c8D53600C7f8F97ed user0:0x7099               0     n     y     y     y     n     y 2023-08-28T08:41:21.000Z
 
        Id Collection Id String:Hash                          Owner                          Registered
       --- ------------- ------------------------------------ ------------------------------ ------------------------
-        0             0 "user0string0":0x5230                user0:0x7099                   2023-08-28T08:25:08.000Z
-        1             0 "user0string1":0x54f8                user0:0x7099                   2023-08-28T08:25:09.000Z
-        2             0 "user0string2":0xcb3c                user0:0x7099                   2023-08-28T08:25:10.000Z
-        3             0 "user0string3":0x4506                user0:0x7099                   2023-08-28T08:25:11.000Z
-        4             0 "user0string4":0x5c3a                user0:0x7099                   2023-08-28T08:25:12.000Z
+        0             0 "user0string0":0x5230                user0:0x7099                   2023-08-28T08:41:10.000Z
+        1             0 "user0string1":0x54f8                user0:0x7099                   2023-08-28T08:41:11.000Z
+        2             0 "user0string2":0xcb3c                user0:0x7099                   2023-08-28T08:41:12.000Z
+        3             0 "user0string3":0x4506                user0:0x7099                   2023-08-28T08:41:13.000Z
+        4             0 "user0string4":0x5c3a                user0:0x7099                   2023-08-28T08:41:14.000Z
 
     ✓ Collection Fuses #1
 
@@ -108,9 +108,9 @@ Compiled 2 Solidity files successfully
 ·············|·······························|·············|·············|·············|···············|··············
 |  [90mRegistry[39m  ·  newCollection                ·     [36m444557[39m  ·     [31m444569[39m  ·     444567  ·           [90m14[39m  ·          [32m[90m-[32m[39m  │
 ·············|·······························|·············|·············|·············|···············|··············
-|  [90mRegistry[39m  ·  updateCollectionDescription  ·          -  ·          -  ·      39257  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistry[39m  ·  updateCollectionDescription  ·          -  ·          -  ·      39235  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·············|·······························|·············|·············|·············|···············|··············
-|  [90mRegistry[39m  ·  updateCollectionMinters      ·          -  ·          -  ·      81220  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
+|  [90mRegistry[39m  ·  updateCollectionMinters      ·          -  ·          -  ·      81198  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·············|·······························|·············|·············|·············|···············|··············
 |  [90mRegistry[39m  ·  updateCollectionRoyalties    ·          -  ·          -  ·      54123  ·            [90m2[39m  ·          [32m[90m-[32m[39m  │
 ·············|·······························|·············|·············|·············|···············|··············
@@ -120,9 +120,9 @@ Compiled 2 Solidity files successfully
 ·············|·······························|·············|·············|·············|···············|··············
 |  [32m[1mDeployments[22m[39m                               ·                                         ·  [1m% of limit[22m   ·             │
 ·············································|·············|·············|·············|···············|··············
-|  Exchange                                  ·          -  ·          -  ·    1809774  ·          [90m6 %[39m  ·          [32m[90m-[32m[39m  │
+|  Exchange                                  ·          -  ·          -  ·    1809786  ·          [90m6 %[39m  ·          [32m[90m-[32m[39m  │
 ·············································|·············|·············|·············|···············|··············
-|  Registry                                  ·          -  ·          -  ·    2905673  ·        [90m9.7 %[39m  ·          [32m[90m-[32m[39m  │
+|  Registry                                  ·          -  ·          -  ·    2911778  ·        [90m9.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·············································|·············|·············|·············|···············|··············
 |  Token                                     ·          -  ·          -  ·     524265  ·        [90m1.7 %[39m  ·          [32m[90m-[32m[39m  │
 ·--------------------------------------------|-------------|-------------|-------------|---------------|-------------·

@@ -67,7 +67,7 @@ interface RegistryInterface {
     function updateCollectionDescription(Id collectionId, string memory description) external;
     function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
     function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external;
-    function burnCollectionToken(Id collectionId, Id tokenId) external;
+    function burnCollectionToken(Id tokenId) external;
     function burnFuses(Id collectionId, Fuse fuses) external;
 
     function register(bytes32 hash, address msgSender) external returns (bytes memory output);
@@ -346,10 +346,11 @@ contract Registry is RegistryInterface, Utilities {
     }
 
 
-    // TODO: Wrong below
-    // TODO: May remove collectionId, as this can be derived from tokenId
-    /// @dev Lock {collectionId}. Can only be executed by collection owner
-    function burnCollectionToken(Id collectionId, Id tokenId) external {
+    // TODO: Test
+    /// @dev Burn token `tokenId`. Can only be executed by collection owner
+    function burnCollectionToken(Id tokenId) external {
+        bytes32 hash = hashes[Id.unwrap(tokenId)];
+        Id collectionId = data[hash].collectionId;
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
@@ -357,18 +358,13 @@ contract Registry is RegistryInterface, Utilities {
         if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
             revert FuseAlreadyBurnt();
         }
-        bytes32 hash = hashes[Id.unwrap(tokenId)];
         address from = data[hash].owner;
-        // // TODO
-        // if (Id.unwrap(collectionId) != Id.unwrap(data[hash].collectionId)) {
-        //     revert NotCollectionOwner();
-        // }
         data[hash].owner = address(0x0);
         emit Transfer(from, address(0x0), tokenId, Unixtime.wrap(uint64(block.timestamp)));
     }
 
 
-    /// @dev Burn fuses for {collectionId}. Can only be executed by collection owner
+    /// @dev Burn fuses for `collectionId`. Can only be executed by collection owner
     function burnFuses(Id collectionId, Fuse fuses) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
@@ -382,6 +378,8 @@ contract Registry is RegistryInterface, Utilities {
     }
 
 
+    // TODO: Test
+    /// @dev Transfer ownership of collection `collectionId`. Can only be executed by collection owner
     function transferCollectionOwnership(Id collectionId, address newOwner) external {
         Collection storage c = collectionData[receivers[Id.unwrap(collectionId)]];
         if (c.owner != msg.sender) {
