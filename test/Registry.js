@@ -320,7 +320,7 @@ describe("Registry", function () {
       await printState(data, "End");
     });
 
-    it.skip("Exchange - Collection Offer & Collection Buy #1", async function () {
+    it("Exchange - Collection Offer & Collection Buy #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
@@ -337,14 +337,7 @@ describe("Registry", function () {
 
       const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
-      // const FUSE_OWNER_CAN_UPDATE_DESCRIPTION = 0x01; // DESCRIPT DESCR
-      // const FUSE_OWNER_CAN_UPDATE_ROYALTIES = 0x02; // ROYALTIES ROYAL
-      // const FUSE_OWNER_CAN_BURN_USER_ITEM = 0x04; // OWNERBURN OBURN
-      // const FUSE_OWNER_CAN_MINT_ITEM = 0x08; // OWNERMINT OMINT
-      // const FUSE_MINTER_LIST_CAN_MINT_ITEM = 0x10; // MINTLIST MLIST
-      // const FUSE_ANY_USER_CAN_MINT_ITEM = 0x20; // ANY AUSER
-
-      const fuses = FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
+      const fuses = FUSE_ANY_USER_CAN_MINT_ITEM | FUSE_OWNER_CAN_UPDATE_DESCRIPTION | FUSE_OWNER_CAN_UPDATE_ROYALTIES | FUSE_OWNER_CAN_BURN_USER_ITEM;
 
       const tx5 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", fuses, royalties);
       await printTx(data, "tx5", await tx5.wait());
@@ -381,7 +374,7 @@ describe("Registry", function () {
       await printState(data, "End");
     });
 
-    it.skip("Exchange - Collection Bid & Collection Sell #1", async function () {
+    it.only("Exchange - Collection Bid & Collection Sell #1", async function () {
       const data = await loadFixture(deployFixture);
 
       addHash("", data, "user0string0");
@@ -398,7 +391,7 @@ describe("Registry", function () {
 
       const royalties = [ [ data.royalty0.address, "10" ], [ data.royalty1.address, "20" ], [ data.royalty2.address, "30" ] ];
 
-      const tx5 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", 0, royalties);
+      const tx5 = await data.registry.connect(data.user0).newCollection("Collection Name #1", "Collection #1", FUSE_ANY_USER_CAN_MINT_ITEM, royalties);
       await printTx(data, "tx5", await tx5.wait());
 
       const receiver1 = await data.registry.getReceiver(1);
@@ -459,7 +452,7 @@ describe("Registry", function () {
   });
 
 
-  it.only("Collection Fuses #1", async function () {
+  it.skip("Collection Fuses #1", async function () {
     const data = await loadFixture(deployFixture);
 
     addHash("", data, "user0string0");

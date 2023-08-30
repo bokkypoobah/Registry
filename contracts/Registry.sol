@@ -1,7 +1,7 @@
 pragma solidity ^0.8.19;
 
 // ----------------------------------------------------------------------------
-// Registry v0.8.9d-testing
+// Registry v0.9.0a-testing
 //
 // Deployed to Sepolia
 // - Registry
@@ -63,7 +63,7 @@ interface RegistryInterface {
         Unixtime created;
     }
 
-    function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId);
+    function newCollection(string calldata name, string calldata description, Fuse fuses, Royalty[] memory royalties) external returns (Id _collectionId);
     function updateCollectionDescription(Id collectionId, string memory description) external;
     function updateCollectionRoyalties(Id collectionId, Royalty[] memory royalties) external;
     function updateCollectionMinters(Id collectionId, Minter[] calldata minters) external;
@@ -238,9 +238,9 @@ contract Registry is RegistryInterface, Utilities {
         _newCollection("", "", address(0), FUSE_ANY_USER_CAN_MINT_ITEM, new Royalty[](0));
     }
 
-    function _newCollection(string memory name, string memory description, address owner, Fuse fuse, Royalty[] memory royalties) internal returns (Id _collectionId) {
+    function _newCollection(string memory name, string memory description, address owner, Fuse fuses, Royalty[] memory royalties) internal returns (Id _collectionId) {
         Receiver receiver = new Receiver();
-        collectionData[receiver] = Collection(name, description, owner, receiver, fuse, Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
+        collectionData[receiver] = Collection(name, description, owner, receiver, fuses, Id.wrap(uint64(receivers.length)), Counter.wrap(0), Unixtime.wrap(uint64(block.timestamp)));
         receivers.push(receiver);
         _collectionId = Id.wrap(uint64(receivers.length - 1));
         if (royalties.length >= MAX_ROYALTY_RECORDS) {
@@ -264,29 +264,25 @@ contract Registry is RegistryInterface, Utilities {
     function _isFuseAlreadyBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
         return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
     }
-    // function _burnFuse(Fuse fuses, Fuse fuse) internal pure returns (bool) {
-    //     return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
-    // }
 
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
-    function newCollection(string calldata name, string calldata description, Fuse fuse, Royalty[] memory royalties) external returns (Id _collectionId) {
+    function newCollection(string calldata name, string calldata description, Fuse fuses, Royalty[] memory royalties) external returns (Id _collectionId) {
         if (!_isValidName(name)) {
             revert InvalidCollectionName();
         }
         if (!_isValidDescription(name)) {
             revert InvalidCollectionDescription();
         }
-        // TODO
-        // if ((lock & FUSE_USER_MINT_ITEM == FUSE_USER_MINT_ITEM) || (lock & FUSE_COLLECTION == FUSE_COLLECTION)) {
-        //     revert InvalidFuses();
-        // }
+        if (!_isFuseSet(fuses, FUSE_ANY_USER_CAN_MINT_ITEM) && !_isFuseSet(fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM) && !_isFuseSet(fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
+            revert InvalidFuses();
+        }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
         if (collectionNameCheck[nameHash]) {
             revert DuplicateCollectionName();
         }
         collectionNameCheck[nameHash] = true;
-        return _newCollection(name, description, address(msg.sender), fuse, royalties);
+        return _newCollection(name, description, address(msg.sender), fuses, royalties);
     }
 
     /// @dev Set description for {collectionId}. Can only be executed by collection owner
@@ -304,7 +300,7 @@ contract Registry is RegistryInterface, Utilities {
         emit CollectionDescriptionUpdated(collectionId, description, Unixtime.wrap(uint64(block.timestamp)));
     }
 
-    // TODO: Have a time delayed setting of Royalties
+    // TODO: Have a time delayed setting of Royalties?
     /// @dev Set `royalties` for {collectionId}. Can only be executed by collection owner
     /// @param collectionId Collection Id
     /// @param royalties Royalties
