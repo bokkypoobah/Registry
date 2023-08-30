@@ -137,7 +137,9 @@ contract Exchange is Owned {
         feeAccount = msg.sender;
     }
 
-    function _doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
+    // TODO: Delete, after testing alternative below
+    // Using transferFrom(buyer, *)
+    function _doTransfersOld(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
         RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
         uint remaining = Price.unwrap(price);
         for (uint i = 0; i < royalties.length; i = onePlus(i)) {
@@ -157,6 +159,31 @@ contract Exchange is Owned {
             remaining -= amount;
         }
         weth.transferFrom(buyer, seller, remaining);
+        registry.transfer(buyer, tokenId);
+    }
+
+    // Using transfer(buyer, this), then transfer(this, *)
+    function _doTransfers(address buyer, address seller, Id tokenId, Id collectionId, Price price, address uiFeeAccount) internal {
+        RegistryInterface.Royalty[] memory royalties = registry.getRoyalties(collectionId);
+        uint remaining = Price.unwrap(price);
+        weth.transferFrom(buyer, address(this), remaining);
+        for (uint i = 0; i < royalties.length; i = onePlus(i)) {
+            RegistryInterface.Royalty memory royalty = royalties[i];
+            uint amount = BasisPoint.unwrap(royalty.royalty) * Price.unwrap(price) / 10_000;
+            weth.transfer(royalty.account, amount);
+            remaining -= amount;
+        }
+        if (uiFeeAccount != address(0)) {
+            uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 20_000;
+            weth.transfer(feeAccount, amount);
+            weth.transfer(uiFeeAccount, amount);
+            remaining -= 2 * amount;
+        } else {
+            uint amount = BasisPoint.unwrap(fee) * Price.unwrap(price) / 10_000;
+            weth.transfer(feeAccount, amount);
+            remaining -= amount;
+        }
+        weth.transfer(seller, remaining);
         registry.transfer(buyer, tokenId);
     }
 
