@@ -151,11 +151,11 @@ contract Utilities {
     bytes1 private constant SPACE = 0x20;
     bytes1 private constant TILDE = 0x7e;
 
-    /// @dev Is name valid? Length between 1 and `MAX_NAME_LENGTH`. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
-    /// @param str Name to check
+    /// @dev Is name valid? Length between 1 and {MAX_NAME_LENGTH}. Characters between SPACE and TILDE inclusive. No leading, trailing or repeating SPACEs
+    /// @param name Name to check
     /// @return True if valid
-    function _isValidName(string memory str) internal pure returns (bool) {
-        bytes memory b = bytes(str);
+    function _isValidName(string memory name) internal pure returns (bool) {
+        bytes memory b = bytes(name);
         if (b.length < 1 || b.length > MAX_NAME_LENGTH) {
             return false;
         }
@@ -176,11 +176,11 @@ contract Utilities {
         return true;
     }
 
-    /// @dev Is description valid? Length between 0 and `MAX_DESCRIPTION_LENGTH`. No leading or trailing SPACEs
-    /// @param str Description to check
+    /// @dev Is `description` valid? Length between 0 and {MAX_DESCRIPTION_LENGTH}. No leading or trailing SPACEs
+    /// @param description Description to check
     /// @return True if valid
-    function _isValidDescription(string memory str) internal pure returns (bool) {
-        bytes memory b = bytes(str);
+    function _isValidDescription(string memory description) internal pure returns (bool) {
+        bytes memory b = bytes(description);
         if (b.length > MAX_DESCRIPTION_LENGTH) {
             return false;
         }
@@ -188,6 +188,10 @@ contract Utilities {
             return false;
         }
         return true;
+    }
+
+    function _isSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
+        return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
     }
 }
 
@@ -258,13 +262,6 @@ contract Registry is RegistryInterface, Utilities {
         emit CollectionRoyaltiesUpdated(_collectionId, royalties, Unixtime.wrap(uint64(block.timestamp)));
     }
 
-    function _isFuseSet(Fuse fuses, Fuse fuse) internal pure returns (bool) {
-        return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) == Fuse.unwrap(fuse);
-    }
-    function _isFuseAlreadyBurnt(Fuse fuses, Fuse fuse) internal pure returns (bool) {
-        return (Fuse.unwrap(fuses) & Fuse.unwrap(fuse)) != Fuse.unwrap(fuse);
-    }
-
     /// @dev Only {receiver} can register `hash` on behalf of `msgSender`
     /// @return _collectionId New collection id
     function newCollection(string calldata name, string calldata description, Fuse fuses, Royalty[] memory royalties) external returns (Id _collectionId) {
@@ -274,7 +271,7 @@ contract Registry is RegistryInterface, Utilities {
         if (!_isValidDescription(name)) {
             revert InvalidCollectionDescription();
         }
-        if (!_isFuseSet(fuses, FUSE_ANY_USER_CAN_MINT_ITEM) && !_isFuseSet(fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM) && !_isFuseSet(fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
+        if (!_isSet(fuses, FUSE_ANY_USER_CAN_MINT_ITEM) && !_isSet(fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM) && !_isSet(fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
             revert InvalidFuses();
         }
         bytes32 nameHash = keccak256(abi.encodePacked(name));
@@ -293,7 +290,7 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
         }
-        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
+        if (!_isSet(c.fuses, FUSE_OWNER_CAN_UPDATE_DESCRIPTION)) {
             revert FuseAlreadyBurnt();
         }
         c.description = description;
@@ -312,7 +309,7 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
         }
-        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
+        if (!_isSet(c.fuses, FUSE_OWNER_CAN_UPDATE_ROYALTIES)) {
             revert FuseAlreadyBurnt();
         }
         if (_royalties[collectionId].length > 0) {
@@ -351,7 +348,7 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
         }
-        if (!_isFuseSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
+        if (!_isSet(c.fuses, FUSE_OWNER_CAN_BURN_USER_ITEM)) {
             revert FuseAlreadyBurnt();
         }
         address from = data[hash].owner;
@@ -366,7 +363,7 @@ contract Registry is RegistryInterface, Utilities {
         if (c.owner != msg.sender) {
             revert NotCollectionOwner(collectionId, c.owner);
         }
-        if (!_isFuseSet(c.fuses, fuses)) {
+        if (!_isSet(c.fuses, fuses)) {
             revert FuseAlreadyBurnt();
         }
         c.fuses = Fuse.wrap(Fuse.unwrap(c.fuses) & ~Fuse.unwrap(fuses));
@@ -396,14 +393,14 @@ contract Registry is RegistryInterface, Utilities {
         if (Id.unwrap(c.collectionId) > 0) {
             hash = keccak256(abi.encodePacked(c.name, hash));
             bool ok;
-            if (_isFuseSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
+            if (_isSet(c.fuses, FUSE_ANY_USER_CAN_MINT_ITEM)) {
                 ok = true;
-            } else if (_isFuseSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
+            } else if (_isSet(c.fuses, FUSE_MINTER_LIST_CAN_MINT_ITEM)) {
                 if (collectionMinters[c.collectionId][msgSender] > 0) {
                     collectionMinters[c.collectionId][msgSender]--;
                     ok = true;
                 }
-            } else if (c.owner == msgSender && _isFuseSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
+            } else if (c.owner == msgSender && _isSet(c.fuses, FUSE_OWNER_CAN_MINT_ITEM)) {
                 ok = true;
             }
             if (!ok) {
